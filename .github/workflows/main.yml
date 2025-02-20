@@ -1,38 +1,63 @@
-name: Publish APP to Testserver Cpanel
-
+name: Deploy Django App to cPanel
+ 
 on:
   push:
     branches:
       - main
-
+ 
 jobs:
-  web-deploy:
-    name: 🎉 Deploy
+  deploy:
+    name: 🎉 Deploy Django App
     runs-on: ubuntu-latest
+ 
     steps:
-      - name: 🚚 Get latest code
-        uses: actions/checkout@v2
-
-      - name: Use Node.js 14
-        uses: actions/setup-node@v2
+      - name: 🚚 Checkout Repository
+        uses: actions/checkout@v4
+ 
+      - name: 🐍 Set Up Python
+        uses: actions/setup-python@v4
         with:
-          node-version: '14'
-          
-      - name: Install Dependencies
-        run: npm install
-
-      - name: 🔨 Build Project
-        run: CI=false npm run build
-       
-      - name: 📂 Sync files
+          python-version: '3.10'
+ 
+      - name: 📦 Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+ 
+      - name: 🔨 Collect Static Files
+        env:
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+        run: |
+          python manage.py collectstatic --noinput
+ 
+      - name: 📂 Upload Files to cPanel via FTP
         uses: SamKirkland/FTP-Deploy-Action@4.3.2
         with:
+          # server: ${{ secrets.FTP_SERVER }}
+          # username: ${{ secrets.FTP_USERNAME }}
+          # password: ${{ secrets.FTP_PASSWORD }}
           server: ftp.marketsquareng.website
           username: backend@wajeloyalityapi.marketsquareng.website
           password: $h~nc3iiBGza
           protocol: ftp
           port: 21
-          local-dir: dist/
-          dry-run: false
-        
+          local-dir: ./
+          server-dir: /public_html/
+ 
+      - name: 🚀 Run Migrations
+        env:
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+        run: |
+          python manage.py migrate
+
 
