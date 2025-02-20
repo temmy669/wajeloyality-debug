@@ -1,0 +1,5 @@
+Requirement already satisfied: Django in /home/waje_env/lib/python3.6/site-packages (3.2.9)
+Requirement already satisfied: sqlparse>=0.2.2 in /home/waje_env/lib/python3.6/site-packages (from Django) (0.4.2)
+Requirement already satisfied: pytz in /home/waje_env/lib/python3.6/site-packages (from Django) (2021.3)
+Requirement already satisfied: asgiref<4,>=3.3.2 in /home/waje_env/lib/python3.6/site-packages (from Django) (3.4.1)
+Requirement already satisfied: typing-extensions in /home/waje_env/lib/python3.6/site-packages (from asgiref<4,>=3.3.2->Django) (4.0.0)

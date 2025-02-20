@@ -1,0 +1,22 @@
+feb 20 2018
+>>Added a new field called businsess name to the merchant model.
+>>Modify the service ID to be an auto generated value when creating a new merchant. 
+>>Modify the rate field in the merchant table to have a default value of 1
+>>Adding the servicetype as part of sign up process
+>>Addition of country in merchant table
+>>Auto generate services in loyalty exchange 
+>>Database constrainst implementation
+
+
+March 03
+>> Fixed the redemption logic to accept custID to custID_id and merchID =merchID_id
+>>Remove the businessdescriptionfield in merchantsetup API 
+>> proctected the follwing urls 
+1) editmerchant/,editcustomer/,listmerchants/,listmerchantloyaltyrule,listsalesummary/
+,listloyaltysummary/,listcustomerspoint/,merchantsetting/,createcampaigntemplate/,createcampaign,
+listcampaign/,listcampaigntemplate/,editcampaign/
+
+>>included busninessname as part of the merchant details
+>>fix the bugs with merchant account activation 
+>>fix bug with the redemption transaction at customer.py
+>> fix bug with the transaction amount at redemption
