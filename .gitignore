@@ -1,0 +1,29 @@
+ Ignore Python bytecode files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.zip
+settings.py
+settings.py.save
+settings.pyy
+db.sqlite3
+db.sqlite3-journal
+media
+
+
+# Virtual environment folders
+.env/
+.venv/
+env/
+venv/
+.virtualenv/
+.env
+
+#dir
+campaigntemplates/
+crmlog/
+log_systemlogs/
+merchantlogo/
+voucherpdf/
+
