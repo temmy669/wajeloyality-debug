@@ -202,10 +202,10 @@ class redeemMerchantGiftCardView(APIView):
                         emailaddress = record['recipient_email']
                         subject = 'Gift Card Transaction'
                         template_name = 'voucher_transaction.html'
+                        others = request.data['amount']
                         merchantname = merchant.objects.filter(id=request.data['merchID']).values('businessname', 'businesslogo').first()
                         notify.emailNotificationRedeemGiftcard(firstname,randomnumber,emailaddress,subject,template_name,merchantname,currentvalue,transactionvalue)
-                        notify = emailNotification(
-                            firstname, randomnumber, emailaddress, subject, template_name, others, merchantname)
+                        notify = htmltopdf(firstname, randomnumber, emailaddress, subject, template_name, others, merchantname)
                     else:
                         responseData ={'message':'Insufficent amount','status':'False'}
                         return HttpResponse(json.dumps(responseData), content_type="application/json")
