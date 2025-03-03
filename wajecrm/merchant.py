@@ -76,7 +76,7 @@ class merchantView(APIView):
     def get(self,request, format=None):
         status=request.GET.get('status')
         queryset = merchant.objects.all()
-        merchantrecord = queryset.filter(active=status).values('id','serviceID','merchantphonenumber', 'businessaddress','merchantemailaddress','active','contactpersonfirstname','contactpersonlastname','businesslogo')
+        merchantrecord = queryset.filter(active=status).values('id','serviceID','merchantphonenumber', 'businessaddress','merchantemailaddress','active','contactpersonfirstname','contactpersonlastname','businesslogo', 'settingsactivated', 'themecolor')
         return JsonResponse({'data': list(merchantrecord),'status':'True'})
         
 class merchantManagerView(APIView):
@@ -471,7 +471,7 @@ def covertJsonString(responseData):
             del responseData[key]
             return responseData[key]
 
-'''function to check for duplicate email '''
+'''function to check for duplicate email'''
 def duplicateEmails(merchantemailaddress):
     logger=get_logger('merchant record')
     email = merchant.objects.filter(merchantemailaddress=merchantemailaddress)

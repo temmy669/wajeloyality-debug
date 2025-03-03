@@ -9,6 +9,7 @@ django-cors-headers==4.7.0
 django-safedelete==1.4.0
 djangorestframework==3.15.2
 djangorestframework_simplejwt==5.4.0
+drf-yasg==1.21.9
 et_xmlfile==2.0.0
 execnet==2.1.1
 idna==3.10
@@ -26,6 +27,7 @@ PyMySQL==1.1.1
 pytest==8.3.4
 pytest-shutil==1.8.1
 python-dateutil==2.9.0.post0
+python-decouple==3.8
 pytz==2025.1
 requests==2.32.3
 six==1.17.0
@@ -36,3 +38,4 @@ tzlocal==5.3
 urllib3==2.3.0
 xmltodict==0.14.2
 zope.interface==7.2
+

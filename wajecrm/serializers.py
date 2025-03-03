@@ -87,3 +87,9 @@ class planSerializer(serializers.ModelSerializer):
         """Meta class to map serializer's fields with the model fields."""
         model = plan
         fields = ('id','initial_minimum_user','price', 'subsequent_minimum','number_of_days','billing_interval','created_at')
+
+
+class AccountantDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AccountantData
+        fields = ('customer','amount','cardName', 'dateConfirmed')

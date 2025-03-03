@@ -35,7 +35,7 @@ SECRET_KEY = '$)qsyduv4a!ft%7xwjcw4-iodc$_#uu4%ssps)0l=vg@ic(y5r'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['199.192.28.167','wajeloyality.website']
+ALLOWED_HOSTS = ['199.192.28.167','wajeloyality.website', 'localhost', '127.0.0.1']
 
 SETTINGS_PATH = settings.BASE_DIR
 
@@ -53,7 +53,8 @@ INSTALLED_APPS = [
     'safedelete',
     'wajecrm.apps.WajecrmConfig',
     'corsheaders',
-    'django.contrib.humanize'
+    'django.contrib.humanize',
+    'drf_yasg'
 ]
 
 MIDDLEWARE = [
@@ -107,7 +108,25 @@ DATABASE_ROUTERS = ['wajecrm.router.WajeRouter']
 DATABASE_APPS_MAPPING = {'mpos0': 'loyalty',
                          'DST': 'midas',
                          }
+
 DATABASES = {
+#     'default': {
+#     'ENGINE': 'mssql',
+#         'NAME': 'ENTDB0',
+#         'USER': 'sa',
+#         'PASSWORD': 'METROPOSPASS1@@',
+#         'HOST': '40.87.89.250',
+#         'PORT': '1433',
+#         'OPTIONS': {
+#             'driver': 'ODBC Driver 17 for SQL Server',
+#             'unicode_results': True,
+#             'host_is_server': True,
+#             'autocommit': True,
+#             'extra_params': 'tds_version=7.3;',
+#             },
+#     }
+# }
+
     'default': {
         'ENGINE': 'django.db.backends.mysql', 
         'NAME': 'wajeloyaltycrmdb',
@@ -134,6 +153,9 @@ DATABASES = {
     }
     
 }
+        
+    
+
 REST_FRAMEWORK = {
 
     'DEFAULT_AUTHENTICATION_CLASSES': (
