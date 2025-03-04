@@ -22,6 +22,8 @@ pandas==2.2.3
 pdfkit==1.0.0
 pillow==11.1.0
 pluggy==1.5.0
+psycopg==3.2.5
+psycopg2==2.9.10
 PyJWT==2.10.1
 PyMySQL==1.1.1
 pytest==8.3.4
