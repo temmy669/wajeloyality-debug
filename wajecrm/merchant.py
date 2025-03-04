@@ -445,7 +445,7 @@ def activate_user_account(request,uidb64=None):
             url = settings.APP_URL
             fullurl="{0}:/activate".format(url)
             responseData ={
-                'message':'You account is now activated',
+                'message':'Your account is now activated',
                 'status':'True'
             }
             #return HttpResponse(json.dumps(responseData), content_type="application/json")
