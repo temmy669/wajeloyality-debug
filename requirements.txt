@@ -39,6 +39,7 @@ termcolor==2.5.0
 tzdata==2025.1
 tzlocal==5.3
 urllib3==2.3.0
+whitenoise==6.9.0
 xmltodict==0.14.2
 zope.interface==7.2
 
