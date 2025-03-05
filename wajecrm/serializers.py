@@ -92,4 +92,4 @@ class planSerializer(serializers.ModelSerializer):
 class AccountantDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = AccountantData
-        fields = ('customer','amount','cardName', 'dateConfirmed')
+        fields = ('customer','amount','cardName', 'dateConfirmed', 'confirmationCode')
