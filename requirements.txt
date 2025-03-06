@@ -6,7 +6,7 @@ colorama==0.4.6
 DateTime==5.5
 Django==4.2.19
 django-cors-headers==4.7.0
-django-excel==
+django-excel==0.0.10
 django-safedelete==1.4.0
 djangorestframework==3.15.2
 djangorestframework_simplejwt==5.4.0
@@ -26,6 +26,9 @@ pillow==11.1.0
 pluggy==1.5.0
 psycopg==3.2.5
 psycopg2==2.9.10
+pyexcel==0.7.1
+pyexcel-io==0.6.7
+pyexcel-webio==0.1.4
 PyJWT==2.10.1
 PyMySQL==1.1.1
 pytest==8.3.4
