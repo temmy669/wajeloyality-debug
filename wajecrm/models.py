@@ -185,7 +185,7 @@ class giftcardtransaction(models.Model):
 import uuid
 from django.utils import timezone
 class AccountantData(models.Model):
-    amount = models.DecimalField(max_digits=16, decimal_places=6)  
+    amount = models.DecimalField(max_digits=16, decimal_places=2)  
     cardName = models.CharField(max_length=200) 
     confirmationCode = models.CharField(max_length=20, unique=True)  
     transactionRef = models.CharField(max_length=255, unique=True)  

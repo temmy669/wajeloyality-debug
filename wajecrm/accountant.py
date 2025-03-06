@@ -14,9 +14,9 @@ class VerifyTransactionAPIView(APIView):
         if serializer.is_valid():
             accountant_data = serializer.save()
             return Response({
-                "message": "Transaction verified and recorded."
-            }, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                "message": "Transaction verified and recorded.",
+                "status": True}, status=status.HTTP_201_CREATED)
+        return Response({"status":False, "message":serializer.errors }, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request):
         """Retrieve a transaction by ID or return all transactions if no ID is provided."""
@@ -26,8 +26,8 @@ class VerifyTransactionAPIView(APIView):
             transaction = AccountantData.objects.filter(id=transaction_id).first()
             if transaction:
                 serializer = AccountantDataSerializer(transaction)
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response({"error": "Transaction not found."}, status=status.HTTP_404_NOT_FOUND)
+                return Response({"status": True, "message":serializer.data}, status=status.HTTP_200_OK)
+            return Response({"error": "Transaction not found.", "status":True}, status=status.HTTP_404_NOT_FOUND)
 
         transactions = AccountantData.objects.all()
         serializer = AccountantDataSerializer(transactions, many=True)
