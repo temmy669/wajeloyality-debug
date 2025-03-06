@@ -87,11 +87,12 @@ class user(models.Model):
     username= models.CharField(max_length=45)
     name= models.CharField(max_length=45,null=True)
     userpassword= models.CharField(max_length=255,null=True)
-    role= models.CharField(max_length=255,null=True)
+    role= models.CharField(Role, max_length=255,null=True)
     branchID = models.ForeignKey(branch, on_delete=models.CASCADE)
     merchID = models.ForeignKey(merchant, on_delete=models.CASCADE)
     createddate = models.DateField('createddate',auto_now_add=True)
     updateddate = models.DateField('updateddate',null=True)
+
 class loyaltyrule(models.Model):
     loyaltyrule= models.CharField(max_length=45)
     rewardpoint = models.CharField(max_length=45,null=True)
