@@ -26,11 +26,15 @@ import openpyxl
 import pandas as pd
 from collections import OrderedDict
 from django.conf import settings
-from .permissions import GiftCardPermission
+from .permissions import (
+    IsAdmin, IsAccountant, IsAuditor)
 
 
 
-class deactivateGiftCard(APIView):   
+class deactivateGiftCard(APIView):
+
+    permission_classes = [IsAdmin] 
+
     def post(self, request, format=None):     
         giftcardid=request.data['giftcardid']
         to_reactivate=request.data.get('reactivate', False)
@@ -49,7 +53,8 @@ class deactivateGiftCard(APIView):
 
 class MerchantGiftCardView(APIView):   
     """ Function to create gift card of a merchants  """
-    permission_classes = (giftCardPermission,)
+    
+    permission_classes = [IsAdmin, IsAuditor, IsAccountant]
 
     def post(self, request, format=None):     
         """Save the post data when creating a new merchant."""       
@@ -96,6 +101,7 @@ class MerchantGiftCardView(APIView):
         return HttpResponse(json.dumps(responseData), content_type="application/json")
 
 class MerchantCustomerGiftcardVerificationView(APIView):
+      permission_classes = [IsAdmin]
       def get(self, request, format=None):     
           """Save the post data when creating a new merchant.""" 
           serviceid = request.GET.get('serviceid')
