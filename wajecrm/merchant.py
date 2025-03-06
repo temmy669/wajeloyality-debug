@@ -30,12 +30,22 @@ import json
 from django.core.files.base import ContentFile
 from rest_framework.permissions import IsAuthenticated
 from django.views import View
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from django.utils import timezone
 import datetime
 from .notification import Notification, htmltopdf
 
 # Create your views here.
 # View to create a merchant and save in the database.
+
+class ListCreateRoleView(ListCreateAPIView):
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+
+class UpdateRoleView(ListCreateAPIView):
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+
 class merchantView(APIView):
     #permission_classes = (IsAuthenticated,)
     def post(self,request, format=None):
