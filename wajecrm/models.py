@@ -11,12 +11,15 @@ from safedelete.models import SafeDeleteModel
 # Create your models here.
 
 class Role(models.Model):
-     class RoleType(models.TextChoices):
-          CUSTOMER='customer'
+    class RoleType(models.TextChoices):
           ADMIN='admin'
           MANAGER='manager'
           ACCOUNTANT='accountant'
           AUDITOR='auditor'
+    name = models.CharField(max_length=100, choices=RoleType, default=RoleType.ADMIN)
+    
+    def __str__(self):
+         return self.name
 
 class merchant(models.Model):
     serviceID =  models.CharField(max_length=255,null=True)
