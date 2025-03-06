@@ -16,6 +16,7 @@ from datetime import timedelta
 from django.conf import settings
 import pymysql
 import os.path
+from decouple import config
 
 
 Temp_Path = os.path.realpath('.')
@@ -25,17 +26,21 @@ Temp_Path = os.path.realpath('.')
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Environment mode
+ENVIRONMENT = config('DJANGO_ENV', default='development')
+
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '$)qsyduv4a!ft%7xwjcw4-iodc$_#uu4%ssps)0l=vg@ic(y5r'
+SECRET_KEY = config('$)qsyduv4a!ft%7xwjcw4-iodc$_#uu4%ssps)0l=vg@ic(y5r', default="secret_key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['199.192.28.167','wajeloyality.website']
+ALLOWED_HOSTS = ['199.192.28.167','wajeloyality.website', 'localhost', '127.0.0.1', 'wajeloyalityapitest.onrender.com']
 
 SETTINGS_PATH = settings.BASE_DIR
 
@@ -53,7 +58,8 @@ INSTALLED_APPS = [
     'safedelete',
     'wajecrm.apps.WajecrmConfig',
     'corsheaders',
-    'django.contrib.humanize'
+    'django.contrib.humanize',
+    'drf_yasg'
 ]
 
 MIDDLEWARE = [
@@ -66,6 +72,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.common.BrokenLinkEmailsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
  ]
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -107,33 +114,36 @@ DATABASE_ROUTERS = ['wajecrm.router.WajeRouter']
 DATABASE_APPS_MAPPING = {'mpos0': 'loyalty',
                          'DST': 'midas',
                          }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql', 
-        'NAME': 'wajeloyaltycrmdb',
-        'USER': 'wajesmart',
-        'PASSWORD': 'Wajesmart@123',
-        'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
-        'PORT': '3306',
-        #Wajesmart@1234'
+        'ENGINE': 'django.db.backends.' + config('DB_ENGINE', default='postgresql'),  # Dynamic engine selection
+        'NAME': config('DB_NAME', default='wajeloyaltycrmdb'),
+        'USER': config('DB_USER', default='your_db_user'),
+        'PASSWORD': config('DB_PASSWORD', default='your_db_password'),
+        'HOST': config('DB_HOST', default='localhost'),
+        'PORT': config('DB_PORT', default='3306'),
     },
-   'loyalty': {
-        'ENGINE': 'sql_server.pyodbc',
-        'NAME': 'ENTDB0',
-        'USER': 'sa',
-        'PASSWORD': 'METROPOSPASS1@@',
-        'HOST': '40.87.89.250',
-        'PORT': '1433',
-        'OPTIONS': {
-            'driver': 'FreeTDS',
-            'unicode_results': True,
-            'host_is_server': True,
-            'autocommit': True,
-            'extra_params': 'tds_version=7.3;',
-            },
-    }
-    
+
 }
+
+if ENVIRONMENT == 'production':
+    DATABASES['loyalty'] = {
+        'ENGINE': 'django.db.backends.' + config('DB_ENGINE', default='mssql'),
+        'NAME': config('DB_NAME', default='prod_database'),
+        'USER': config('DB_USER', default='prod_user'),
+        'PASSWORD': config('DB_PASSWORD', default='prod_password'),
+        'HOST': config('DB_HOST', default='prod_server'),
+        'PORT': config('DB_PORT', default='1433'),
+        'OPTIONS': {'driver': 'ODBC Driver 17 for SQL Server'},
+    }
+
+
+    
+
+        
+    
+
 REST_FRAMEWORK = {
 
     'DEFAULT_AUTHENTICATION_CLASSES': (

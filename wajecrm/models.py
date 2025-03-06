@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from enum import Enum
 
 from datetime import datetime
 #from django.core.exceptions import FieldDoesNotExist 
@@ -9,6 +10,19 @@ from datetime import datetime
 from safedelete.models import SafeDeleteModel
 
 # Create your models here.
+role_choices =(
+     ('admin', 'Admin'), 
+     ('accountant', 'Accountant'),
+     ('auditor', 'Auditor'),
+     ('manager', 'Manager'))
+
+class Role(models.Model):
+    name = models.CharField(max_length=100, 
+                            choices=role_choices, 
+                            default='admin')
+
+    def __str__(self):
+         return self.name
 
 class merchant(models.Model):
     serviceID =  models.CharField(max_length=255,null=True)
@@ -24,7 +38,7 @@ class merchant(models.Model):
     currency = models.CharField(max_length=255,null=True)
     contactpersonlastname = models.CharField(max_length=255,null=True)
     contactpersonphone= models.CharField(max_length=255,null=True)
-    themecolor = models.CharField(max_length=255,null=True)
+    themecolor = models.CharField(max_length=255,default="default")
     themecolorlight = models.CharField(max_length=255,null=True)
     themetextcolor = models.CharField(max_length=255,null=True)
     themetitlecolor = models.CharField(max_length=255,null=True)
@@ -32,7 +46,7 @@ class merchant(models.Model):
     businesslogo = models.ImageField(upload_to="merchantlogo/")
     active = models.BooleanField(default=0)
     rate = models.DecimalField(max_digits=10,decimal_places=2,null=False,default=1)
-    settingsactivated = models.BooleanField(default=0)
+    settingsactivated = models.BooleanField(default=1)
     businessdescription = models.CharField(max_length=255,null=True)
     businessfacebook = models.CharField(max_length=45,null=True)
     businesstwitter = models.CharField(max_length=45,null=True)
@@ -87,11 +101,12 @@ class user(models.Model):
     username= models.CharField(max_length=45)
     name= models.CharField(max_length=45,null=True)
     userpassword= models.CharField(max_length=255,null=True)
-    role= models.CharField(max_length=255,null=True)
+    role= models.ForeignKey(Role, on_delete=models.DO_NOTHING, null=True, blank=True)
     branchID = models.ForeignKey(branch, on_delete=models.CASCADE)
     merchID = models.ForeignKey(merchant, on_delete=models.CASCADE)
     createddate = models.DateField('createddate',auto_now_add=True)
     updateddate = models.DateField('updateddate',null=True)
+
 class loyaltyrule(models.Model):
     loyaltyrule= models.CharField(max_length=45)
     rewardpoint = models.CharField(max_length=45,null=True)
@@ -169,7 +184,7 @@ class giftCard(SafeDeleteModel):
     amount= models.DecimalField(default=0, max_digits=16, decimal_places=6)
     merchID = models.ForeignKey(merchant,on_delete=models.CASCADE,null=True)
     active = models.BooleanField(default=1)
-    deleted = models.DateField('deleted',null=True)
+    # deleted = models.DateField('deleted',null=True)
     expiration_date = models.DateField(auto_now_add=False)
     createddate = models.DateTimeField(auto_now_add=True)
 
@@ -181,7 +196,20 @@ class giftcardtransaction(models.Model):
     reference =models.CharField(null=True,max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
     createdby = models.CharField(null=True, max_length=200)
+    
+import uuid
+from django.utils import timezone
+class AccountantData(models.Model):
+    amount = models.DecimalField(max_digits=16, decimal_places=2)  
+    cardName = models.CharField(max_length=200) 
+    confirmationCode = models.CharField(max_length=20, unique=True)  
+    transactionRef = models.CharField(max_length=255, unique=True)  
+    dateConfirmed = models.DateField(default=timezone.now,null=False)
+    customer = models.CharField(max_length=200, null=False)
+    datePayment = models.DateField(default=timezone.now,null=False)
 
+    def __str__(self):
+        return f"Transaction: {self.transactionRef} - {self.cardName}"
 
 class plan(models.Model):
     initial_minimum_user =models.CharField(null=True,max_length=200)

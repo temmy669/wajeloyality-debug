@@ -1,6 +1,11 @@
 from .models import *
 from rest_framework import generics, permissions, serializers
 
+class RoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Role
+        fields = ('id', 'name')
+        extra_kwargs={'id':{'read_only':True}}
 
 class merchantSerializer(serializers.ModelSerializer):
     """Serializer to map the Model instance into JSON format."""
@@ -8,7 +13,6 @@ class merchantSerializer(serializers.ModelSerializer):
         """Meta class to map serializer's fields with the model fields."""
         model = merchant
         fields = ('serviceID','businessname','businessdescription','country','merchantphonenumber', 'businessaddress','merchantemailaddress','merchantpassword','active','contactpersonfirstname','contactpersonlastname','contactpersonphone','currency','country_state','country_city')
-
 
 class merchantUserSerializer(serializers.ModelSerializer):
     """Serializer to map the Model instance into JSON format."""
@@ -87,3 +91,9 @@ class planSerializer(serializers.ModelSerializer):
         """Meta class to map serializer's fields with the model fields."""
         model = plan
         fields = ('id','initial_minimum_user','price', 'subsequent_minimum','number_of_days','billing_interval','created_at')
+
+
+class AccountantDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AccountantData
+        fields = ('customer','amount','cardName', 'dateConfirmed', 'confirmationCode', 'transactionRef', 'datePayment')

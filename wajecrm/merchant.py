@@ -30,12 +30,22 @@ import json
 from django.core.files.base import ContentFile
 from rest_framework.permissions import IsAuthenticated
 from django.views import View
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from django.utils import timezone
 import datetime
 from .notification import Notification, htmltopdf
 
 # Create your views here.
 # View to create a merchant and save in the database.
+
+class ListCreateRoleView(ListCreateAPIView):
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+
+class UpdateRoleView(ListCreateAPIView):
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+
 class merchantView(APIView):
     #permission_classes = (IsAuthenticated,)
     def post(self,request, format=None):
@@ -76,7 +86,7 @@ class merchantView(APIView):
     def get(self,request, format=None):
         status=request.GET.get('status')
         queryset = merchant.objects.all()
-        merchantrecord = queryset.filter(active=status).values('id','serviceID','merchantphonenumber', 'businessaddress','merchantemailaddress','active','contactpersonfirstname','contactpersonlastname','businesslogo')
+        merchantrecord = queryset.filter(active=status).values('id','serviceID','merchantphonenumber', 'businessaddress','merchantemailaddress','active','contactpersonfirstname','contactpersonlastname','businesslogo', 'settingsactivated', 'themecolor')
         return JsonResponse({'data': list(merchantrecord),'status':'True'})
         
 class merchantManagerView(APIView):
@@ -445,7 +455,7 @@ def activate_user_account(request,uidb64=None):
             url = settings.APP_URL
             fullurl="{0}:/activate".format(url)
             responseData ={
-                'message':'You account is now activated',
+                'message':'Your account is now activated',
                 'status':'True'
             }
             #return HttpResponse(json.dumps(responseData), content_type="application/json")
@@ -471,7 +481,7 @@ def covertJsonString(responseData):
             del responseData[key]
             return responseData[key]
 
-'''function to check for duplicate email '''
+'''function to check for duplicate email'''
 def duplicateEmails(merchantemailaddress):
     logger=get_logger('merchant record')
     email = merchant.objects.filter(merchantemailaddress=merchantemailaddress)
