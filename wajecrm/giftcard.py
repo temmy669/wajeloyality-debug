@@ -204,8 +204,9 @@ class redeemMerchantGiftCardView(APIView):
                         template_name = 'voucher_transaction.html'
                         others = request.data['amount']
                         merchantname = merchant.objects.filter(id=request.data['merchID']).values('businessname', 'businesslogo').first()
-                        notify.emailNotificationRedeemGiftcard(firstname,randomnumber,emailaddress,subject,template_name,merchantname,currentvalue,transactionvalue)
-                        notify = htmltopdf(firstname, randomnumber, emailaddress, subject, template_name, others, merchantname)
+                        notify.emailNotificationRedeemGiftcard(firstname,randomnumber,emailaddress,subject,template_name, others, merchantname,currentvalue,transactionvalue)
+                        notify.emailNotification(
+                            firstname, randomnumber, emailaddress, subject, template_name, others, merchantname)
                     else:
                         responseData ={'message':'Insufficent amount','status':'False'}
                         return HttpResponse(json.dumps(responseData), content_type="application/json")
@@ -325,6 +326,7 @@ class bulkMerchantGiftCardView(APIView):
             amount = item['amount']
             ref=generateReferenceNumber(merchID)
             serialnumber=generateSerialNumber(merchID)
+            cardname=""
             gf = giftCard(serialnumber=serialnumber, cardname=giftcardname, amount=float(
                 amount),merchID_id=merchID, recipient_phone=phonenumber, recipient_email=emailaddress,
                 expiration_date=voucher_date, createdby=createdby)
@@ -335,9 +337,11 @@ class bulkMerchantGiftCardView(APIView):
             gt = giftcardtransaction(
                 giftID_id=finalid, purchaseamount=amount, merchID_id=merchID, reference=ref)
             gt.save()
+            
             htmldata.update({'serialnumber':serialnumber,'cardname':cardname,'amount':float(
                 amount),'recipient_phone':phonenumber,'recipient_email':emailaddress, 'expiration_date':str(voucher_date)})
             #template_name='voucher_details.html'
+        
             merchantname = merchant.objects.filter(id=merchID).values(
                 'businessname', 'businesslogo', 'serviceID').first()
             '''
@@ -389,6 +393,19 @@ def generateReferenceNumber(merchID):
         refnum = giftcardtransaction.objects.filter(reference=x).filter(
             merchID=merchID).values('reference').first()
     return x
+
+from django.shortcuts import render
+from datetime import datetime
+
+def test(request):
+    expiration_date = datetime(2025, 10, 20)  # Define a proper date
+
+    voucher_date = expiration_date.strftime('%Y-%m-%d') if expiration_date else None
+
+    context = {'date': voucher_date}
+
+    return render(request, 'MarketSquareVoucher_details_x20_v3.html', context)
+
 
 
 
