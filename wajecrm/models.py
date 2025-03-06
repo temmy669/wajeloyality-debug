@@ -10,6 +10,13 @@ from safedelete.models import SafeDeleteModel
 
 # Create your models here.
 
+class Role(models.Model):
+     class RoleType(models.TextChoices):
+          CUSTOMER='customer'
+          ADMIN='admin'
+          MANAGER='manager'
+          ACCOUNTANT='accountant'
+
 class merchant(models.Model):
     serviceID =  models.CharField(max_length=255,null=True)
     businessname = models.CharField(max_length=45,null=True)
@@ -92,6 +99,7 @@ class user(models.Model):
     merchID = models.ForeignKey(merchant, on_delete=models.CASCADE)
     createddate = models.DateField('createddate',auto_now_add=True)
     updateddate = models.DateField('updateddate',null=True)
+
 class loyaltyrule(models.Model):
     loyaltyrule= models.CharField(max_length=45)
     rewardpoint = models.CharField(max_length=45,null=True)
