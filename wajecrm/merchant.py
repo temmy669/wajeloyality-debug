@@ -513,12 +513,12 @@ def emailactivation(recipientemail,imgext,request):
     subject = 'Account Activation'
     template_name='acc_active_email.html'
     from_email = settings.DEFAULT_FROM_EMAIL
-    '''context = {
+    context = {
                'user':request.data['firstname'],
                'username':request.data['username'],
                'password':request.data['password']
               }
-    '''  
+    
     kwargs = {"uidb64":urlsafe_base64_encode(force_bytes(recipientemail)).decode()}
     print(kwargs)
     text_content={}
