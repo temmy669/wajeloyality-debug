@@ -1,7 +1,6 @@
 # WAJE LOYALITY API
 
-__version__ = 0.0.2
-__author__ = Waje Smart Solution
+version = 0.0.2
 
 ## Role-based Access Control
 - Role-based Access Control: this feature ensures only user's with the right kind of permission can 
