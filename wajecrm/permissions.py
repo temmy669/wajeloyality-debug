@@ -8,7 +8,7 @@ class VoucherPermission(permissions.BasePermission):
         
     def has_object_permission(self, request, view, obj):
         """Ensure account can only view the Voucher endpoint. """
-        if request.user.role == 'accountant' and \
+        if request.user.role == 'auditor' and \
         request.method not in permissions.SAFE_METHODS:
             return False
         return True

@@ -16,6 +16,7 @@ class Role(models.Model):
           ADMIN='admin'
           MANAGER='manager'
           ACCOUNTANT='accountant'
+          AUDITOR='auditor'
 
 class merchant(models.Model):
     serviceID =  models.CharField(max_length=255,null=True)
@@ -94,7 +95,7 @@ class user(models.Model):
     username= models.CharField(max_length=45)
     name= models.CharField(max_length=45,null=True)
     userpassword= models.CharField(max_length=255,null=True)
-    role= models.CharField(max_length=255,null=True)
+    role= models.ForeignKey(Role, on_delete=models.DO_NOTHING)
     branchID = models.ForeignKey(branch, on_delete=models.CASCADE)
     merchID = models.ForeignKey(merchant, on_delete=models.CASCADE)
     createddate = models.DateField('createddate',auto_now_add=True)
