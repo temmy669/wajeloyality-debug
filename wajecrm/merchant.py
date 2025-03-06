@@ -175,7 +175,7 @@ class merchantLoginView(APIView):
         userset = user.objects.filter(username=username).values(
             'id','username', 'name', 'branchID', 'merchID', 'role')
         if  checkactivemerchant:
-            resultset = queryset.filter(merchantemailaddress=username).filter(active=True).values('id','businessfacebook','serviceID','businessname','merchantphonenumber', 'businessaddress','merchantemailaddress','active','contactpersonfirstname','contactpersonlastname','contactpersonphone','businesslogo','settingsactivated','accountnumber','accountname','bankname','currency','businesstwitter','pointname','themecolor') 
+            resultset = queryset.filter(merchantemailaddress=username, active=True).values('id','businessfacebook','serviceID','businessname','merchantphonenumber', 'businessaddress','merchantemailaddress','active','contactpersonfirstname','contactpersonlastname','contactpersonphone','businesslogo','settingsactivated','accountnumber','accountname','bankname','currency','businesstwitter','pointname','themecolor') 
             if username is not None:           
                 passwordvalue =list(queryset.filter(merchantemailaddress=username).values_list('merchantpassword',flat=True))
                 if  passwordvalue:            
