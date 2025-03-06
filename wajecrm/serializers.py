@@ -5,6 +5,7 @@ class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Role
         fields = ('id', 'name')
+        extra_kwargs={'id':{'read_only':True}}
 
 class merchantSerializer(serializers.ModelSerializer):
     """Serializer to map the Model instance into JSON format."""
