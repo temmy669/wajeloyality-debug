@@ -26,8 +26,7 @@ import openpyxl
 import pandas as pd
 from collections import OrderedDict
 from django.conf import settings
-
-
+from .permissions import GiftCardPermission
 
 
 
@@ -50,6 +49,8 @@ class deactivateGiftCard(APIView):
 
 class MerchantGiftCardView(APIView):   
     """ Function to create gift card of a merchants  """
+    permission_classes = (giftCardPermission,)
+
     def post(self, request, format=None):     
         """Save the post data when creating a new merchant."""       
         count=request.data['count']
