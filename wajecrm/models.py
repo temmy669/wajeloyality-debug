@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from enum import Enum
 
 from datetime import datetime
 #from django.core.exceptions import FieldDoesNotExist 
@@ -9,15 +10,17 @@ from datetime import datetime
 from safedelete.models import SafeDeleteModel
 
 # Create your models here.
+role_choices =(
+     ('admin', 'Admin'), 
+     ('accountant', 'Accountant'),
+     ('auditor', 'Auditor'),
+     ('manager', 'Manager'))
 
 class Role(models.Model):
-    class RoleType(models.TextChoices):
-          ADMIN='admin'
-          MANAGER='manager'
-          ACCOUNTANT='accountant'
-          AUDITOR='auditor'
-    name = models.CharField(max_length=100, choices=RoleType, default=RoleType.ADMIN)
-    
+    name = models.CharField(max_length=100, 
+                            choices=role_choices, 
+                            default='admin')
+
     def __str__(self):
          return self.name
 
@@ -98,7 +101,7 @@ class user(models.Model):
     username= models.CharField(max_length=45)
     name= models.CharField(max_length=45,null=True)
     userpassword= models.CharField(max_length=255,null=True)
-    role= models.ForeignKey(Role, on_delete=models.DO_NOTHING)
+    role= models.ForeignKey(Role, on_delete=models.DO_NOTHING, null=True, blank=True)
     branchID = models.ForeignKey(branch, on_delete=models.CASCADE)
     merchID = models.ForeignKey(merchant, on_delete=models.CASCADE)
     createddate = models.DateField('createddate',auto_now_add=True)
