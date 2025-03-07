@@ -5,6 +5,7 @@ from django.db import models
 from enum import Enum
 
 from datetime import datetime
+from django.utils import timezone
 #from django.core.exceptions import FieldDoesNotExist 
 
 from safedelete.models import SafeDeleteModel
@@ -17,11 +18,6 @@ role_choices =(
      ('manager', 'Manager'))
 
 class Role(models.Model):
-    class RoleType(models.TextChoices):
-         ADMIN='admin'
-         MANAGER='manager'
-         AUDITOR='auditor'
-         ACCOUNTANT='accountant'
     name = models.CharField(max_length=100, 
                             choices=role_choices, 
                             default='admin')
@@ -206,6 +202,9 @@ class giftCard(SafeDeleteModel):
     expiration_date = models.DateField(auto_now_add=False)
     createddate = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.cardname
+    
 class giftcardtransaction(models.Model):
     giftID = models.ForeignKey(giftCard,on_delete=models.CASCADE,null=True)
     redeemedamount= models.DecimalField(default=0, max_digits=16, decimal_places=6)
@@ -215,9 +214,9 @@ class giftcardtransaction(models.Model):
     reference =models.CharField(null=True,max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
     createdby = models.CharField(null=True, max_length=200)
-    
-import uuid
-from django.utils import timezone
+
+    def __str__(self):
+         return self.reference
 
 class AccountantData(models.Model):
     amount = models.DecimalField(max_digits=16, decimal_places=2)  

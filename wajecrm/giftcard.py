@@ -55,12 +55,12 @@ class deactivateGiftCard(APIView):
 class AccountDataView(ListAPIView):
     queryset = AccountantData.objects.all()
     serializer_class = AccountantDataSerializer
-    permission_classes = [IsAccountant, IsAdmin]
+    # permission_classes = [IsAccountant, IsAdmin]
 
 class UpdateAccountantDataView(RetrieveUpdateDestroyAPIView):
     queryset = AccountantData.objects.all()
     serializer_class = AccountantDataSerializer
-    permission_classes = [IsAdmin]
+    # permission_classes = [IsAdmin]
 
 class MerchantGiftCardView(APIView):   
     """ Function to create gift card of a merchants  """
