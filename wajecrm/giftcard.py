@@ -30,7 +30,7 @@ from django.conf import settings
 from .permissions import (
     IsAdmin, IsAccountant, IsAuditor)
 from .serializers import AccountantDataSerializer
-from .filters import GiftCardStatFilter
+from .filters import GiftCardStatFilter, GiftCardFilter
 from .serializers import GiftCardSerializer
 
 
@@ -69,6 +69,7 @@ class AccountDataView(ListAPIView):
     queryset = AccountantData.objects.all()
     serializer_class = AccountantDataSerializer
     permission_classes = [IsAccountant, IsAdmin]
+    filter_class = GiftCardFilter
 
 class UpdateAccountantDataView(RetrieveUpdateDestroyAPIView):
     queryset = AccountantData.objects.all()
