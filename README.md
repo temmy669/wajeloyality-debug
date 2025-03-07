@@ -1,6 +1,6 @@
 # WAJE LOYALITY API
 
-version = 0.0.2
+version = 2.0.0
 
 ## Role-based Access Control
 - Role-based Access Control: this feature ensures only user's with the right kind of permission can 
