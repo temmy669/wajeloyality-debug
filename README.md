@@ -11,3 +11,8 @@ perform certain actions.
 ## Technical API Documentation
 - Replaced drf-yasg with drf-spectacular which is more modern and based on openAPI 3
 - The drf-yasg was not correctly interpreting the api endpoints
+- To make further changes to the existing basic configuration, refer to `https://drf-spectacular.readthedocs.io/en/latest/readme.html`
+- To generate schema, run the command below.
+```
+    python manage.py spectacular --color --file schema.yml
+```
