@@ -88,7 +88,15 @@ class merchantView(APIView):
         queryset = merchant.objects.all()
         merchantrecord = queryset.filter(active=status).values('id','serviceID','merchantphonenumber', 'businessaddress','merchantemailaddress','active','contactpersonfirstname','contactpersonlastname','businesslogo', 'settingsactivated', 'themecolor')
         return JsonResponse({'data': list(merchantrecord),'status':'True'})
-        
+
+class ListCreateMerchantStaffView(ListCreateAPIView):
+    queryset = user.objects.all()
+    serializer_class = merchantUserSerializer
+
+class UpdateMerchantStaffView(RetrieveUpdateDestroyAPIView):
+    queryset = user.objects.all()
+    serializer_class = merchantUserSerializer
+
 class merchantManagerView(APIView):
     #permission_classes = (IsAuthenticated,)
     def post(self,request, format=None):

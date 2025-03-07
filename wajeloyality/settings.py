@@ -59,7 +59,8 @@ INSTALLED_APPS = [
     'wajecrm.apps.WajecrmConfig',
     'corsheaders',
     'django.contrib.humanize',
-    'drf_yasg'
+    # 'drf_yasg'
+    'drf_spectacular'
 ]
 
 MIDDLEWARE = [

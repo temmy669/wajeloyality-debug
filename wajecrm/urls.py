@@ -49,6 +49,8 @@ urlpatterns = {
     re_path(r'^merchant/$', merchantView.as_view()),
     re_path(r'^editmerchant/$', editMerchantRecord.as_view()),
     re_path(r'^merchantcustomer/$', MerchantCustomerView.as_view()),
+    re_path(r'^merchant/staffs', ListCreateMerchantStaffView.as_view()), # new - list merchant users/staff
+    re_path(r'^merchant/staffs/<pk>', UpdateMerchantStaffView.as_view()), # new - edit merchant users/staff
     re_path(r'^merchantmanager/$', merchantManagerView.as_view()),
     path('merchant-manager/<int:pk>/', merchantDeleteManagerView.as_view()),
     re_path(r'^merchantbranch/$', merchantBranchView.as_view()),
