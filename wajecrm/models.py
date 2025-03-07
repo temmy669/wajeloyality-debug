@@ -181,6 +181,7 @@ class giftCard(SafeDeleteModel):
     recipient_phone = models.CharField(null=True,max_length=200)
     recipient_email = models.CharField(null=True,max_length=200)
     createdby = models.CharField(null=True,max_length=200)
+    created_by = models.ForeignKey(user, on_delete=models.SET_NULL)
     amount= models.DecimalField(default=0, max_digits=16, decimal_places=6)
     merchID = models.ForeignKey(merchant,on_delete=models.CASCADE,null=True)
     active = models.BooleanField(default=1)
@@ -193,12 +194,14 @@ class giftcardtransaction(models.Model):
     redeemedamount= models.DecimalField(default=0, max_digits=16, decimal_places=6)
     purchaseamount= models.DecimalField(default=0, max_digits=16, decimal_places=6)
     merchID = models.ForeignKey(merchant,on_delete=models.CASCADE,null=True)
+    branch = models.ForeignKey(branch, on_delete=models.DO_NOTHING)
     reference =models.CharField(null=True,max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
     createdby = models.CharField(null=True, max_length=200)
     
 import uuid
 from django.utils import timezone
+
 class AccountantData(models.Model):
     amount = models.DecimalField(max_digits=16, decimal_places=2)  
     cardName = models.CharField(max_length=200) 
@@ -265,6 +268,7 @@ class pointtable(models.Model):
           app_label = 'mpos0'
 
 class Branch(models.Model):
+    merchant = models.ForeignKey(Merchant)
     BranchCode = models.IntegerField(null=False, primary_key=True, max_length=50)
     BranchNickName =models.CharField(null=True, max_length=50)
     BRANCHID = models.IntegerField(null=False, max_length=50)

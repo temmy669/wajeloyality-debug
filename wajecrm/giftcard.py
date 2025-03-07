@@ -1,11 +1,12 @@
 from django.shortcuts import render
-from .models import giftCard,giftcardtransaction,merchant,attachment
+from .models import giftCard,giftcardtransaction,merchant,attachment, AccountantData
 import random
 import os
 import pdfkit
 from django.http import HttpResponse
 from django.http import JsonResponse
 from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework import status
 from django.http import Http404
 from rest_framework.response import Response
@@ -28,6 +29,7 @@ from collections import OrderedDict
 from django.conf import settings
 from .permissions import (
     IsAdmin, IsAccountant, IsAuditor)
+from .serializers import AccountantDataSerializer
 
 
 
@@ -50,10 +52,13 @@ class deactivateGiftCard(APIView):
         responseData ={'message':f'The giftcard record has been {"re-" if to_reactivate else "de-"}activated sucessfully','status':'True'}
         return HttpResponse(json.dumps(responseData), content_type="application/json")
         
+class AccountDataView(ListAPIView):
+    queryset = AccountantData.objects.all()
+    serializer_class = AccountantDataSerializer
+    permission_classes = [IsAccountant, IsAdmin]
 
 class MerchantGiftCardView(APIView):   
     """ Function to create gift card of a merchants  """
-    
     permission_classes = [IsAdmin, IsAuditor, IsAccountant]
 
     def post(self, request, format=None):     
