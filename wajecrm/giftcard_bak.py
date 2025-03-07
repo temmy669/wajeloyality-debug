@@ -199,13 +199,14 @@ class purchaseMerchantGiftCardView(APIView):
                     randomnumber=giftcardrecord['serialnumber']
                     beneficiary = giftcardrecord['cardname']
                     emailaddress=request.data['emailaddress']
+                    
                     subject='Voucher Details'
                     template_name='voucher_details.html'
                     if merchantname['serviceID'] =='351817683':
                         template_name = 'MarketSquareVoucher_details.html'
                     others=request.data['amount']
                     notify.emailNotification(firstname,randomnumber,emailaddress,subject,template_name,others,merchantname,beneficiary) 
-                    pdfconverter=htmltopdf(firstname,randomnumber,emailaddress,subject,template_name,others,merchantname,beneficiary)  
+                    pdfconverter=htmltopdf(firstname,randomnumber,emailaddress,subject,template_name, others,merchantname,beneficiary)  
                     pdfkit.from_string(pdfconverter, os.path.join(
                         settings.BASE_DIR,"voucherpdf",'voucher_report-%s.pdf' % (code)))
                     at = attachment(

@@ -16,7 +16,7 @@ class VerifyTransactionAPIView(APIView):
             return Response({
                 "message": "Transaction verified and recorded.",
                 "status": True}, status=status.HTTP_201_CREATED)
-        return Response({"status":False, "message":serializer.errors }, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"status":False, "message":serializer.errors})
 
     def get(self, request):
         """Retrieve a transaction by ID or return all transactions if no ID is provided."""

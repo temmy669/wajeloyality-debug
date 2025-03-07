@@ -29,7 +29,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Environment mode
 ENVIRONMENT = config('DJANGO_ENV', default='development')
 
-
+DEFAULT_AUTO_FIELD='django.db.models.BigAutoField'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -59,7 +59,8 @@ INSTALLED_APPS = [
     'wajecrm.apps.WajecrmConfig',
     'corsheaders',
     'django.contrib.humanize',
-    'drf_yasg'
+    # 'drf_yasg'
+    'drf_spectacular'
 ]
 
 MIDDLEWARE = [
@@ -149,10 +150,17 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
-    
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_PAGINATION_CLASS':
     'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 30
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Waje Loyality API',
+    'DESCRIPTION': 'To generate and sale gift cards',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
 
 

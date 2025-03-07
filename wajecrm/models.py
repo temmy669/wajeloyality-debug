@@ -17,6 +17,11 @@ role_choices =(
      ('manager', 'Manager'))
 
 class Role(models.Model):
+    class RoleType(models.TextChoices):
+         ADMIN='admin'
+         MANAGER='manager'
+         AUDITOR='auditor'
+         ACCOUNTANT='accountant'
     name = models.CharField(max_length=100, 
                             choices=role_choices, 
                             default='admin')
@@ -59,6 +64,9 @@ class merchant(models.Model):
     class Meta:
           ordering = ['serviceID']
 
+    def __str__(self):
+         return self.businessname
+
 class branch(models.Model):
     branchcode= models.CharField(max_length=45,null=True)
     branchname= models.CharField(max_length=45,null=True)
@@ -69,6 +77,9 @@ class branch(models.Model):
     merchID = models.ForeignKey(merchant, on_delete=models.CASCADE)
     createddate = models.DateField('createddate',auto_now_add=True)
     updateddate = models.DateField('updateddate',null=True)
+
+    def __str__(self):
+         return self.branchname
 
 class customer(models.Model):
     id = models.AutoField(primary_key=True)
@@ -90,6 +101,9 @@ class customer(models.Model):
     createddate = models.DateField('createddate',auto_now_add=True)
     updateddate = models.DateField('updateddate',null=True)
 
+    def __str__(self):
+         return self.firstname
+
 class attachment(models.Model):
     body= models.CharField(max_length=45)
     name = models.CharField(max_length=45, null=True)
@@ -106,6 +120,9 @@ class user(models.Model):
     merchID = models.ForeignKey(merchant, on_delete=models.CASCADE)
     createddate = models.DateField('createddate',auto_now_add=True)
     updateddate = models.DateField('updateddate',null=True)
+
+    def __str__(self):
+         return self.name
 
 class loyaltyrule(models.Model):
     loyaltyrule= models.CharField(max_length=45)
@@ -181,7 +198,7 @@ class giftCard(SafeDeleteModel):
     recipient_phone = models.CharField(null=True,max_length=200)
     recipient_email = models.CharField(null=True,max_length=200)
     createdby = models.CharField(null=True,max_length=200)
-    created_by = models.ForeignKey(user, on_delete=models.SET_NULL)
+    created_by = models.ForeignKey(user, on_delete=models.SET_NULL, null=True)
     amount= models.DecimalField(default=0, max_digits=16, decimal_places=6)
     merchID = models.ForeignKey(merchant,on_delete=models.CASCADE,null=True)
     active = models.BooleanField(default=1)
@@ -194,7 +211,7 @@ class giftcardtransaction(models.Model):
     redeemedamount= models.DecimalField(default=0, max_digits=16, decimal_places=6)
     purchaseamount= models.DecimalField(default=0, max_digits=16, decimal_places=6)
     merchID = models.ForeignKey(merchant,on_delete=models.CASCADE,null=True)
-    branch = models.ForeignKey(branch, on_delete=models.DO_NOTHING)
+    branch = models.ForeignKey(branch, on_delete=models.DO_NOTHING, blank=True, null=True)
     reference =models.CharField(null=True,max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
     createdby = models.CharField(null=True, max_length=200)
@@ -268,7 +285,6 @@ class pointtable(models.Model):
           app_label = 'mpos0'
 
 class Branch(models.Model):
-    merchant = models.ForeignKey(Merchant)
     BranchCode = models.IntegerField(null=False, primary_key=True, max_length=50)
     BranchNickName =models.CharField(null=True, max_length=50)
     BRANCHID = models.IntegerField(null=False, max_length=50)
