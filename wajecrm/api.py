@@ -296,7 +296,8 @@ class MerchantCustomerGiftcardView(APIView):
                 return HttpResponse(json.dumps(responseData), content_type="application/json")
         responseData ={'message':'Transaction capture','data':ref,'status':True}
         return HttpResponse(json.dumps(responseData), content_type="application/json")
-      
+
+
 class MerchantGiftcard(APIView):
         def post(self, request, format=None):
             """Save the post data when creating a new merchant."""

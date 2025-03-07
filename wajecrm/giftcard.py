@@ -30,11 +30,24 @@ from django.conf import settings
 from .permissions import (
     IsAdmin, IsAccountant, IsAuditor)
 from .serializers import AccountantDataSerializer
+from .filters import GiftCardStatFilter
+from .serializers import GiftCardSerializer
 
 
+class GiftCardView(ListAPIView):
+    queryset = giftCard.objects.all()
+    serializer_class = GiftCardSerializer
+    filter_class = GiftCardStatFilter
 
+    def get_queryset(self):
+        service_id = self.kwargs['merchant_service_id']
+        return self.queryset.filter(merchID__serviceID = service_id)
+
+class UpdateGiftCardView(ListAPIView):
+    queryset = giftCard.objects.all()
+    serializer_class = GiftCardSerializer
+   
 class deactivateGiftCard(APIView):
-
     permission_classes = [IsAdmin] 
 
     def post(self, request, format=None):     
@@ -55,12 +68,12 @@ class deactivateGiftCard(APIView):
 class AccountDataView(ListAPIView):
     queryset = AccountantData.objects.all()
     serializer_class = AccountantDataSerializer
-    # permission_classes = [IsAccountant, IsAdmin]
+    permission_classes = [IsAccountant, IsAdmin]
 
 class UpdateAccountantDataView(RetrieveUpdateDestroyAPIView):
     queryset = AccountantData.objects.all()
     serializer_class = AccountantDataSerializer
-    # permission_classes = [IsAdmin]
+    permission_classes = [IsAdmin, IsAccountant]
 
 class MerchantGiftCardView(APIView):   
     """ Function to create gift card of a merchants  """

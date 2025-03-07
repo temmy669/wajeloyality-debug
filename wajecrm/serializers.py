@@ -109,8 +109,14 @@ class AccountantDataSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         """Add merchant and branch name to the accountant data instance. """
         instance = super().to_representation(obj)
-        print("ACCOUNT DATA:", instance.get('transactionRef', None), obj.transactionRef)
         gc_trans = giftcardtransaction.objects.filter(reference=obj.transactionRef).first()
         instance['merchant'] = gc_trans.merchID.businessname
         instance['branch'] = gc_trans.branch.branchname
         return instance
+    
+class GiftCardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = giftCard
+        fields = "__all__"
+
+    

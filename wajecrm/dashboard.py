@@ -127,7 +127,7 @@ class merchantDashboardView(APIView):
 
 
 class listSaleSummaryView(APIView):
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
 
     def get(self, request, format=None):
         """
@@ -165,9 +165,14 @@ class listLoyaltySummaryView(APIView):
 class listGiftCardSummaryView(APIView):
     #permission_classes =(IsAuthenticated,)
     def get(self, request, format=None):
+
         merchID = request.GET.get('merchID')
-        startdate = formartDate(request.GET.get('startDate'))
-        endate =formartDate(request.GET.get('endDate'))
+        # startdate = formartDate(request.GET.get('startDate'))
+        # endate =formartDate(request.GET.get('endDate'))
+
+        startdate = request.GET.get('startDate')
+        endate = request.GET.get('endDate')
+
         redeemptionhistory = redeemptionHistory(merchID, startdate, endate)
         giftcreated = giftcardCreatedRecord(merchID, startdate, endate)
         statdata = giftCardStat(merchID)

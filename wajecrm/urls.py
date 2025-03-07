@@ -65,6 +65,8 @@ urlpatterns = {
     re_path(r'customerredeempointapi/$', MerchantCustomerRedeemPointsView.as_view()),
     re_path(r'getcustomerpointapi/$', MerchantCustomerPointsView.as_view()),
     re_path(r'merchantgiftcardapi/$', MerchantGiftcard.as_view()),
+    path('giftcard/<merchant_service_id><', GiftCardView.as_view(), name='giftcard'),
+    path('giftcard/<pk>', UpdateGiftCardView.as_view(), name='update-giftcard'),
     re_path(r'redeemgiftcardapi/$', MerchantCustomerGiftcardView.as_view()),
     re_path(r'verifygiftcard/$', MerchantCustomerGiftcardVerificationView.as_view()),
     re_path(r'bulkpurchase/$', bulkPurchaseMerchantGiftCardView.as_view(), name="test"),
