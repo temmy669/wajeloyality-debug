@@ -61,7 +61,7 @@ class merchant(models.Model):
           ordering = ['serviceID']
 
     def __str__(self):
-         return self.businessname
+         return self.pk
 
 class branch(models.Model):
     branchcode= models.CharField(max_length=45,null=True)
@@ -75,7 +75,7 @@ class branch(models.Model):
     updateddate = models.DateField('updateddate',null=True)
 
     def __str__(self):
-         return self.branchname
+         return self.pk
 
 class customer(models.Model):
     id = models.AutoField(primary_key=True)
@@ -211,7 +211,7 @@ class giftcardtransaction(models.Model):
     purchaseamount= models.DecimalField(default=0, max_digits=16, decimal_places=6)
     merchID = models.ForeignKey(merchant,on_delete=models.CASCADE,null=True)
     branch = models.ForeignKey(branch, on_delete=models.DO_NOTHING, blank=True, null=True)
-    reference =models.CharField(null=True,max_length=200)
+    reference =models.CharField(null=True,max_length=200, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     createdby = models.CharField(null=True, max_length=200)
 
