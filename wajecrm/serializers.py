@@ -24,13 +24,11 @@ class merchantUserSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         """Add the merchant details to the user's information. """
         instance = super().to_representation(obj)
-        merchant = merchant.objects.get(pk=instance['merchID'])\
+        merchant_ = merchant.objects.get(pk=instance['merchID'])\
             .values('businessname', 'businesslogo', 'settingsactivated', 'themecolor')
-        instance['merchant'] = merchant
+        instance['merchant'] = merchant_
         return instance
         
-
-
 class branchSerializer(serializers.ModelSerializer):
     """Serializer to map the Model instance into JSON format."""
     class Meta:

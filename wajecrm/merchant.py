@@ -42,7 +42,7 @@ class ListCreateRoleView(ListCreateAPIView):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
 
-class UpdateRoleView(ListCreateAPIView):
+class UpdateRoleView(RetrieveUpdateDestroyAPIView):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
 
@@ -88,9 +88,19 @@ class merchantView(APIView):
         queryset = merchant.objects.all()
         merchantrecord = queryset.filter(active=status).values('id','serviceID','merchantphonenumber', 'businessaddress','merchantemailaddress','active','contactpersonfirstname','contactpersonlastname','businesslogo', 'settingsactivated', 'themecolor')
         return JsonResponse({'data': list(merchantrecord),'status':'True'})
-        
+
+class ListCreateMerchantStaffView(ListCreateAPIView):
+    queryset = user.objects.all()
+    serializer_class = merchantUserSerializer
+
+class UpdateMerchantStaffView(RetrieveUpdateDestroyAPIView):
+    queryset = user.objects.all()
+    serializer_class = merchantUserSerializer
+
 class merchantManagerView(APIView):
-    #permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
+    serializer_class = merchantUserSerializer
+
     def post(self,request, format=None):
         try:       
             """Save the post data when creating a new merchant."""       
@@ -136,7 +146,8 @@ class merchantManagerView(APIView):
         return JsonResponse({'data': dictList,'status':'True'})  
 
 class merchantDeleteManagerView(APIView):  
-
+    serializer_class = merchantUserSerializer
+    
     def post(self, request, pk):
         #return JsonResponse({'test': 'Testing this'})
         merchID=request.GET.get('merchID')

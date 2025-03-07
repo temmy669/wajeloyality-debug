@@ -96,7 +96,17 @@ def testNotification(self):
     return HttpResponse(None)
 
 
-def htmltopdf(firstname, randomnumber, emailaddress, subject, template_name, others, merchantname):
+def htmltopdf(firstname, randomnumber, emailaddress, subject, template_name, expiry, others, merchantname):
+    """Render the html template to a string that can be download as pdf.
+    :firstname: name of customer
+    :randomnumber: randomly generated integers
+    :emailaddress: address of customer
+    :subject: title of card
+    :template_name: the template to be rendered
+    :expirty: expiring date of giftcard
+    :others: None
+    :merchantname: merchat details 
+    """
     subject = subject
     template_name = template_name
     recipientemail = emailaddress.lower()
@@ -110,7 +120,7 @@ def htmltopdf(firstname, randomnumber, emailaddress, subject, template_name, oth
     othersformatted = '{:,.2f}'.format(float(others))
     print('formatted voucher{}'.format(othersformatted))
     context = {'beneficiary': firstname, 'code': randomnumber, 'amount': othersformatted,
-                'barcode': barcode, 'merchantname': merchantname['businessname']}
+                'barcode': barcode, 'merchantname': merchantname['businessname'], 'expiry': expiry}
     #context1 = {'user': firstname, 'code': randomnumber, 'amount': othersformatted,
                 #'barcode': barcode, 'merchantname': merchantname['businessname'], logo: logo}
     #text_content = {}
