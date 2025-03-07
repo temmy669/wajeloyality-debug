@@ -18,13 +18,8 @@ from django.urls import path
 from django.conf.urls import url,include
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
-spectacular_urls = [
-    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('swagger', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('redoc', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
-]
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path(r'^', include('wajecrm.urls')),
-    ] + spectacular_urls
+    path('me', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui')
+    ] 

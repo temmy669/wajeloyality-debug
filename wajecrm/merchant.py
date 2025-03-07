@@ -42,7 +42,7 @@ class ListCreateRoleView(ListCreateAPIView):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
 
-class UpdateRoleView(ListCreateAPIView):
+class UpdateRoleView(RetrieveUpdateDestroyAPIView):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
 
@@ -98,7 +98,9 @@ class UpdateMerchantStaffView(RetrieveUpdateDestroyAPIView):
     serializer_class = merchantUserSerializer
 
 class merchantManagerView(APIView):
-    #permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
+    serializer_class = merchantUserSerializer
+
     def post(self,request, format=None):
         try:       
             """Save the post data when creating a new merchant."""       
@@ -144,7 +146,8 @@ class merchantManagerView(APIView):
         return JsonResponse({'data': dictList,'status':'True'})  
 
 class merchantDeleteManagerView(APIView):  
-
+    serializer_class = merchantUserSerializer
+    
     def post(self, request, pk):
         #return JsonResponse({'test': 'Testing this'})
         merchID=request.GET.get('merchID')
