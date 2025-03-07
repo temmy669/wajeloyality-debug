@@ -299,7 +299,7 @@ class bulkPurchaseMerchantGiftCardView(APIView):
             emailaddress = emailaddress
             subject='Voucher Details'   
             others = amount
-            notify=htmltopdf(firstname,randomnumber,emailaddress,subject,template_name,others,merchantname)
+            notify=htmltopdf(firstname,randomnumber,emailaddress,subject,template_name, voucher_date, others,merchantname)
             #finalhtmlcontext += "<div class='container'><div class='row'><div class='col-md'>{}</div></div></div>".format(notify)
             #print(finalhtmlcontext)
             finalhtmlcontext +='{}'.format(notify)
