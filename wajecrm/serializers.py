@@ -106,4 +106,11 @@ class planSerializer(serializers.ModelSerializer):
 class AccountantDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = AccountantData
-        fields = ('customer','amount','cardName', 'dateConfirmed', 'confirmationCode', 'transactionRef', 'datePayment')
+        fields = "__all__"
+
+    def to_representation(self, obj):
+        """Add merchant and branch name to the accountant data instance. """
+        instance = super().to_representation(obj)
+        instance['merchant'] = None
+        instance['branch'] = None
+        return instance
