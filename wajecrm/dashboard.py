@@ -23,8 +23,10 @@ from datetime import datetime, timedelta
 #from .product import *
 import calendar
 from django.db import connection
+from drf_spectacular.utils import extend_schema
 
 
+@extend_schema(tags=["Analytics"])
 class merchantDashboardView(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -126,6 +128,7 @@ class merchantDashboardView(APIView):
 """Class to display sales summary for a customer that has done transaction for the past 24 hours  """
 
 
+@extend_schema(tags=["Analytics"])
 class listSaleSummaryView(APIView):
     # permission_classes = (IsAuthenticated,)
 
@@ -151,6 +154,7 @@ class listSaleSummaryView(APIView):
 """Class to display Loyalty summary for a customer that has done transaction for the past 24 hours  """
 
 
+@extend_schema(tags=["Analytics"])
 class listLoyaltySummaryView(APIView):
     #permission_classes =(IsAuthenticated,)
     def get(self, request, format=None):
@@ -161,7 +165,7 @@ class listLoyaltySummaryView(APIView):
         totalaward = totalAward(merchID)
         return JsonResponse({'data': {'customerawardedpoints': customerpoint}, 'loyaltysummary': totalaward, 'status': 'True'})
 
-
+@extend_schema(tags=["Analytics"])
 class listGiftCardSummaryView(APIView):
     #permission_classes =(IsAuthenticated,)
     def get(self, request, format=None):

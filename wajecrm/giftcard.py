@@ -32,21 +32,29 @@ from .permissions import (
 from .serializers import AccountantDataSerializer
 from .filters import GiftCardStatFilter, GiftCardFilter
 from .serializers import GiftCardSerializer
+from drf_spectacular.utils import extend_schema
 
-
+@extend_schema(tags=['Gift Cards'])
 class GiftCardView(ListAPIView):
     queryset = giftCard.objects.all()
     serializer_class = GiftCardSerializer
     filter_class = GiftCardStatFilter
 
     def get_queryset(self):
+        """Fetch the giftcards belonging to a particular merchant
+        using the merchant's service ID.
+        """
         service_id = self.kwargs['merchant_service_id']
-        return self.queryset.filter(merchID__serviceID = service_id)
+        queryset = self.queryset.filter(merchID__serviceID__iexact = service_id)
+        return queryset
 
+
+@extend_schema(tags=['Gift Cards'])
 class UpdateGiftCardView(ListAPIView):
     queryset = giftCard.objects.all()
     serializer_class = GiftCardSerializer
-   
+
+@extend_schema(tags=['Gift Cards'])
 class deactivateGiftCard(APIView):
     permission_classes = [IsAdmin] 
 
@@ -64,21 +72,27 @@ class deactivateGiftCard(APIView):
         giftcardrecord.save()
         responseData ={'message':f'The giftcard record has been {"re-" if to_reactivate else "de-"}activated sucessfully','status':'True'}
         return HttpResponse(json.dumps(responseData), content_type="application/json")
-        
+
+
+@extend_schema(tags=['Finance'])  
 class AccountDataView(ListAPIView):
     queryset = AccountantData.objects.all()
     serializer_class = AccountantDataSerializer
-    permission_classes = [IsAccountant, IsAdmin]
+    # permission_classes = [IsAccountant, IsAdmin]
     filter_class = GiftCardFilter
 
+
+@extend_schema(tags=['Finance'])
 class UpdateAccountantDataView(RetrieveUpdateDestroyAPIView):
     queryset = AccountantData.objects.all()
     serializer_class = AccountantDataSerializer
-    permission_classes = [IsAdmin, IsAccountant]
+    # permission_classes = [IsAdmin, IsAccountant]
 
+
+@extend_schema(tags=['Gift Cards'])
 class MerchantGiftCardView(APIView):   
     """ Function to create gift card of a merchants  """
-    permission_classes = [IsAdmin, IsAuditor, IsAccountant]
+    # permission_classes = [IsAdmin, IsAuditor, IsAccountant]
 
     def post(self, request, format=None):     
         """Save the post data when creating a new merchant."""       
@@ -124,6 +138,8 @@ class MerchantGiftCardView(APIView):
         responseData ={'data':dictList,'status':'True'}
         return HttpResponse(json.dumps(responseData), content_type="application/json")
 
+
+@extend_schema(tags=['Gift Cards'])
 class MerchantCustomerGiftcardVerificationView(APIView):
       permission_classes = [IsAdmin]
       def get(self, request, format=None):     
@@ -148,6 +164,8 @@ class MerchantCustomerGiftcardVerificationView(APIView):
               responseData ={'message':'merchant is not found','status':False}
           return HttpResponse(json.dumps(responseData), content_type="application/json")        
 
+
+@extend_schema(tags=['Gift Cards'])
 class purchaseMerchantGiftCardView(APIView):
     def post(self, request, format=None):     
         """Class to purchase gift cards.""" 
@@ -195,6 +213,8 @@ class purchaseMerchantGiftCardView(APIView):
         responseData ={'message':'Transaction capture','status':'True'}
         return HttpResponse(json.dumps(responseData), content_type="application/json")
 
+
+@extend_schema(tags=['Gift Cards'])
 class redeemMerchantGiftCardView(APIView):
     def post(self, request, format=None):     
         """function to redeem gift cards from a merchant.""" 
@@ -257,6 +277,7 @@ class redeemMerchantGiftCardView(APIView):
         return HttpResponse(json.dumps(responseData), content_type="application/json")
 
 
+@extend_schema(tags=['Gift Cards'])
 class bulkPurchaseMerchantGiftCardView(APIView):
     def post(self, request, format=None):       
         # you may put validations here to check extension or file size
@@ -335,6 +356,7 @@ class bulkPurchaseMerchantGiftCardView(APIView):
         return HttpResponse(json.dumps(responseData), content_type="application/json")
 
 
+@extend_schema(tags=['Gift Cards'])
 class bulkMerchantGiftCardView(APIView):
     def post(self, request, format=None):       
         # you may put validations here to check extension or file size
@@ -395,6 +417,8 @@ class bulkMerchantGiftCardView(APIView):
         responseData = {'message': htmldata, 'status': 'True'}
         return HttpResponse(json.dumps(responseData), content_type="application/json")
 
+
+@extend_schema(tags=['Attachment'])
 class documentattachment(APIView):
     def get(self,request, format=None):
         merchID=request.GET.get('merchID')

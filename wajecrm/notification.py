@@ -98,6 +98,7 @@ def testNotification(self):
 
 def htmltopdf(firstname, randomnumber, emailaddress, subject, template_name, expiry, others, merchantname):
     """Render the html template to a string that can be download as pdf.
+
     :firstname: name of customer
     :randomnumber: randomly generated integers
     :emailaddress: address of customer
@@ -106,6 +107,7 @@ def htmltopdf(firstname, randomnumber, emailaddress, subject, template_name, exp
     :expirty: expiring date of giftcard
     :others: None
     :merchantname: merchat details 
+    
     """
     subject = subject
     template_name = template_name
