@@ -5,7 +5,9 @@ from rest_framework.views import APIView
 from .models import AccountantData
 from .serializers import AccountantDataSerializer
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema
 
+@extend_schema(tags=['Finance'])
 class VerifyTransactionAPIView(APIView):
     """Verify a transaction and save the data"""
 

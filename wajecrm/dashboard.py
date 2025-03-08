@@ -20,7 +20,7 @@ from django.db.models import Count, Sum, F
 from rest_framework.permissions import IsAuthenticated
 from django.views import View
 from datetime import datetime, timedelta
-#from .product import *
+# from .product import *
 import calendar
 from django.db import connection
 from drf_spectacular.utils import extend_schema
