@@ -235,7 +235,7 @@ class MerchantCustomerPointsView(APIView):
                 responseData ={'message':'An error occur'+str(e),'status':False}
                 return HttpResponse(json.dumps(responseData), content_type="application/json")
 
-@extend_schema(tags=["Gift Card"])
+@extend_schema(tags=["Gift Cards"])
 class MerchantCustomerGiftcardView(APIView):
     def post(self, request, format=None):
         """Save the post data when creating a new merchant."""
@@ -303,7 +303,7 @@ class MerchantCustomerGiftcardView(APIView):
         responseData ={'message':'Transaction capture','data':ref,'status':True}
         return HttpResponse(json.dumps(responseData), content_type="application/json")
 
-@extend_schema(tags=["Gift Card"])
+@extend_schema(tags=["Gift Cards"])
 class MerchantGiftcard(APIView):
         def post(self, request, format=None):
             """Save the post data when creating a new merchant."""
