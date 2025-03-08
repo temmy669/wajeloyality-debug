@@ -81,12 +81,15 @@ urlpatterns = {
     re_path(r'^api/token/verify/$', TokenVerifyView.as_view(), name='token_verify'),
     path('roles', ListCreateRoleView.as_view(), name='role'),
     path('role/<pk>', UpdateRoleView.as_view(), name='edit-role'),
+    path('giftcard/<str:merchant_service_id>', GiftCardView.as_view(), name='giftcard'),
+    path('giftcard/<pk>', UpdateGiftCardView.as_view(), name='update-giftcard'),
     path('admin/', admin.site.urls),
     path("test/", giftcard.test, name="test"),
     path('verify-transaction/', VerifyTransactionAPIView.as_view(), name='verify-transaction'),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('swagger', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('redoc', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    path('accountant/giftcards', AccountDataView.as_view(), name='giftcard-accountantview')
 }
 
 urlpatterns = format_suffix_patterns(urlpatterns)

@@ -20,7 +20,7 @@ class IsAdmin(BaseGiftCardPermission):
     role = 'admin'
 
 class IsAccountant(BaseGiftCardPermission):
-    allowed_methods = ['GET', 'PUT', 'PATCH']
+    allowed_methods = ['GET', 'PUT', 'PATCH', 'POST']
     role = 'accountant'
 
 class IsAuditor(BaseGiftCardPermission):

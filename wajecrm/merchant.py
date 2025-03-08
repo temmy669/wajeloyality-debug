@@ -34,18 +34,21 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from django.utils import timezone
 import datetime
 from .notification import Notification, htmltopdf
-
+from drf_spectacular.utils import extend_schema
 # Create your views here.
 # View to create a merchant and save in the database.
 
+@extend_schema(tags=['Role'])
 class ListCreateRoleView(ListCreateAPIView):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
 
+@extend_schema(tags=['Role'])
 class UpdateRoleView(RetrieveUpdateDestroyAPIView):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
 
+@extend_schema(tags=['Merchant'])
 class merchantView(APIView):
     #permission_classes = (IsAuthenticated,)
     def post(self,request, format=None):
@@ -89,14 +92,17 @@ class merchantView(APIView):
         merchantrecord = queryset.filter(active=status).values('id','serviceID','merchantphonenumber', 'businessaddress','merchantemailaddress','active','contactpersonfirstname','contactpersonlastname','businesslogo', 'settingsactivated', 'themecolor')
         return JsonResponse({'data': list(merchantrecord),'status':'True'})
 
+@extend_schema(tags=['Merchant'])
 class ListCreateMerchantStaffView(ListCreateAPIView):
     queryset = user.objects.all()
     serializer_class = merchantUserSerializer
 
+@extend_schema(tags=['Merchant'])
 class UpdateMerchantStaffView(RetrieveUpdateDestroyAPIView):
     queryset = user.objects.all()
     serializer_class = merchantUserSerializer
 
+@extend_schema(tags=['Merchant'])
 class merchantManagerView(APIView):
     # permission_classes = (IsAuthenticated,)
     serializer_class = merchantUserSerializer
@@ -145,6 +151,7 @@ class merchantManagerView(APIView):
                 dictList.append(element)       
         return JsonResponse({'data': dictList,'status':'True'})  
 
+@extend_schema(tags=['Merchant'])
 class merchantDeleteManagerView(APIView):  
     serializer_class = merchantUserSerializer
     
@@ -154,7 +161,7 @@ class merchantDeleteManagerView(APIView):
         user.objects.get(id=pk, merchID=merchID).delete()
         return JsonResponse({'message':'The user account has been deleted','status':True})
 
-
+@extend_schema(tags=['Merchant'])
 class merchantBranchView(APIView):
     #permission_classes = (IsAuthenticated,)
     def post(self,request, format=None):
@@ -178,6 +185,8 @@ class merchantBranchView(APIView):
         return JsonResponse({'data': list(branchrecord),'status':'True'})          
 
 '''Class to grant access to an authenticated Merchant '''
+
+@extend_schema(tags=['Authentication'])
 class merchantLoginView(APIView):  
     def get(self,request, format=None):
         """
@@ -228,6 +237,8 @@ class merchantLoginView(APIView):
         else:
             resultset =[]
             return JsonResponse({'data': list(resultset),'status':'False','message':'Account is inactive'})
+        
+@extend_schema(tags=['Authentication'])
 class branchManagerLoginView(APIView):
     #permission_classes =(IsAuthenticated,)  
     def get(self,request, format=None):
@@ -256,7 +267,7 @@ class branchManagerLoginView(APIView):
         resultset =[]
         return JsonResponse({'data': list(resultset),'status':'False','message':'Invalid username'})
 
-
+@extend_schema(tags=['Settings'])
 class createMerchantSettings(APIView):
     permission_classes =(IsAuthenticated,) 
     def post(self, request, format=None):
@@ -290,6 +301,7 @@ class createMerchantSettings(APIView):
               #responseData ={'message':'The record is missing','status':'False'}
               #return HttpResponse(json.dumps(responseData), content_type="application/json")               
 
+@extend_schema(tags=['Authentication'])
 class merchantChangePassword(APIView):
     def post(self,request,format=None):
         merchantid = request.data['merchantid']
@@ -305,6 +317,7 @@ class merchantChangePassword(APIView):
             responseData ={'message':'The record missing','status':'False'}
             return HttpResponse(json.dumps(responseData), content_type="application/json")
 
+@extend_schema(tags=['Merchant'])
 class editMerchantRecord(APIView):
     permission_classes = (IsAuthenticated,)
     def post(self, request, format=None):
@@ -336,6 +349,7 @@ class editMerchantRecord(APIView):
             responseData ={'message':'The record missing','status':'False'}
             return HttpResponse(json.dumps(responseData), content_type="application/json")
 
+@extend_schema(tags=['Authentication'])
 class recoverMerchantPassword(APIView):
     def post(self, request, format=None): 
         emailaddress = request.data['emailaddress']
@@ -343,10 +357,11 @@ class recoverMerchantPassword(APIView):
         responseData ={'message':'Please check your email','status':'True'}
         return HttpResponse(json.dumps(responseData), content_type="application/json")
         
+@extend_schema(tags=['Authentication'])
 class passwordRecovery(APIView):
     def post(self, request, format=None):                           
         userid = request.data['userid']
-        uid = force_text(urlsafe_base64_decode(userid))      
+        uid = force_str(urlsafe_base64_decode(userid))      
         try:
             user = merchant.objects.get(merchantemailaddress=uid)            
             password =make_password(request.data['password'],salt=None,hasher='default')
@@ -365,6 +380,7 @@ class passwordRecovery(APIView):
                 }
                return HttpResponse(json.dumps(responseData), content_type="application/json")
 
+@extend_schema(tags=['Settings'])
 class themeColorsDetails(APIView):
     #permission_classes = (IsAuthenticated,)
     def get_object(self,pk,format=None):
@@ -451,7 +467,7 @@ def randomId():
 ''' account verifiction function '''
 def activate_user_account(request,uidb64=None):            
         try:           
-            uid = force_text(urlsafe_base64_decode(uidb64))
+            uid = force_str(urlsafe_base64_decode(uidb64))
             user = merchant.objects.get(merchantemailaddress=uid)
         except user.DoesNotExist:
             user = None

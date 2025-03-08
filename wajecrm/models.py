@@ -5,6 +5,7 @@ from django.db import models
 from enum import Enum
 
 from datetime import datetime
+from django.utils import timezone
 #from django.core.exceptions import FieldDoesNotExist 
 
 from safedelete.models import SafeDeleteModel
@@ -59,6 +60,9 @@ class merchant(models.Model):
     class Meta:
           ordering = ['serviceID']
 
+    def __str__(self):
+         return self.businessname
+
 class branch(models.Model):
     branchcode= models.CharField(max_length=45,null=True)
     branchname= models.CharField(max_length=45,null=True)
@@ -69,6 +73,9 @@ class branch(models.Model):
     merchID = models.ForeignKey(merchant, on_delete=models.CASCADE)
     createddate = models.DateField('createddate',auto_now_add=True)
     updateddate = models.DateField('updateddate',null=True)
+
+    def __str__(self):
+         return self.branchname
 
 class customer(models.Model):
     id = models.AutoField(primary_key=True)
@@ -90,6 +97,9 @@ class customer(models.Model):
     createddate = models.DateField('createddate',auto_now_add=True)
     updateddate = models.DateField('updateddate',null=True)
 
+    def __str__(self):
+         return self.firstname
+
 class attachment(models.Model):
     body= models.CharField(max_length=45)
     name = models.CharField(max_length=45, null=True)
@@ -106,6 +116,9 @@ class user(models.Model):
     merchID = models.ForeignKey(merchant, on_delete=models.CASCADE)
     createddate = models.DateField('createddate',auto_now_add=True)
     updateddate = models.DateField('updateddate',null=True)
+
+    def __str__(self):
+         return self.name
 
 class loyaltyrule(models.Model):
     loyaltyrule= models.CharField(max_length=45)
@@ -175,12 +188,13 @@ class campaignhistory(models.Model):
     createddate = models.DateField('createddate',auto_now_add=True,null= True)
     updateddate = models.DateField('updateddate',null=True)
 
-class giftCard(SafeDeleteModel):
+class giftCard(models.Model):
     serialnumber =models.CharField(null=True,max_length=200)
     cardname = models.CharField(null=True,max_length=200)
     recipient_phone = models.CharField(null=True,max_length=200)
     recipient_email = models.CharField(null=True,max_length=200)
     createdby = models.CharField(null=True,max_length=200)
+    created_by = models.ForeignKey(user, on_delete=models.SET_NULL, null=True)
     amount= models.DecimalField(default=0, max_digits=16, decimal_places=6)
     merchID = models.ForeignKey(merchant,on_delete=models.CASCADE,null=True)
     active = models.BooleanField(default=1)
@@ -188,17 +202,22 @@ class giftCard(SafeDeleteModel):
     expiration_date = models.DateField(auto_now_add=False)
     createddate = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.cardname
+    
 class giftcardtransaction(models.Model):
     giftID = models.ForeignKey(giftCard,on_delete=models.CASCADE,null=True)
     redeemedamount= models.DecimalField(default=0, max_digits=16, decimal_places=6)
     purchaseamount= models.DecimalField(default=0, max_digits=16, decimal_places=6)
     merchID = models.ForeignKey(merchant,on_delete=models.CASCADE,null=True)
-    reference =models.CharField(null=True,max_length=200)
+    branch = models.ForeignKey(branch, on_delete=models.DO_NOTHING, blank=True, null=True)
+    reference =models.CharField(null=True,max_length=200, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     createdby = models.CharField(null=True, max_length=200)
-    
-import uuid
-from django.utils import timezone
+
+    def __str__(self):
+         return self.reference
+
 class AccountantData(models.Model):
     amount = models.DecimalField(max_digits=16, decimal_places=2)  
     cardName = models.CharField(max_length=200) 

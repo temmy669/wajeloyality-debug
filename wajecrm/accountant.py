@@ -21,7 +21,6 @@ class VerifyTransactionAPIView(APIView):
     def get(self, request):
         """Retrieve a transaction by ID or return all transactions if no ID is provided."""
         transaction_id = request.query_params.get("id")
-
         if transaction_id:
             transaction = AccountantData.objects.filter(id=transaction_id).first()
             if transaction:
