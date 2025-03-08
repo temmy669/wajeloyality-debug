@@ -40,7 +40,10 @@ SECRET_KEY = config('$)qsyduv4a!ft%7xwjcw4-iodc$_#uu4%ssps)0l=vg@ic(y5r', defaul
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['199.192.28.167','wajeloyality.website', 'localhost', '127.0.0.1', 'wajeloyalityapitest.onrender.com']
+ALLOWED_HOSTS = ['199.192.28.167',
+                 'wajeloyality.website', 'localhost', '127.0.0.1', 
+                 'wajeloyalityapitest.onrender.com',
+                 'wajeloyalityapitest-2.onrender.com']
 
 SETTINGS_PATH = settings.BASE_DIR
 
