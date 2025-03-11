@@ -1,0 +1,1473 @@
+openapi: 3.0.3
+info:
+  title: Waje Loyality API
+  version: 1.0.0
+  description: To generate and sale gift cards
+paths:
+  /api/token/:
+    post:
+      operationId: api_token_create
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /api/token/refresh/:
+    post:
+      operationId: api_token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/token/verify/:
+    post:
+      operationId: api_token_verify_create
+      description: |-
+        Takes a token and indicates if it is valid.  This view provides no
+        information about a token's fitness for a particular use.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenVerify'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenVerify'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenVerify'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenVerify'
+          description: ''
+  /attachment/:
+    get:
+      operationId: attachment_retrieve
+      tags:
+      - attachment
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /bulkpurchase/:
+    post:
+      operationId: bulkpurchase_create
+      tags:
+      - bulkpurchase
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /campaign/:
+    get:
+      operationId: campaign_retrieve
+      tags:
+      - campaign
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: campaign_create
+      tags:
+      - campaign
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: campaign_update
+      tags:
+      - campaign
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /campaignhistory/:
+    get:
+      operationId: campaignhistory_retrieve
+      tags:
+      - campaignhistory
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /campaigntemplate/:
+    get:
+      operationId: campaigntemplate_retrieve
+      tags:
+      - campaigntemplate
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: campaigntemplate_create
+      tags:
+      - campaigntemplate
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: campaigntemplate_update
+      tags:
+      - campaigntemplate
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /customerearnpointapi/:
+    post:
+      operationId: customerearnpointapi_create
+      description: Save the post data when creating a new merchant.
+      tags:
+      - customerearnpointapi
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /customeregisterationapi/:
+    post:
+      operationId: customeregisterationapi_create
+      description: Save the post data when creating a new merchant.
+      tags:
+      - customeregisterationapi
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /customerloginapi/:
+    post:
+      operationId: customerloginapi_create
+      description: Save the post data when creating a new merchant.
+      tags:
+      - customerloginapi
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: customerloginapi_update
+      tags:
+      - customerloginapi
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /customerredeempointapi/:
+    post:
+      operationId: customerredeempointapi_create
+      description: Save the post data when creating a new merchant.
+      tags:
+      - customerredeempointapi
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /deactivategift/:
+    post:
+      operationId: deactivategift_create
+      tags:
+      - deactivategift
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /editmerchant/:
+    post:
+      operationId: editmerchant_create
+      tags:
+      - editmerchant
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /getcustomerpointapi/:
+    get:
+      operationId: getcustomerpointapi_retrieve
+      description: Save the post data when creating a new merchant.
+      tags:
+      - getcustomerpointapi
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /giftcardstat/:
+    get:
+      operationId: giftcardstat_retrieve
+      tags:
+      - giftcardstat
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /listcustomerspoint/:
+    get:
+      operationId: listcustomerspoint_retrieve
+      tags:
+      - listcustomerspoint
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /listloyaltysummary/:
+    get:
+      operationId: listloyaltysummary_retrieve
+      tags:
+      - listloyaltysummary
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /listsalesummary/:
+    get:
+      operationId: listsalesummary_retrieve
+      description: |-
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `merchant id` query parameter in the URL.
+      tags:
+      - listsalesummary
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /managerauthentication/:
+    get:
+      operationId: managerauthentication_retrieve
+      description: |-
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+      tags:
+      - managerauthentication
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /merchant/:
+    get:
+      operationId: merchant_retrieve
+      tags:
+      - merchant
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: merchant_create
+      tags:
+      - merchant
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /merchant-manager/{id}/:
+    post:
+      operationId: merchant_manager_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - merchant-manager
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /merchant-manager/{id}{format}:
+    post:
+      operationId: merchant_manager_formatted_create
+      parameters:
+      - in: path
+        name: format
+        schema:
+          type: string
+          enum:
+          - .json
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - merchant-manager
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /merchant/staffs:
+    get:
+      operationId: merchant_staffs_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - merchant
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedmerchantUserList'
+          description: ''
+    post:
+      operationId: merchant_staffs_create
+      tags:
+      - merchant
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/merchantUser'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/merchantUser'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/merchantUser'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/merchantUser'
+          description: ''
+  /merchant/staffs/{id}:
+    get:
+      operationId: merchant_staffs_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - merchant
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/merchantUser'
+          description: ''
+    put:
+      operationId: merchant_staffs_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - merchant
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/merchantUser'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/merchantUser'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/merchantUser'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/merchantUser'
+          description: ''
+    patch:
+      operationId: merchant_staffs_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - merchant
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedmerchantUser'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedmerchantUser'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedmerchantUser'
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/merchantUser'
+          description: ''
+    delete:
+      operationId: merchant_staffs_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - merchant
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /merchantauthentication/:
+    get:
+      operationId: merchantauthentication_retrieve
+      description: |-
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+      tags:
+      - merchantauthentication
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /merchantbranch/:
+    get:
+      operationId: merchantbranch_retrieve
+      tags:
+      - merchantbranch
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: merchantbranch_create
+      tags:
+      - merchantbranch
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /merchantchangepassword/:
+    post:
+      operationId: merchantchangepassword_create
+      tags:
+      - merchantchangepassword
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /merchantcustomer/:
+    get:
+      operationId: merchantcustomer_retrieve
+      tags:
+      - merchantcustomer
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: merchantcustomer_create
+      description: Save the post data when creating a new merchant.
+      tags:
+      - merchantcustomer
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: merchantcustomer_update
+      tags:
+      - merchantcustomer
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /merchantcustomerredemption/:
+    get:
+      operationId: merchantcustomerredemption_retrieve
+      tags:
+      - merchantcustomerredemption
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /merchantgiftcard/:
+    get:
+      operationId: merchantgiftcard_retrieve
+      description: Save the post data when creating a new merchant.
+      tags:
+      - merchantgiftcard
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: merchantgiftcard_create
+      description: Save the post data when creating a new merchant.
+      tags:
+      - merchantgiftcard
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /merchantgiftcardapi/:
+    get:
+      operationId: merchantgiftcardapi_retrieve
+      tags:
+      - merchantgiftcardapi
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: merchantgiftcardapi_create
+      description: Save the post data when creating a new merchant.
+      tags:
+      - merchantgiftcardapi
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /merchantloyaltyrule/:
+    get:
+      operationId: merchantloyaltyrule_retrieve
+      description: |-
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+      tags:
+      - merchantloyaltyrule
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: merchantloyaltyrule_create
+      tags:
+      - merchantloyaltyrule
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /merchantloyaltytransaction/:
+    get:
+      operationId: merchantloyaltytransaction_retrieve
+      description: |-
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+      tags:
+      - merchantloyaltytransaction
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: merchantloyaltytransaction_create
+      tags:
+      - merchantloyaltytransaction
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /merchantmanager/:
+    get:
+      operationId: merchantmanager_retrieve
+      tags:
+      - merchantmanager
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/merchantUser'
+          description: ''
+    post:
+      operationId: merchantmanager_create
+      tags:
+      - merchantmanager
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/merchantUser'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/merchantUser'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/merchantUser'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/merchantUser'
+          description: ''
+  /merchantpasswordrecovery/:
+    post:
+      operationId: merchantpasswordrecovery_create
+      tags:
+      - merchantpasswordrecovery
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /merchantsetting/:
+    post:
+      operationId: merchantsetting_create
+      tags:
+      - merchantsetting
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /passwordrecovery/:
+    post:
+      operationId: passwordrecovery_create
+      tags:
+      - passwordrecovery
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /purchasegiftcard/:
+    post:
+      operationId: purchasegiftcard_create
+      description: Class to purchase gift cards.
+      tags:
+      - purchasegiftcard
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /redeemgiftcard/:
+    post:
+      operationId: redeemgiftcard_create
+      description: function to redeem gift cards from a merchant.
+      tags:
+      - redeemgiftcard
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /redeemgiftcardapi/:
+    post:
+      operationId: redeemgiftcardapi_create
+      description: Save the post data when creating a new merchant.
+      tags:
+      - redeemgiftcardapi
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /redeemloyaltypoint/:
+    post:
+      operationId: redeemloyaltypoint_create
+      tags:
+      - redeemloyaltypoint
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /role/{id}:
+    get:
+      operationId: role_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this role.
+        required: true
+      tags:
+      - role
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: ''
+    put:
+      operationId: role_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this role.
+        required: true
+      tags:
+      - role
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Role'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Role'
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: ''
+    patch:
+      operationId: role_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this role.
+        required: true
+      tags:
+      - role
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRole'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedRole'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedRole'
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: ''
+    delete:
+      operationId: role_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this role.
+        required: true
+      tags:
+      - role
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /role/{id}{format}:
+    get:
+      operationId: role_formatted_retrieve
+      parameters:
+      - in: path
+        name: format
+        schema:
+          type: string
+          enum:
+          - .json
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this role.
+        required: true
+      tags:
+      - role
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: ''
+    put:
+      operationId: role_formatted_update
+      parameters:
+      - in: path
+        name: format
+        schema:
+          type: string
+          enum:
+          - .json
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this role.
+        required: true
+      tags:
+      - role
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Role'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Role'
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: ''
+    patch:
+      operationId: role_formatted_partial_update
+      parameters:
+      - in: path
+        name: format
+        schema:
+          type: string
+          enum:
+          - .json
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this role.
+        required: true
+      tags:
+      - role
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRole'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedRole'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedRole'
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: ''
+    delete:
+      operationId: role_formatted_destroy
+      parameters:
+      - in: path
+        name: format
+        schema:
+          type: string
+          enum:
+          - .json
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this role.
+        required: true
+      tags:
+      - role
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /roles:
+    get:
+      operationId: roles_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - roles
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRoleList'
+          description: ''
+    post:
+      operationId: roles_create
+      tags:
+      - roles
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Role'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Role'
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: ''
+  /roles{format}:
+    get:
+      operationId: roles_formatted_list
+      parameters:
+      - in: path
+        name: format
+        schema:
+          type: string
+          enum:
+          - .json
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - roles
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRoleList'
+          description: ''
+    post:
+      operationId: roles_formatted_create
+      parameters:
+      - in: path
+        name: format
+        schema:
+          type: string
+          enum:
+          - .json
+        required: true
+      tags:
+      - roles
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Role'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Role'
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: ''
+  /themecolors/{id}/:
+    get:
+      operationId: themecolors_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^\d+$
+        required: true
+      tags:
+      - themecolors
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: themecolors_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^\d+$
+        required: true
+      tags:
+      - themecolors
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: themecolors_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^\d+$
+        required: true
+      tags:
+      - themecolors
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /verify-transaction/:
+    get:
+      operationId: verify_transaction_retrieve
+      description: Retrieve a transaction by ID or return all transactions if no ID
+        is provided.
+      tags:
+      - verify-transaction
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: verify_transaction_create
+      description: Verify a transaction and save the data
+      tags:
+      - verify-transaction
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /verify-transaction{format}:
+    get:
+      operationId: verify_transaction_formatted_retrieve
+      description: Retrieve a transaction by ID or return all transactions if no ID
+        is provided.
+      parameters:
+      - in: path
+        name: format
+        schema:
+          type: string
+          enum:
+          - .json
+        required: true
+      tags:
+      - verify-transaction
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: verify_transaction_formatted_create
+      description: Verify a transaction and save the data
+      parameters:
+      - in: path
+        name: format
+        schema:
+          type: string
+          enum:
+          - .json
+        required: true
+      tags:
+      - verify-transaction
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /verifygiftcard/:
+    get:
+      operationId: verifygiftcard_retrieve
+      description: Save the post data when creating a new merchant.
+      tags:
+      - verifygiftcard
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+components:
+  schemas:
+    NameEnum:
+      enum:
+      - admin
+      - accountant
+      - auditor
+      - manager
+      type: string
+      description: |-
+        * `admin` - Admin
+        * `accountant` - Accountant
+        * `auditor` - Auditor
+        * `manager` - Manager
+    PaginatedRoleList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+    PaginatedmerchantUserList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/merchantUser'
+    PatchedRole:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          $ref: '#/components/schemas/NameEnum'
+    PatchedmerchantUser:
+      type: object
+      description: Serializer to map the Model instance into JSON format.
+      properties:
+        username:
+          type: string
+          maxLength: 45
+        name:
+          type: string
+          nullable: true
+          maxLength: 45
+        branchID:
+          type: integer
+        merchID:
+          type: integer
+        role:
+          type: integer
+          nullable: true
+    Role:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          $ref: '#/components/schemas/NameEnum'
+      required:
+      - id
+    TokenObtainPair:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - password
+      - refresh
+      - username
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          writeOnly: true
+      required:
+      - access
+      - refresh
+    TokenVerify:
+      type: object
+      properties:
+        token:
+          type: string
+          writeOnly: true
+      required:
+      - token
+    merchantUser:
+      type: object
+      description: Serializer to map the Model instance into JSON format.
+      properties:
+        username:
+          type: string
+          maxLength: 45
+        name:
+          type: string
+          nullable: true
+          maxLength: 45
+        branchID:
+          type: integer
+        merchID:
+          type: integer
+        role:
+          type: integer
+          nullable: true
+      required:
+      - branchID
+      - merchID
+      - username
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

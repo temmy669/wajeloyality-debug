@@ -17,31 +17,10 @@ from .metropos import *
 from .notification import *
 from rest_framework.urlpatterns import format_suffix_patterns
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from .import giftcard
 
-
-
-
 from rest_framework import permissions
-from drf_yasg.views import get_schema_view
-from drf_yasg import openapi
-
-
-schema_view = get_schema_view(
-    openapi.Info(
-        title="API DOCUMENTATION FOR WAJE LOYALTY BACKEND",
-        default_version='v1',
-        description="Waje Loyalty appliation for gift cards",
-        terms_of_service="https://www.google.com/policies/terms/",
-        contact=openapi.Contact(email="fadabose@wajesmart.com"),
-        license=openapi.License(name="BSD License"),
-    ),
-    public=True,
-    permission_classes=(permissions.AllowAny,),
-)
-
-
-
 
 
 
@@ -49,6 +28,8 @@ urlpatterns = {
     re_path(r'^merchant/$', merchantView.as_view()),
     re_path(r'^editmerchant/$', editMerchantRecord.as_view()),
     re_path(r'^merchantcustomer/$', MerchantCustomerView.as_view()),
+    re_path(r'^merchant/staffs', ListCreateMerchantStaffView.as_view()), # new - list merchant users/staff
+    re_path(r'^merchant/staffs/<pk>', UpdateMerchantStaffView.as_view()), # new - edit merchant users/staff
     re_path(r'^merchantmanager/$', merchantManagerView.as_view()),
     path('merchant-manager/<int:pk>/', merchantDeleteManagerView.as_view()),
     re_path(r'^merchantbranch/$', merchantBranchView.as_view()),
@@ -97,11 +78,17 @@ urlpatterns = {
     re_path(r'^api/token/$', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     re_path(r'^api/token/refresh/$', TokenRefreshView.as_view(), name='token_refresh'),
     re_path(r'^api/token/verify/$', TokenVerifyView.as_view(), name='token_verify'),
+    path('roles', ListCreateRoleView.as_view(), name='role'),
+    path('role/<pk>', UpdateRoleView.as_view(), name='edit-role'),
+    path('giftcard/<str:merchant_service_id>', GiftCardView.as_view(), name='giftcard'),
+    path('giftcard/<pk>', UpdateGiftCardView.as_view(), name='update-giftcard'),
     path('admin/', admin.site.urls),
     path("test/", giftcard.test, name="test"),
     path('verify-transaction/', VerifyTransactionAPIView.as_view(), name='verify-transaction'),
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'), #API DOCUMENTATION URL
-    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc')
-
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('redoc', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    path('accountant/giftcards', AccountDataView.as_view(), name='giftcard-accountantview')
 }
+
 urlpatterns = format_suffix_patterns(urlpatterns)

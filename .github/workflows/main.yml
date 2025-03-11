@@ -41,11 +41,12 @@ jobs:
           # server: ${{ secrets.FTP_SERVER }}
           # username: ${{ secrets.FTP_USERNAME }}
           # password: ${{ secrets.FTP_PASSWORD }}
-          server: ftp.marketsquareng.website
-          username: backend@wajeloyalityapi.marketsquareng.website
-          password: $h~nc3iiBGza
-          protocol: ftp
-          port: 21
+          FTP Username: backend@wajeloyalityapi.marketsquareng.website
+          FTP server: server165.web-hosting.com
+          FTP & explicit FTPS port: 21
+          FTP password: $h~nc3iiBGza
+          FTP protocol: ftp
+          # port: 21
           local-dir: ./
           server-dir: /public_html/
  

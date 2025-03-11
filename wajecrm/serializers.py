@@ -1,6 +1,11 @@
 from .models import *
 from rest_framework import generics, permissions, serializers
 
+class RoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Role
+        fields = ('id', 'name')
+        extra_kwargs={'id':{'read_only':True}}
 
 class merchantSerializer(serializers.ModelSerializer):
     """Serializer to map the Model instance into JSON format."""
@@ -9,7 +14,6 @@ class merchantSerializer(serializers.ModelSerializer):
         model = merchant
         fields = ('serviceID','businessname','businessdescription','country','merchantphonenumber', 'businessaddress','merchantemailaddress','merchantpassword','active','contactpersonfirstname','contactpersonlastname','contactpersonphone','currency','country_state','country_city')
 
-
 class merchantUserSerializer(serializers.ModelSerializer):
     """Serializer to map the Model instance into JSON format."""
     class Meta:
@@ -17,6 +21,14 @@ class merchantUserSerializer(serializers.ModelSerializer):
         model = user
         fields = ('username', 'name', 'branchID', 'merchID', 'role')
 
+    def to_representation(self, obj):
+        """Add the merchant details to the user's information. """
+        instance = super().to_representation(obj)
+        merchant_ = merchant.objects.get(pk=instance['merchID'])\
+            .values('businessname', 'businesslogo', 'settingsactivated', 'themecolor')
+        instance['merchant'] = merchant_
+        return instance
+        
 class branchSerializer(serializers.ModelSerializer):
     """Serializer to map the Model instance into JSON format."""
     class Meta:
@@ -92,4 +104,19 @@ class planSerializer(serializers.ModelSerializer):
 class AccountantDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = AccountantData
-        fields = ('customer','amount','cardName', 'dateConfirmed', 'confirmationCode', 'transactionRef', 'datePayment')
+        fields = "__all__"
+
+    def to_representation(self, obj):
+        """Add merchant and branch name to the accountant data instance. """
+        instance = super().to_representation(obj)
+        gc_trans = giftcardtransaction.objects.filter(reference=obj.transactionRef).first()
+        instance['merchant'] = gc_trans.merchID.businessname
+        instance['branch'] = gc_trans.branch.branchname
+        return instance
+    
+class GiftCardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = giftCard
+        fields = "__all__"
+
+    

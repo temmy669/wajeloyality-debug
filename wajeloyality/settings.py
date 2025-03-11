@@ -29,7 +29,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Environment mode
 ENVIRONMENT = config('DJANGO_ENV', default='development')
 
-
+DEFAULT_AUTO_FIELD='django.db.models.BigAutoField'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -40,7 +40,10 @@ SECRET_KEY = config('$)qsyduv4a!ft%7xwjcw4-iodc$_#uu4%ssps)0l=vg@ic(y5r', defaul
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['199.192.28.167','wajeloyality.website', 'localhost', '127.0.0.1', 'wajeloyalityapitest.onrender.com']
+ALLOWED_HOSTS = ['199.192.28.167',
+                 'wajeloyality.website', 'localhost', '127.0.0.1', 
+                 'wajeloyalityapitest.onrender.com',
+                 'wajeloyalityapitest-2.onrender.com']
 
 SETTINGS_PATH = settings.BASE_DIR
 
@@ -59,7 +62,8 @@ INSTALLED_APPS = [
     'wajecrm.apps.WajecrmConfig',
     'corsheaders',
     'django.contrib.humanize',
-    'drf_yasg'
+    # 'drf_yasg'
+    'drf_spectacular'
 ]
 
 MIDDLEWARE = [
@@ -122,7 +126,7 @@ DATABASES = {
         'USER': config('DB_USER', default='your_db_user'),
         'PASSWORD': config('DB_PASSWORD', default='your_db_password'),
         'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='3306'),
+        'PORT': config('DB_PORT', default='5432'),
     },
 
 }
@@ -149,10 +153,17 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
-    
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_PAGINATION_CLASS':
     'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 30
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Waje Loyality API',
+    'DESCRIPTION': 'To generate and sale gift cards',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
 
 
