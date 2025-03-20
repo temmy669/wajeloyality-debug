@@ -211,15 +211,12 @@ class merchantLoginView(APIView):
                 if  passwordvalue:            
                     b=passwordvalue[0]          
                     passwordconfirm=check_password(password,b)
-                    if passwordconfirm is True:   
-                       print("seen")                           
-                       return JsonResponse({'data':list(resultset),'token':token,'status':'True'})
+                    if passwordconfirm is True:                             
+                       return JsonResponse({'data':list(resultset),'token':token,'status':True})
                     else:
                         resultset =[]
-                        print("not seen")
                         return JsonResponse({'data': list(resultset),'status':'False','message':'Invalid password'})
             resultset =[]
-            print("mehh")
             return JsonResponse({'data': list(resultset),'status':'False','message':'Invalid username'})
         elif userset:
              passwordvalue = list(user.objects.filter(

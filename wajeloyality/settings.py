@@ -40,12 +40,23 @@ SECRET_KEY = config('$)qsyduv4a!ft%7xwjcw4-iodc$_#uu4%ssps)0l=vg@ic(y5r', defaul
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['199.192.28.167',
-                 'wajeloyality.website', 'localhost', '127.0.0.1', 
-                 'wajeloyalityapitest.onrender.com',
-                 'wajeloyalityapitest-2.onrender.com']
+# ALLOWED_HOSTS = ['199.192.28.167',
+#                  'wajeloyality.website', 'localhost:8080', '127.0.0.1', 
+#                  'wajeloyalityapitest.onrender.com',
+#                  'wajeloyalityapitest-2.onrender.com', 'd9b6-102-88-110-241.ngrok-free.app', 'wajeloyality.marketsquareng.website']
+
+
+ALLOWED_HOSTS = ['*']
+
 
 SETTINGS_PATH = settings.BASE_DIR
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = ['*']
+
 
 APP_URL='https://wajeloyality.website'
 # Application definition
@@ -62,7 +73,7 @@ INSTALLED_APPS = [
     'wajecrm.apps.WajecrmConfig',
     'corsheaders',
     'django.contrib.humanize',
-    # 'drf_yasg'
+    #'drf_yasg',
     'drf_spectacular'
 ]
 
@@ -79,7 +90,6 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
  ]
 
-CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'wajecrm.urls'
 
@@ -121,12 +131,12 @@ DATABASE_APPS_MAPPING = {'mpos0': 'loyalty',
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.' + config('DB_ENGINE', default='postgresql'),  # Dynamic engine selection
+        'ENGINE': 'django.db.backends.' + config('DB_ENGINE', default='mysql'),  # Dynamic engine selection
         'NAME': config('DB_NAME', default='wajeloyaltycrmdb'),
         'USER': config('DB_USER', default='your_db_user'),
         'PASSWORD': config('DB_PASSWORD', default='your_db_password'),
         'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='5432'),
+        'PORT': config('DB_PORT', default='3306'),
     },
 
 }
