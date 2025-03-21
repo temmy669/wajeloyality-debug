@@ -77,19 +77,18 @@ INSTALLED_APPS = [
     'drf_spectacular'
 ]
 
-MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.security.SecurityMiddleware',
+MMIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',  # Should be first
+    'whitenoise.middleware.WhiteNoiseMiddleware',    # Should come after SecurityMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',         # Should come before CommonMiddleware
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.common.BrokenLinkEmailsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
- ]
-
+]
 
 ROOT_URLCONF = 'wajecrm.urls'
 
