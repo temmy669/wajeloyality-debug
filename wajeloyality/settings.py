@@ -77,7 +77,7 @@ INSTALLED_APPS = [
     'drf_spectacular'
 ]
 
-MMIDDLEWARE = [
+MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',  # Should be first
     'whitenoise.middleware.WhiteNoiseMiddleware',    # Should come after SecurityMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
