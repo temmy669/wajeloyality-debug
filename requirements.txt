@@ -15,7 +15,7 @@ django-braces==1.14.0
 django-cors-headers==3.10.0
 django-decouple==2.1
 django-excel==0.0.10
-django-filter==25.1
+django-filter==21.1
 django-modeltranslation==0.17.3
 django-mssql-backend==2.8.1
 django-safedelete==1.1.1
