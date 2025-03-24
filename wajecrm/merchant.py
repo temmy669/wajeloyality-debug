@@ -186,58 +186,80 @@ class merchantBranchView(APIView):
 
 '''Class to grant access to an authenticated Merchant '''
 
+from django.http import JsonResponse
+from django.contrib.auth.hashers import check_password
+from rest_framework.views import APIView
+from .models import merchant, user
+
 @extend_schema(tags=['Authentication'])
-class merchantLoginView(APIView):  
-    def get(self,request, format=None):
-        """
-        Optionally restricts the returned purchases to a given user,
-        by filtering against a `username` query parameter in the URL.
-        """
-        #password = self.request.query_params.get('password')
-        password=request.GET.get('password')
-        #username= self.request.query_params.get('username')
-        username=request.GET.get('username')
-        queryset = merchant.objects.all()
+class merchantLoginView(APIView):
+    def get(self, request, format=None):
+        username = request.GET.get('username')
+        password = request.GET.get('password')
+
+        # Validate input
+        if not username or not password:
+            return JsonResponse({
+                'data': [],
+                'status': False,
+                'message': 'Username and password are required.'
+            }, status=400)
+
+        # Generate token
         tokengenerator = tokenGenerator()
-        print(tokenGenerator)
-        token= tokengenerator['access']
-        checkactivemerchant = queryset.filter(merchantemailaddress=username).filter(active=True)
-        userset = user.objects.filter(username=username).values(
-            'id','username', 'name', 'branchID', 'merchID', 'role')
-        if  checkactivemerchant:
-            resultset = queryset.filter(merchantemailaddress=username, active=True).values('id','businessfacebook','serviceID','businessname','merchantphonenumber', 'businessaddress','merchantemailaddress','active','contactpersonfirstname','contactpersonlastname','contactpersonphone','businesslogo','settingsactivated','accountnumber','accountname','bankname','currency','businesstwitter','pointname','themecolor') 
-            if username is not None:           
-                passwordvalue =list(queryset.filter(merchantemailaddress=username).values_list('merchantpassword',flat=True))
-                if  passwordvalue:            
-                    b=passwordvalue[0]          
-                    passwordconfirm=check_password(password,b)
-                    if passwordconfirm is True:                             
-                       return JsonResponse({'data':list(resultset),'token':token,'status':True})
-                    else:
-                        resultset =[]
-                        return JsonResponse({'data': list(resultset),'status':'False','message':'Invalid password'})
-            resultset =[]
-            return JsonResponse({'data': list(resultset),'status':'False','message':'Invalid username'})
-        elif userset:
-             passwordvalue = list(user.objects.filter(
-                 username=username).values_list('userpassword', flat=True))
-             print("password value {}".format(passwordvalue))
-             if passwordvalue:            
-                b=passwordvalue[0]          
-                passwordconfirm=check_password(password,b)
-                print("password value {}".format(passwordconfirm))
-                if passwordconfirm: 
-                   print("password is {}".format(passwordconfirm))
-                   resultset =user.objects.filter(username=username).values(
-                       'id', 'username', 'name', 'branchID', 'merchID', 'role')
-                   return JsonResponse({'data':list(resultset),'token':token,'status':'True'})
-             else:
-                resultset =[]
-                return JsonResponse({'data': list(resultset),'status':'False','message':'Invalid login details'})
-        else:
-            resultset =[]
-            return JsonResponse({'data': list(resultset),'status':'False','message':'Account is inactive'})
-        
+        token = tokengenerator.get('access')  # Ensure tokenGenerator returns a dict with 'access' key
+
+        # Check for active merchant
+        active_merchant = merchant.objects.filter(merchantemailaddress=username, active=True).first()
+        if active_merchant:
+            # Verify merchant password
+            if check_password(password, active_merchant.merchantpassword):
+                # Serialize merchant data
+                resultset = merchant.objects.filter(merchantemailaddress=username, active=True).values(
+                    'id', 'businessfacebook', 'serviceID', 'businessname', 'merchantphonenumber',
+                    'businessaddress', 'merchantemailaddress', 'active', 'contactpersonfirstname',
+                    'contactpersonlastname', 'contactpersonphone', 'businesslogo', 'settingsactivated',
+                    'accountnumber', 'accountname', 'bankname', 'currency', 'businesstwitter', 'pointname', 'themecolor'
+                )
+                return JsonResponse({
+                    'data': list(resultset),
+                    'token': token,
+                    'status': True
+                })
+            else:
+                return JsonResponse({
+                    'data': [],
+                    'status': False,
+                    'message': 'Invalid password.'
+                }, status=400)
+
+        # Check for user
+        user_instance = user.objects.filter(username=username).first()
+        if user_instance:
+            # Verify user password
+            if check_password(password, user_instance.userpassword):
+                # Serialize user data
+                user_serializer = merchantUserSerializer(user_instance)
+                return JsonResponse({
+                    'data': user_serializer.data,
+                    'token': token,
+                    'status': True
+                })
+            else:
+                return JsonResponse({
+                    'data': [],
+                    'status': False,
+                    'message': 'Invalid password.'
+                }, status=400)
+
+        # If neither merchant nor user is found
+        return JsonResponse({
+            'data': [],
+            'status': False,
+            'message': 'Account not found or inactive.'
+        }, status=404)
+
+
 @extend_schema(tags=['Authentication'])
 class branchManagerLoginView(APIView):
     #permission_classes =(IsAuthenticated,)  

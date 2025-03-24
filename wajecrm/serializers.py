@@ -12,29 +12,28 @@ class merchantSerializer(serializers.ModelSerializer):
     class Meta:
         """Meta class to map serializer's fields with the model fields."""
         model = merchant
-        fields = ('serviceID','businessname','businessdescription','country','merchantphonenumber', 'businessaddress','merchantemailaddress','merchantpassword','active','contactpersonfirstname','contactpersonlastname','contactpersonphone','currency','country_state','country_city')
+        fields = ('serviceID','businessname','businessdescription','country','merchantphonenumber', 'businessaddress','merchantemailaddress','merchantpassword','active','contactpersonfirstname','contactpersonlastname','contactpersonphone','currency','country_state','country_city', 'businessname', 'businesslogo', 'themecolor', 'settingsactivated')
 
-class merchantUserSerializer(serializers.ModelSerializer):
-    """Serializer to map the Model instance into JSON format."""
-    class Meta:
-        """Meta class to map serializer's fields with the model fields."""
-        model = user
-        fields = ('username', 'name', 'branchID', 'merchID', 'role')
-
-    def to_representation(self, obj):
-        """Add the merchant details to the user's information. """
-        instance = super().to_representation(obj)
-        merchant_ = merchant.objects.get(pk=instance['merchID'])\
-            .values('businessname', 'businesslogo', 'settingsactivated', 'themecolor')
-        instance['merchant'] = merchant_
-        return instance
-        
 class branchSerializer(serializers.ModelSerializer):
     """Serializer to map the Model instance into JSON format."""
     class Meta:
         """Meta class to map serializer's fields with the model fields."""
         model = branch
         fields = ('branchname','branchaddress','branchstate','branchcity','branchofficeline','merchID')
+
+class merchantBasicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = merchant
+        fields = ['businessname', 'businesslogo', 'themecolor', 'settingsactivated']
+
+class merchantUserSerializer(serializers.ModelSerializer):
+    role = RoleSerializer(read_only=True)
+    merchID = merchantBasicSerializer(read_only=True)
+    branchID = branchSerializer(read_only=True)
+
+    class Meta:
+        model = user
+        fields = ('username', 'name', 'branchID', 'merchID', 'role')
 
 class themeColorSerializer(serializers.ModelSerializer):
     """Serializer to map the Model instance into JSON format."""
