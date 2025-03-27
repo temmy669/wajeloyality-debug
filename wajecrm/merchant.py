@@ -113,6 +113,7 @@ class merchantManagerView(APIView):
             serializer = merchantUserSerializer(data=request.data)
             username = request.data['username']
             merchID=request.data['merchID']
+            branchID=request.data['branchID']
             firstname=request.data['name']
             customerpassword = request.data['userpassword']
             emailaddress=request.data['username']

@@ -4,7 +4,7 @@ from rest_framework import generics, permissions, serializers
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Role
-        fields = ('id', 'name')
+        fields = ('name')
         extra_kwargs={'id':{'read_only':True}}
 
 class merchantSerializer(serializers.ModelSerializer):
@@ -13,7 +13,8 @@ class merchantSerializer(serializers.ModelSerializer):
         """Meta class to map serializer's fields with the model fields."""
         model = merchant
         fields = ('serviceID','businessname','businessdescription','country','merchantphonenumber', 'businessaddress','merchantemailaddress','merchantpassword','active','contactpersonfirstname','contactpersonlastname','contactpersonphone','currency','country_state','country_city', 'businessname', 'businesslogo', 'themecolor', 'settingsactivated')
-
+class branchManagerSerilaizer(serializers.ModelSerializer):
+    """Serializer t omao"""
 class branchSerializer(serializers.ModelSerializer):
     """Serializer to map the Model instance into JSON format."""
     class Meta:
@@ -116,6 +117,6 @@ class AccountantDataSerializer(serializers.ModelSerializer):
 class GiftCardSerializer(serializers.ModelSerializer):
     class Meta:
         model = giftCard
-        fields = "__all__"
+        fields = ("serialnumber", "cardname", "recipient_phone", "recipient_email", "createdby", "amount", "merchID", "active", "expiration_date", "createdate")
 
     

@@ -27,3 +27,11 @@ log_systemlogs/
 merchantlogo/
 voucherpdf/
 
+#powershell files
+.ps1
+
+#migration files
+wajecrm/migrations/*.py
+!wajecrm/migrations/__init__.py
+
+
