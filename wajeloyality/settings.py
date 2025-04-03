@@ -16,6 +16,7 @@ from datetime import timedelta
 from django.conf import settings
 import pymysql
 import os.path
+from decouple import config
 
 
 Temp_Path = os.path.realpath('.')
@@ -35,7 +36,7 @@ SECRET_KEY = '$)qsyduv4a!ft%7xwjcw4-iodc$_#uu4%ssps)0l=vg@ic(y5r'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['199.192.28.167','wajeloyality.website']
+ALLOWED_HOSTS = ['199.192.28.167','wajeloyality.website', '127.0.0.1']
 
 SETTINGS_PATH = settings.BASE_DIR
 
@@ -107,15 +108,19 @@ DATABASE_ROUTERS = ['wajecrm.router.WajeRouter']
 DATABASE_APPS_MAPPING = {'mpos0': 'loyalty',
                          'DST': 'midas',
                          }
+
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql', 
-        'NAME': 'wajeloyaltycrmdb',
-        'USER': 'wajesmart',
-        'PASSWORD': 'Wajesmart@123',
-        'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
-        'PORT': '3306',
-        #Wajesmart@1234'
+        'ENGINE': f'django.db.backends.{config("DB_ENGINE")}',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT'),
+        'OPTIONS': {
+            'charset': 'utf8mb4',  # Optional for full Unicode support
+        },
     },
    'loyalty': {
         'ENGINE': 'sql_server.pyodbc',
@@ -125,7 +130,7 @@ DATABASES = {
         'HOST': '40.87.89.250',
         'PORT': '1433',
         'OPTIONS': {
-            'driver': 'FreeTDS',
+            'driver': 'ODBC Driver 17 for SQL Server',
             'unicode_results': True,
             'host_is_server': True,
             'autocommit': True,
@@ -219,3 +224,5 @@ MEDIA_URL = '/media/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 FILE_UPLOAD_HANDLERS = ("django_excel.ExcelMemoryFileUploadHandler",
                         "django_excel.TemporaryExcelFileUploadHandler")
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

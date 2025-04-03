@@ -2,6 +2,12 @@ from .models import *
 from rest_framework import generics, permissions, serializers
 
 
+class RoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Role
+        fields = ('id', 'name')
+        extra_kwargs={'id':{'read_only':True}}
+
 class merchantSerializer(serializers.ModelSerializer):
     """Serializer to map the Model instance into JSON format."""
     class Meta:
@@ -87,3 +93,24 @@ class planSerializer(serializers.ModelSerializer):
         """Meta class to map serializer's fields with the model fields."""
         model = plan
         fields = ('id','initial_minimum_user','price', 'subsequent_minimum','number_of_days','billing_interval','created_at')
+
+
+class GiftCardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = giftCard
+        fields = ("id","serialnumber", "cardname", "recipient_phone", "recipient_email", "createdby", "amount", "merchID", "active", "expiration_date", "createddate")
+
+
+class AccountantDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AccountantData
+        fields = "__all__"
+
+    def to_representation(self, obj):
+        """Add merchant and branch name to the accountant data instance. """
+        instance = super().to_representation(obj)
+        gc_trans = giftcardtransaction.objects.filter(reference=obj.transactionRef).first()
+        instance['merchant'] = gc_trans.merchID.businessname
+        instance['branch'] = gc_trans.branch.branchname
+        return instance
+    

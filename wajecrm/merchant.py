@@ -23,6 +23,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.urls import reverse
 from django.conf import settings
 from django.shortcuts import redirect
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 import logging
 from .logger import *
 import base64
@@ -36,6 +37,18 @@ from .notification import Notification, htmltopdf
 
 # Create your views here.
 # View to create a merchant and save in the database.
+
+
+
+class ListCreateRoleView(ListCreateAPIView):
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+
+
+class UpdateRoleView(RetrieveUpdateDestroyAPIView):
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+
 class merchantView(APIView):
     #permission_classes = (IsAuthenticated,)
     def post(self,request, format=None):

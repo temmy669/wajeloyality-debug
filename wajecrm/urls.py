@@ -13,6 +13,7 @@ from .giftcard import *
 from .vendors import *
 from .metropos import *
 from .notification import *
+from .accountant import *
 from rest_framework.urlpatterns import format_suffix_patterns
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 
@@ -69,6 +70,11 @@ urlpatterns = {
     url(r'^api/token/$', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     url(r'^api/token/refresh/$', TokenRefreshView.as_view(), name='token_refresh'),
     url(r'^api/token/verify/$', TokenVerifyView.as_view(), name='token_verify'),
+    path('roles', ListCreateRoleView.as_view(), name='role'),
+    path('role/<pk>', UpdateRoleView.as_view(), name='edit-role'),
+    path('giftcard_list/<int:merchant_service_id>', GiftCardView.as_view(), name='giftcard'),
+    path('giftcard_update/<pk>', UpdateGiftCardView.as_view(), name='update-giftcard'),
+    path('verify-transaction/', VerifyTransactionAPIView.as_view(), name='verify-transaction'),
     #path('admin/', admin.site.urls),
 }
 urlpatterns = format_suffix_patterns(urlpatterns)

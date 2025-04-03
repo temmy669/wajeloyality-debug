@@ -2,13 +2,42 @@
 from __future__ import unicode_literals
 
 from django.db import models
-
+from django.utils import timezone
 from datetime import datetime
 #from django.core.exceptions import FieldDoesNotExist 
 
 from safedelete.models import SafeDeleteModel
 
 # Create your models here.
+
+role_choices =(
+     ('admin', 'Admin'), 
+     ('accountant', 'Accountant'),
+     ('auditor', 'Auditor'),
+     ('manager', 'Manager'))
+
+class Role(models.Model):
+    # id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100, 
+                            choices=role_choices, 
+                            default='admin')
+    
+
+    def __str__(self):
+         return self.name
+    
+
+class AccountantData(models.Model):
+    amount = models.DecimalField(max_digits=16, decimal_places=2)  
+    cardName = models.CharField(max_length=200) 
+    confirmationCode = models.CharField(max_length=20, unique=True)  
+    transactionRef = models.CharField(max_length=255, unique=True)  
+    dateConfirmed = models.DateField(default=timezone.now,null=False)
+    customer = models.CharField(max_length=200, null=False)
+    datePayment = models.DateField(default=timezone.now,null=False)
+
+    def __str__(self):
+        return f"Transaction: {self.transactionRef} - {self.cardName}"
 
 class merchant(models.Model):
     serviceID =  models.CharField(max_length=255,null=True)
@@ -87,11 +116,12 @@ class user(models.Model):
     username= models.CharField(max_length=45)
     name= models.CharField(max_length=45,null=True)
     userpassword= models.CharField(max_length=255,null=True)
-    role= models.CharField(max_length=255,null=True)
     branchID = models.ForeignKey(branch, on_delete=models.CASCADE)
     merchID = models.ForeignKey(merchant, on_delete=models.CASCADE)
     createddate = models.DateField('createddate',auto_now_add=True)
     updateddate = models.DateField('updateddate',null=True)
+    role = models.ForeignKey('Role', on_delete=models.SET_NULL, null=True, blank=True)
+
 class loyaltyrule(models.Model):
     loyaltyrule= models.CharField(max_length=45)
     rewardpoint = models.CharField(max_length=45,null=True)
@@ -165,13 +195,13 @@ class giftCard(SafeDeleteModel):
     cardname = models.CharField(null=True,max_length=200)
     recipient_phone = models.CharField(null=True,max_length=200)
     recipient_email = models.CharField(null=True,max_length=200)
-    createdby = models.CharField(null=True,max_length=200)
     amount= models.DecimalField(default=0, max_digits=16, decimal_places=6)
     merchID = models.ForeignKey(merchant,on_delete=models.CASCADE,null=True)
     active = models.BooleanField(default=1)
     deleted = models.DateField('deleted',null=True)
     expiration_date = models.DateField(auto_now_add=False)
     createddate = models.DateTimeField(auto_now_add=True)
+    createdby = models.ForeignKey('user', on_delete=models.SET_NULL, null=True, blank=True)
 
 class giftcardtransaction(models.Model):
     giftID = models.ForeignKey(giftCard,on_delete=models.CASCADE,null=True)

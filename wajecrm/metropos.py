@@ -256,32 +256,50 @@ def saveGiftVoucherRecord(format=None):
     return HttpResponse(None)
 
 def pushDeactivatedGiftVoucherRecord(format=None):
-    serviceID ='351817683'
+    serviceID = '351817683'
     logger = get_logger(serviceID)
-    logger.info("{0}{1}{2}".format("Starting gift card migration for", " ", serviceID))
+    logger.info(f"Starting gift card migration for {serviceID}")
     try:
-        merchID = merchant.objects.filter(serviceID=serviceID).values('id').first()  # get the mech ID using the service ID
-        voucherdetails = list(giftCard.objects.all_with_deleted().filter(merchID=merchID['id']).filter(deleted__isnull=False).values('id', 'serialnumber', 'cardname', 'recipient_phone', 'amount').order_by('-createddate'))
-        for counter, element in enumerate(voucherdetails):
-            #length = len(voucherdetails)
-            #if length > counter:
-            metroposvoucherrecord = voucher.objects.get(ID=element['serialnumber'])  # fetch the gift voucher from MetroPOS by serialnumber fom WALEXX
-            if metroposvoucherrecord:  # Validate if the gift card already exist in MetroPOS
-                logger.info("{0}{1}{2}".format("Deactive gift card migration for", " ", element['serialnumber']))
-                # Write your SQL update statement
-                id_value = element['serialnumber']
+        # Get merchant ID
+        merchID = merchant.objects.filter(serviceID=serviceID).values('id').first()
+        if not merchID:
+            logger.error("Merchant not found")
+            return HttpResponse(None)
+            
+        # Get deleted gift cards from Walexx
+        voucherdetails = list(giftCard.objects.all_with_deleted().filter(
+            merchID=merchID['id'], 
+            deleted__isnull=False
+        ).values('id', 'serialnumber', 'cardname', 'recipient_phone', 'amount').order_by('-createddate'))
+
+        for element in voucherdetails:
+            # Safely check if voucher exists in MetroPOS
+            metroposvoucherrecord = voucher.objects.filter(ID=element['serialnumber']).first()
+            
+            if metroposvoucherrecord:  # Only proceed if record exists
+                logger.info(f"Deactivating gift card {element['serialnumber']}")
+                
+                # Update using raw SQL
                 sql_update_query = """
                     UPDATE voucher
                     SET Status = 1,
-                    SOLDOUT=0
+                        SOLDOUT = 0
                     WHERE ID = %s
                 """
-                # Execute the raw SQL update query
-                with connections['loyalty'].cursor() as cursor:
-                     cursor.execute(sql_update_query, [id_value])
-                logger.info("{0}{1}{2}".format("gift card deacivation for", " ", element['serialnumber']))
+                try:
+                    with connections['loyalty'].cursor() as cursor:
+                        cursor.execute(sql_update_query, [element['serialnumber']])
+                    logger.info(f"Successfully deactivated {element['serialnumber']}")
+                except Exception as e:
+                    logger.error(f"Error updating voucher {element['serialnumber']}: {str(e)}")
+            else:
+                logger.info(f"Voucher {element['serialnumber']} not found in MetroPOS, skipping")
+
+        logger.info(f"Completed gift card migration for {serviceID}")
+
     except Exception as e:
-        logger.info("The merchant ID not found"+str(e))
+        logger.error(f"Error in pushDeactivatedGiftVoucherRecord: {str(e)}")
+    
     return HttpResponse(None)
 
 

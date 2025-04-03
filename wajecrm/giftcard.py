@@ -26,9 +26,37 @@ import openpyxl
 import pandas as pd
 from collections import OrderedDict
 from django.conf import settings
+from .permissions import (
+    IsAdmin, IsAccountant, IsAuditor)
+
+from .filters import GiftCardStatFilter, GiftCardFilter
+from .serializers import GiftCardSerializer
+from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView
 
 
 
+
+
+
+class GiftCardView(ListAPIView):
+    queryset = giftCard.objects.all()
+    serializer_class = GiftCardSerializer
+    filter_class = GiftCardStatFilter
+
+    def get_queryset(self):
+        """Fetch the giftcards belonging to a particular merchant
+        using the merchant's service ID.
+        """
+        
+        service_id = self.kwargs['merchant_service_id']
+        queryset = self.queryset.filter(merchID__serviceID__iexact = service_id)
+        return queryset
+
+
+
+class UpdateGiftCardView(RetrieveUpdateDestroyAPIView):
+    queryset = giftCard.objects.all()
+    serializer_class = GiftCardSerializer
 
 
 class deactivateGiftCard(APIView):   
