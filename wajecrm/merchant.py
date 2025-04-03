@@ -346,7 +346,7 @@ class merchantChangePassword(APIView):
 class userListView(APIView):
     serializer_class = merchantUserSerializer()
 
-    def get(request):
+    def get(self, request):
         queryset = user.objects.all()
         serializer = merchantUserSerializer(queryset, many=True)
         return JsonResponse({'data': serializer.data,'status':'True'})
