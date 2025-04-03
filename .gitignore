@@ -19,6 +19,7 @@ env/
 venv/
 .virtualenv/
 .env
+giftenv/
 
 #dir
 campaigntemplates/

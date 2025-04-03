@@ -23,6 +23,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.urls import reverse
 from django.conf import settings
 from django.shortcuts import redirect
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 import logging
 from .logger import *
 import base64

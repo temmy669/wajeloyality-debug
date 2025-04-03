@@ -15,6 +15,7 @@ from .giftcard import *
 from .vendors import *
 from .metropos import *
 from .notification import *
+from .accountant import *
 from rest_framework.urlpatterns import format_suffix_patterns
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
