@@ -341,6 +341,17 @@ class merchantChangePassword(APIView):
             responseData ={'message':'The record missing','status':'False'}
             return HttpResponse(json.dumps(responseData), content_type="application/json")
 
+
+@extend_schema(tags=['Users'])
+class userListView(APIView):
+    serializer_class = merchantUserSerializer()
+
+    def get(request):
+        queryset = user.objects.all()
+        serializer = merchantUserSerializer(queryset, many=True)
+        return JsonResponse({'data': serializer.data,'status':'True'})
+        
+
 @extend_schema(tags=['Merchant'])
 class editMerchantRecord(APIView):
     permission_classes = (IsAuthenticated,)
@@ -448,6 +459,8 @@ def walexServiceDetails(imgext, serviceID, businessdescription, request, merchid
     record = r.json()
     print("respeonse{}".format(record))
     return
+
+
 
 def walexupdate(merchantid,bankname,accountnumber,accountname):    
     headers = {'content-type': "application/json"}

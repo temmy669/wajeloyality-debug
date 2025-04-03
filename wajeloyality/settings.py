@@ -14,7 +14,7 @@ import os
 import datetime
 from datetime import timedelta
 from django.conf import settings
-import pymysql
+# import pymysql
 import os.path
 from decouple import config
 
