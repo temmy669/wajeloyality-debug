@@ -20,7 +20,7 @@ role_choices =(
      ('manager', 'Manager'))
 
 class Role(models.Model):
-    # id = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100, 
                             choices=role_choices, 
                             default='admin')

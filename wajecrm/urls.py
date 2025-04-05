@@ -90,7 +90,7 @@ urlpatterns = {
     path('', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('redoc', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     path('accountant/giftcards', AccountDataView.as_view(), name='giftcard-accountantview'),
-    path('list-users/', userListView.as_view(), name='list-users'),
+    path('list-roles/', roleListView.as_view(), name='list-roles'),
 }
 
 urlpatterns = format_suffix_patterns(urlpatterns)

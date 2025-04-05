@@ -342,13 +342,13 @@ class merchantChangePassword(APIView):
             return HttpResponse(json.dumps(responseData), content_type="application/json")
 
 
-@extend_schema(tags=['Users'])
-class userListView(APIView):
-    serializer_class = merchantUserSerializer()
+@extend_schema(tags=['Roles'])
+class roleListView(APIView):
+    serializer_class = RoleSerializer()
 
-    def get(self, request):
-        queryset = user.objects.all()
-        serializer = merchantUserSerializer(queryset, many=True)
+    def get(self, request, *args, **kwargs):
+        queryset = Role.objects.all()
+        serializer = RoleSerializer(queryset, many=True)
         return JsonResponse({'data': serializer.data,'status':'True'})
         
 
