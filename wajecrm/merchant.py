@@ -36,6 +36,7 @@ from django.utils import timezone
 import datetime
 from .notification import Notification, htmltopdf
 from drf_spectacular.utils import extend_schema
+from django.db.models import F
 # Create your views here.
 # View to create a merchant and save in the database.
 
@@ -157,7 +158,7 @@ class merchantManagerView(APIView):
     def get(self,request, format=None):
         merchID=request.GET.get('merchID')
         queryset = user.objects.all()
-        branchmanagerecord =queryset.filter(merchID=merchID).values('id','username','role', 'branchID','merchID')
+        branchmanagerecord = queryset.filter( merchID=merchID).annotate( role_name=F('role__name')).values('id', 'username', 'role_name', 'branchID', 'merchID' )
         dictList=[]
         for counter, element in enumerate(branchmanagerecord):
             print(element)
