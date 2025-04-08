@@ -6,8 +6,7 @@ from rest_framework import generics, permissions, serializers
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Role
-        fields = ['name']
-        extra_kwargs={'id':{'read_only':True}}
+        fields = ['id','name']
 
 
 class merchantSerializer(serializers.ModelSerializer):
@@ -16,8 +15,8 @@ class merchantSerializer(serializers.ModelSerializer):
         """Meta class to map serializer's fields with the model fields."""
         model = merchant
         fields = ('serviceID','businessname','businessdescription','country','merchantphonenumber', 'businessaddress','merchantemailaddress','merchantpassword','active','contactpersonfirstname','contactpersonlastname','contactpersonphone','currency','country_state','country_city', 'businessname', 'businesslogo', 'themecolor', 'settingsactivated')
-class branchManagerSerilaizer(serializers.ModelSerializer):
-    """Serializer t omao"""
+# class branchManagerSerilaizer(serializers.ModelSerializer):
+#     """Serializer t omao"""
 class branchSerializer(serializers.ModelSerializer):
     """Serializer to map the Model instance into JSON format."""
     class Meta:
@@ -26,18 +25,42 @@ class branchSerializer(serializers.ModelSerializer):
         fields = ('branchname','branchaddress','branchstate','branchcity','branchofficeline','merchID')
 
 class merchantBasicSerializer(serializers.ModelSerializer):
+    businesslogo = serializers.ImageField(use_url=True)
     class Meta:
         model = merchant
-        fields = ['businessname', 'businesslogo', 'themecolor', 'settingsactivated']
+        fields = ('businessname', 'businesslogo', 'themecolor', 'settingsactivated')
 
 class merchantUserSerializer(serializers.ModelSerializer):
-    role = RoleSerializer(read_only=True)
+    role = serializers.CharField(source='role.name', read_only=True)
     merchID = merchantBasicSerializer(read_only=True)
     branchID = branchSerializer(read_only=True)
 
+    # Write-only fields for creation
+    role_id = serializers.PrimaryKeyRelatedField(queryset=Role.objects.all(), write_only=True)
+    merchID_id = serializers.PrimaryKeyRelatedField(queryset=merchant.objects.all(), write_only=True)
+    branchID_id = serializers.PrimaryKeyRelatedField(queryset=branch.objects.all(), write_only=True)
+
     class Meta:
         model = user
-        fields = ('username', 'name', 'branchID', 'merchID', 'role')
+        fields = (
+            'username', 'name', 'branchID', 'merchID', 'role',
+            'role_id', 'merchID_id', 'branchID_id'
+        )
+        read_only_fields = ('branchID', 'merchID', 'role')
+
+    def create(self, validated_data):
+        role = validated_data.pop('role_id')
+        merchID = validated_data.pop('merchID_id')
+        branchID = validated_data.pop('branchID_id')
+
+        # Optionally, hash the password here if you’re including it
+        return user.objects.create(
+            **validated_data,
+            role=role,
+            merchID=merchID,
+            branchID=branchID
+        )
+
 
 class themeColorSerializer(serializers.ModelSerializer):
     """Serializer to map the Model instance into JSON format."""
@@ -115,11 +138,11 @@ class AccountantDataSerializer(serializers.ModelSerializer):
         model = AccountantData
         fields = "__all__"
 
-    def to_representation(self, obj):
-        """Add merchant and branch name to the accountant data instance. """
-        instance = super().to_representation(obj)
-        gc_trans = giftcardtransaction.objects.filter(reference=obj.transactionRef).first()
-        instance['merchant'] = gc_trans.merchID.businessname
-        instance['branch'] = gc_trans.branch.branchname
-        return instance
+    # def to_representation(self, obj):
+    #     """Add merchant and branch name to the accountant data instance. """
+    #     instance = super().to_representation(obj)
+    #     gc_trans = giftcardtransaction.objects.filter(reference=obj.transactionRef).first()
+    #     instance['merchant'] = gc_trans.merchID.businessname
+    #     instance['branch'] = gc_trans.branch.branchname
+    #     return instance
     

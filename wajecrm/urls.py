@@ -84,7 +84,6 @@ urlpatterns = {
     path('giftcard/<str:merchant_service_id>', GiftCardView.as_view(), name='giftcard'),
     path('giftcard/<pk>', UpdateGiftCardView.as_view(), name='update-giftcard'),
     path('admin/', admin.site.urls),
-    path("test/", giftcard.test, name="test"),
     path('verify-transaction/', VerifyTransactionAPIView.as_view(), name='verify-transaction'),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),

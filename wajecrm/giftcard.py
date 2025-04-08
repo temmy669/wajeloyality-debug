@@ -452,16 +452,6 @@ def generateReferenceNumber(merchID):
 from django.shortcuts import render
 from datetime import datetime
 
-def test(request):
-    expiration_date = datetime(2025, 10, 20)  # Define a proper date
-
-    voucher_date = expiration_date.strftime('%Y-%m-%d') if expiration_date else None
-
-    context = {'date': voucher_date}
-
-    return render(request, 'MarketSquareVoucher_details_x20_v3.html', context)
-
-
 
 
         

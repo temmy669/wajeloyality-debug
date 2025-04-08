@@ -103,40 +103,56 @@ class UpdateMerchantStaffView(RetrieveUpdateDestroyAPIView):
     queryset = user.objects.all()
     serializer_class = merchantUserSerializer
 
+    
 @extend_schema(tags=['Merchant'])
 class merchantManagerView(APIView):
     # permission_classes = (IsAuthenticated,)
     serializer_class = merchantUserSerializer
 
-    def post(self,request, format=None):
-        try:       
-            """Save the post data when creating a new merchant."""       
+    def post(self, request, format=None):
+        try:
             serializer = merchantUserSerializer(data=request.data)
-            username = request.data['username']
-            merchID=request.data['merchID']
-            branchID=request.data['branchID']
-            firstname=request.data['name']
-            customerpassword = request.data['userpassword']
-            emailaddress=request.data['username']
-            randomnumber=None
-            checkemaildup = checkdupmanagerEmails(username,merchID)
-            #print('email check is {}'.format(checkemaildup))
-            if checkemaildup is False:
-                if serializer.is_valid():
-                    passwd = make_password(
-                        request.data['userpassword'], salt=None, hasher='default')
-                    serializer.save(userpassword=passwd)
-                    notify = Notification()
-                    notify.newCustomerNotification(firstname, randomnumber, customerpassword, emailaddress, merchID, username)
-                    responseData ={'message':'record created',
-                                'status':'True'}                         
-                    return HttpResponse(json.dumps(responseData), content_type="application/json")
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            responseData={'message':'The duplicate  username','status':'False'}
-            return HttpResponse(json.dumps(responseData), content_type="application/json")
+
+            # Check for duplicate email
+            username = request.data.get('username')
+            merchID = request.data.get('merchID_id')
+            if checkdupmanagerEmails(username, merchID):
+                return Response({
+                    'message': 'The duplicate username',
+                    'status': 'False'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            if serializer.is_valid():
+                # Optional: hash password here if needed
+                password = request.data.get('userpassword')
+                if password:
+                    serializer.validated_data['userpassword'] = make_password(password)
+
+                user_obj = serializer.save()
+
+                # Optional: send notification
+                notify = Notification()
+                notify.newCustomerNotification(
+                    user_obj.name,
+                    None,  # randomnumber
+                    password,
+                    user_obj.username,
+                    user_obj.merchID.id,
+                    user_obj.username
+                )
+
+                return Response({
+                    'message': 'Record created',
+                    'status': 'True'
+                }, status=status.HTTP_201_CREATED)
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         except Exception as e:
-               responseData ={'message':'An error occur'+str(e),'status':'False'}
-               return HttpResponse(json.dumps(responseData), content_type="application/json")
+            return Response({
+                'message': f'An error occurred: {str(e)}',
+                'status': 'False'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                 
     def get(self,request, format=None):
         merchID=request.GET.get('merchID')
