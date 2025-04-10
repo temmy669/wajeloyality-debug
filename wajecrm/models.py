@@ -239,7 +239,6 @@ class AccountantData(models.Model):
     dateConfirmed = models.DateField(default=timezone.now,null=False)
     customer = models.CharField(max_length=200, null=False)
     datePayment = models.DateField(default=timezone.now,null=False)
-    merchID = models.ForeignKey('merchant', on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return f"Transaction: {self.transactionRef} - {self.cardName}"
@@ -251,7 +250,6 @@ class AccountantData(models.Model):
 #     dateConfirmed = models.DateField(default=timezone.now,null=False)
 #     customer = models.CharField(max_length=200, null=False)
 #     datePayment = models.DateField(default=timezone.now,null=False)
-#     merchID = models.ForeignKey('merchant', on_delete=models.CASCADE, null=True) 
 
 #     def __str__(self):
 #         return f"Transaction: {self.customer} - {self.cardName}"

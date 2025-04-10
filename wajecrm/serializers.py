@@ -25,10 +25,19 @@ class branchSerializer(serializers.ModelSerializer):
         fields = ('branchname','branchaddress','branchstate','branchcity','branchofficeline','merchID')
 
 class merchantBasicSerializer(serializers.ModelSerializer):
-    businesslogo = serializers.ImageField(use_url=True)
     class Meta:
         model = merchant
         fields = ('businessname', 'businesslogo', 'themecolor', 'settingsactivated')
+
+    def to_representation(self, instance):
+        # Get the original representation (i.e., all the data)
+        representation = super().to_representation(instance)
+        
+        # Strip out '%20' from the businesslogo field
+        if 'businesslogo' in representation:
+            representation['businesslogo'] = representation['businesslogo'].replace('%20', ' ')
+        
+        return representation
 
 class merchantUserSerializer(serializers.ModelSerializer):
     role = serializers.CharField(source='role.name', read_only=True)
