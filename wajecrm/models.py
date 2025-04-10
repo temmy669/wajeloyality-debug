@@ -239,21 +239,22 @@ class AccountantData(models.Model):
     dateConfirmed = models.DateField(default=timezone.now,null=False)
     customer = models.CharField(max_length=200, null=False)
     datePayment = models.DateField(default=timezone.now,null=False)
+    merchID = models.ForeignKey('merchant', on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return f"Transaction: {self.transactionRef} - {self.cardName}"
 
-class AuditorData(models.Model):
-    amount = models.DecimalField(max_digits=16, decimal_places=2)  
-    cardName = models.CharField(max_length=200) 
-    confirmationCode = models.CharField(max_length=20, unique=True)    
-    dateConfirmed = models.DateField(default=timezone.now,null=False)
-    customer = models.CharField(max_length=200, null=False)
-    datePayment = models.DateField(default=timezone.now,null=False)
-    # manager = 
+# class AuditorData(models.Model):
+#     amount = models.DecimalField(max_digits=16, decimal_places=2)  
+#     cardName = models.CharField(max_length=200) 
+#     confirmationCode = models.CharField(max_length=20, unique=True)    
+#     dateConfirmed = models.DateField(default=timezone.now,null=False)
+#     customer = models.CharField(max_length=200, null=False)
+#     datePayment = models.DateField(default=timezone.now,null=False)
+#     merchID = models.ForeignKey('merchant', on_delete=models.CASCADE, null=True) 
 
-    def __str__(self):
-        return f"Transaction: {self.transactionRef} - {self.cardName}"
+#     def __str__(self):
+#         return f"Transaction: {self.customer} - {self.cardName}"
 
 class plan(models.Model):
     initial_minimum_user =models.CharField(null=True,max_length=200)

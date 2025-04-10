@@ -134,9 +134,19 @@ class GiftCardSerializer(serializers.ModelSerializer):
 
 
 class AccountantDataSerializer(serializers.ModelSerializer):
+    businesslogo = serializers.ImageField(source='merchant.businesslogo', read_only=True)
     class Meta:
         model = AccountantData
-        fields = "__all__"
+        fields = [
+            'amount',
+            'cardName',
+            'confirmationCode',
+            'transactionRef',
+            'dateConfirmed',
+            'customer',
+            'datePayment',
+            'businesslogo'
+        ]
 
     # def to_representation(self, obj):
     #     """Add merchant and branch name to the accountant data instance. """

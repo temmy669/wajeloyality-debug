@@ -70,7 +70,7 @@ class merchantView(APIView):
                     businessdescription=request.data['businessdescription']
                     country = request.data['country']
                     processedimage = receiveImage(img_data,imgext)
-                    serializer.save(serviceID=serviceID,merchantpassword=passwd,businesslogo=processedimage)
+                    serializer.save(serviceID=serviceID,merchantpassword=passwd,businesslogo=processedimage, merchantemailaddress=merchantemailaddress)
                     emailactivation(recipientemail,imgext,request)
                     merchid = merchant.objects.order_by('id').values('id').last()
                     print(merchid)
