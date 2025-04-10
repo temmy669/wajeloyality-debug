@@ -92,6 +92,7 @@ urlpatterns = {
     path('redoc', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     path('accountant/giftcards', AccountDataView.as_view(), name='giftcard-accountantview'),
     path('list-roles/', roleListView.as_view(), name='list-roles'),
+    path('manager-verification/', merchantGiftcardVerificationView.as_view(), name='manager-verification'),
 }
 
 urlpatterns = format_suffix_patterns(urlpatterns)

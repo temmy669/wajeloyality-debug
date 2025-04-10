@@ -141,7 +141,6 @@ class GiftCardSerializer(serializers.ModelSerializer):
         model = giftCard
         fields = ("id","serialnumber", "cardname", "recipient_phone", "recipient_email", "createdby", "amount", "merchID", "active", "expiration_date", "createddate")
 
-
 class AccountantDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = AccountantData

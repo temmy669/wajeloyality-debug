@@ -279,6 +279,15 @@ class merchantLoginView(APIView):
         }, status=404)
 
 
+class merchantGiftcardVerificationView(APIView):
+    def get(self, request, format=None):
+        confirmationCode = request.GET.get('confirmationCode')
+        queryset = AccountantData.objects.all()
+        amount = queryset.filter(confirmationCode=confirmationCode).values('amount')
+        return JsonResponse({'data': list(amount), 'status': 'True'})
+
+
+
 @extend_schema(tags=['Authentication'])
 class branchManagerLoginView(APIView):
     #permission_classes =(IsAuthenticated,)  
