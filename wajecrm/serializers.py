@@ -143,25 +143,13 @@ class GiftCardSerializer(serializers.ModelSerializer):
 
 
 class AccountantDataSerializer(serializers.ModelSerializer):
-    businesslogo = serializers.ImageField(source='merchant.businesslogo', read_only=True)
     class Meta:
         model = AccountantData
-        fields = [
-            'amount',
-            'cardName',
-            'confirmationCode',
-            'transactionRef',
-            'dateConfirmed',
-            'customer',
-            'datePayment',
-            'businesslogo'
-        ]
+        fields = "__all__"
 
-    # def to_representation(self, obj):
-    #     """Add merchant and branch name to the accountant data instance. """
-    #     instance = super().to_representation(obj)
-    #     gc_trans = giftcardtransaction.objects.filter(reference=obj.transactionRef).first()
-    #     instance['merchant'] = gc_trans.merchID.businessname
-    #     instance['branch'] = gc_trans.branch.branchname
-    #     return instance
+class AuditorDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AccountantData
+        fields = ('amount', 'cardName', 'confirmationCode', 'dateConfirmed', 'customer', 'datePayment')
+        read_only_fields = ('amount', 'cardName', 'confirmationCode', 'dateConfirmed', 'customer', 'datePayment')
     

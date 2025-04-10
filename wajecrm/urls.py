@@ -3,6 +3,7 @@ from django.urls import include, re_path
 from django.contrib import admin
 from django.urls import path
 from .accountant import *
+from .auditor import *
 from .merchant import *
 from .customer import *
 from .api import *
@@ -85,6 +86,7 @@ urlpatterns = {
     path('giftcard/<pk>', UpdateGiftCardView.as_view(), name='update-giftcard'),
     path('admin/', admin.site.urls),
     path('verify-transaction/', VerifyTransactionAPIView.as_view(), name='verify-transaction'),
+    path('auditor/', AuditorAPIView.as_view(), name='auditor'),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('redoc', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
