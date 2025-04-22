@@ -15,14 +15,14 @@ class BaseGiftCardPermission(permissions.BasePermission):
             return True
         return False
             
-class IsAdmin(BaseGiftCardPermission):
+class IsManager(BaseGiftCardPermission):
     allowed_methods = ['GET', 'POST', 'DELETE', 'PUT', 'PATCH']
-    role = 'admin'
+    role = 'Manager'
 
 class IsAccountant(BaseGiftCardPermission):
     allowed_methods = ['GET', 'PUT', 'PATCH', 'POST']
-    role = 'accountant'
+    role = 'Accountant'
 
 class IsAuditor(BaseGiftCardPermission):
     allowed_methods = ['GET']
-    role = 'auditor'
+    role = 'Auditor'

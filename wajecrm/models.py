@@ -11,6 +11,7 @@ from django.utils import timezone
 
 from safedelete.models import SafeDeleteModel
 
+
 # Create your models here.
 
 role_choices =(
@@ -121,7 +122,7 @@ class user(models.Model):
     createddate = models.DateField('createddate',auto_now_add=True)
     updateddate = models.DateField('updateddate',null=True)
     role = models.ForeignKey('Role', on_delete=models.SET_NULL, null=True, blank=True)
-
+    
 class loyaltyrule(models.Model):
     loyaltyrule= models.CharField(max_length=45)
     rewardpoint = models.CharField(max_length=45,null=True)

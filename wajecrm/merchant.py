@@ -204,12 +204,6 @@ class merchantBranchView(APIView):
         return JsonResponse({'data': list(branchrecord),'status':'True'})          
 
 '''Class to grant access to an authenticated Merchant '''
-
-from django.http import JsonResponse
-from django.contrib.auth.hashers import check_password
-from rest_framework.views import APIView
-from .models import merchant, user
-
 @extend_schema(tags=['Authentication'])
 class merchantLoginView(APIView):
     def get(self, request, format=None):
@@ -579,6 +573,7 @@ def duplicateEmails(merchantemailaddress):
       return False
     else:
         return True
+
 def tokenGenerator():
     headers = {'content-type': "application/json"}
     params ={"username":"wajesmart","password":"Admin$1234"}

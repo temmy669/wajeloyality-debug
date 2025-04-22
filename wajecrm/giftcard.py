@@ -28,11 +28,12 @@ import pandas as pd
 from collections import OrderedDict
 from django.conf import settings
 from .permissions import (
-    IsAdmin, IsAccountant, IsAuditor)
+    IsManager, IsAccountant, IsAuditor)
 from .serializers import AccountantDataSerializer
 from .filters import GiftCardStatFilter, GiftCardFilter
 from .serializers import GiftCardSerializer
 from drf_spectacular.utils import extend_schema
+
 
 @extend_schema(tags=['Gift Cards'])
 class GiftCardView(ListAPIView):
@@ -56,7 +57,7 @@ class UpdateGiftCardView(ListAPIView):
 
 @extend_schema(tags=['Gift Cards'])
 class deactivateGiftCard(APIView):
-    permission_classes = [IsAdmin] 
+    permission_classes = [IsManager] 
 
     def post(self, request, format=None):     
         giftcardid=request.data['giftcardid']
@@ -88,13 +89,12 @@ class UpdateAccountantDataView(RetrieveUpdateDestroyAPIView):
     serializer_class = AccountantDataSerializer
     # permission_classes = [IsAdmin, IsAccountant]
 
-
 @extend_schema(tags=['Gift Cards'])
-class MerchantGiftCardView(APIView):   
+class MerchantGiftCardView(APIView):
     """ Function to create gift card of a merchants  """
-    # permission_classes = [IsAdmin, IsAuditor, IsAccountant]
+    permission_classes = [IsAuthenticated, IsManager]
 
-    def post(self, request, format=None):     
+     def post(self, request, format=None):     
         """Save the post data when creating a new merchant."""       
         count=request.data['count']
         merchID=request.data['merchID']
@@ -141,7 +141,7 @@ class MerchantGiftCardView(APIView):
 
 @extend_schema(tags=['Gift Cards'])
 class MerchantCustomerGiftcardVerificationView(APIView):
-      permission_classes = [IsAdmin]
+      permission_classes = [IsManager]
       def get(self, request, format=None):     
           """Save the post data when creating a new merchant.""" 
           serviceid = request.GET.get('serviceid')

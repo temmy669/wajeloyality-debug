@@ -155,10 +155,6 @@ if ENVIRONMENT == 'production':
     }
 
 
-    
-
-        
-    
 
 REST_FRAMEWORK = {
 
@@ -177,6 +173,9 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
 }
+
+
+
 
 
 # Password validation
