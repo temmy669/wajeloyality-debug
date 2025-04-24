@@ -122,6 +122,7 @@ class user(models.Model):
     createddate = models.DateField('createddate',auto_now_add=True)
     updateddate = models.DateField('updateddate',null=True)
     role = models.ForeignKey('Role', on_delete=models.SET_NULL, null=True, blank=True)
+
     
 class loyaltyrule(models.Model):
     loyaltyrule= models.CharField(max_length=45)

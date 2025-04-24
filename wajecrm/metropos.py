@@ -267,10 +267,14 @@ def pushDeactivatedGiftVoucherRecord(format=None):
             return HttpResponse(None)
             
         # Get deleted gift cards from Walexx
-        voucherdetails = list(giftCard.objects.all_with_deleted().filter(
-            merchID=merchID['id'], 
-            deleted__isnull=False
-        ).values('id', 'serialnumber', 'cardname', 'recipient_phone', 'amount').order_by('-createddate'))
+        qs1 = giftCard.objects.all_with_deleted().filter(merchID=merchID['id'], active=False)
+        qs2 = giftCard.objects.all_with_deleted().filter(merchID=merchID['id'], deleted__isnull=False)
+
+        voucherdetails = list(
+            qs1.union(qs2)
+            .values('id', 'serialnumber', 'cardname', 'recipient_phone', 'amount')
+            .order_by('-createddate')
+        )
 
         for element in voucherdetails:
             # Safely check if voucher exists in MetroPOS

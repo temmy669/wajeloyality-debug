@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import giftCard,giftcardtransaction,merchant,attachment, AccountantData
+from .models import giftCard,giftcardtransaction,merchant,attachment, AccountantData,user
 import random
 import os
 import pdfkit
@@ -57,7 +57,7 @@ class UpdateGiftCardView(ListAPIView):
 
 @extend_schema(tags=['Gift Cards'])
 class deactivateGiftCard(APIView):
-    permission_classes = [IsManager] 
+    # permission_classes = [IsManager] 
 
     def post(self, request, format=None):     
         giftcardid=request.data['giftcardid']
@@ -89,53 +89,95 @@ class UpdateAccountantDataView(RetrieveUpdateDestroyAPIView):
     serializer_class = AccountantDataSerializer
     # permission_classes = [IsAdmin, IsAccountant]
 
+
 @extend_schema(tags=['Gift Cards'])
 class MerchantGiftCardView(APIView):
-    """ Function to create gift card of a merchants  """
-    permission_classes = [IsAuthenticated, IsManager]
+    """Functions to create and list gift cards for merchants."""
+    # permission_classes = [IsManager]
+    def post(self, request, format=None):     
+        """Save the post data when creating a new merchant's gift card."""
+        try:
+            count = int(request.data['count'])  # Ensure count is an integer
+            merchID = request.data['merchID']
+            createdby = request.data['createdby']
+    
+            # Get merchant by serviceID
+            try:
+                createdby_instance = user.objects.get(id=createdby)
+            except merchant.DoesNotExist:
+                return HttpResponse(json.dumps({
+                    'message': 'Merchant does not exist',
+                    'status': 'False'
+                }), content_type="application/json")
 
-     def post(self, request, format=None):     
-        """Save the post data when creating a new merchant."""       
-        count=request.data['count']
-        merchID=request.data['merchID']
-        createdby = request.data['createdby']
-        try:
-            for i in range(0,count):      
-                serialnumber=generateSerialNumber(merchID)
-                gf=giftCard(serialnumber=serialnumber,cardname=request.data['name'],amount=float(request.data['amount']),merchID_id=merchID,expiration_date=request.data['voucher_date'],createdby=createdby)      
+            # Create gift cards
+            for _ in range(count):
+                serialnumber = generateSerialNumber(merchID)
+                print(serialnumber)
+                gf = giftCard(
+                    serialnumber=serialnumber,
+                    cardname=request.data['name'],
+                    amount=float(request.data['amount']),
+                    merchID_id=merchID,
+                    expiration_date=request.data['voucher_date'],
+                    createdby=createdby_instance
+                )
                 gf.save()
+
+            return HttpResponse(json.dumps({
+                'message': 'The gift card record was created successfully',
+                'status': 'True'
+            }), content_type="application/json")
+
         except Exception as e:
-               responseData ={'message':'An error occur'+str(e),'status':'False'}
-               return HttpResponse(json.dumps(responseData), content_type="application/json")
-        responseData ={'message':'The giftcard record is created sucessfully','status':'True'}
-        return HttpResponse(json.dumps(responseData), content_type="application/json")
-   
-    """ Function to list gift card of various merchants  """
+            return HttpResponse(json.dumps({
+                'message': 'An error occurred: ' + str(e),
+                'status': 'False'
+            }), content_type="application/json")
+
+
     def get(self, request, format=None):     
-        """Save the post data when creating a new merchant.""" 
-        merchID=request.GET.get('merchID')
+        """List gift cards for a particular merchant."""
+        merchID = request.GET.get('merchID')
+        
         try:
-            giftcardrecord = list(giftCard.objects.filter(merchID=merchID).values(
-                'serialnumber', 'id', 'cardname', 'amount', 'recipient_phone', 'expiration_date', 'merchID').order_by('-createddate')[:1000])
-            dictList=[]
-            for counter,element in enumerate(giftcardrecord):
-                length=len(giftcardrecord)
+            giftcardrecord = list(
+                giftCard.objects.filter(merchID=merchID)
+                .values('serialnumber', 'id', 'cardname', 'amount', 'recipient_phone', 'expiration_date', 'merchID')
+                .order_by('-createddate')[:1000]
+            )
+            dictList = []
+
+            for counter, element in enumerate(giftcardrecord):
+                length = len(giftcardrecord)
                 if length > counter:                                                                                                                                                                                                        
-                    purchasevalue=element['amount']
-                    redeemedvalue=giftcardtransaction.objects.filter(merchID=element['merchID']).filter(giftID=element['id']).aggregate(Sum('redeemedamount'))
-                    redeemedvalue=redeemedvalue['redeemedamount__sum']
-                    if(redeemedvalue is None):
-                       redeemedvalue= Decimal('0.0')                
-                    currentvalue=float(purchasevalue-redeemedvalue)
-                    currentvalue={'currentvalue':currentvalue}
-                    element['amount']=float(element['amount'])
-                    element['expiration_date']=str(element['expiration_date'])
-                    element.update(currentvalue)
+                    purchasevalue = element['amount']
+                    redeemedvalue = giftcardtransaction.objects.filter(
+                        merchID=element['merchID'], giftID=element['id']
+                    ).aggregate(Sum('redeemedamount'))['redeemedamount__sum']
+                    
+                    if redeemedvalue is None:
+                        redeemedvalue = Decimal('0.0')                
+                    
+                    currentvalue = float(purchasevalue - redeemedvalue)
+                    currentvalue_dict = {'currentvalue': currentvalue}
+                    
+                    element['amount'] = float(element['amount'])
+                    element['expiration_date'] = str(element['expiration_date'])
+                    element.update(currentvalue_dict)
                     dictList.append(element)               
+
         except Exception as e:
-               responseData ={'message':'An error occur'+str(e),'status':'False'}
-               return HttpResponse(json.dumps(responseData), content_type="application/json")
-        responseData ={'data':dictList,'status':'True'}
+            responseData = {
+                'message': 'An error occurred: ' + str(e),
+                'status': 'False'
+            }
+            return HttpResponse(json.dumps(responseData), content_type="application/json")
+        
+        responseData = {
+            'data': dictList,
+            'status': 'True'
+        }
         return HttpResponse(json.dumps(responseData), content_type="application/json")
 
 
