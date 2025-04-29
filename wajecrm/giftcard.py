@@ -35,6 +35,7 @@ from .serializers import GiftCardSerializer
 from drf_spectacular.utils import extend_schema
 
 
+
 @extend_schema(tags=['Gift Cards'])
 class GiftCardView(ListAPIView):
     queryset = giftCard.objects.all()
@@ -263,13 +264,17 @@ class redeemMerchantGiftCardView(APIView):
         try: 
             try:
                 record = giftCard.objects.filter(serialnumber=request.data['serialnumber']).filter(
-                    merchID=request.data['merchID']).values('serialnumber', 'recipient_email', 'id', 'amount','expiration_date').first()
+                    merchID=request.data['merchID']).values('serialnumber', 'recipient_email', 'id', 'amount','expiration_date', 'active').first()
                     #retrieve giftcards from a merchant with a particular serialnumber """
             except TypeError:
                 record = None  #to catch error when the record is none 
             todaydate = datetime.datetime.now().date()   
             #if record['expiration_date'] > todaydate:              
             if not(record is None):
+                #check if the giftcard is active
+                if record['active'] == False:
+                    responseData ={'message':'The voucher card is inactive','status':'False'}
+                    return HttpResponse(json.dumps(responseData), content_type="application/json")
                 try:
                     #retrieve the owner of the giftcard 
                     verifyphone=giftCard.objects.filter(recipient_phone=request.data['phonenumber']).filter(merchID=request.data['merchID']).values('recipient_phone').first()
@@ -315,6 +320,7 @@ class redeemMerchantGiftCardView(APIView):
         except Exception as e:
                responseData ={'message':'An error occur'+str(e),'status':'False'}
                return HttpResponse(json.dumps(responseData), content_type="application/json")
+        
         responseData ={'message':'Transaction capture','status':'True'}
         return HttpResponse(json.dumps(responseData), content_type="application/json")
 
@@ -491,8 +497,6 @@ def generateReferenceNumber(merchID):
             merchID=merchID).values('reference').first()
     return x
 
-from django.shortcuts import render
-from datetime import datetime
 
 
 
