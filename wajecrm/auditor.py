@@ -1,38 +1,29 @@
-import requests
-from rest_framework import status
-from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.pagination import PageNumberPagination
 from .models import AccountantData
-from .serializers import AuditorDataSerializer
-from drf_spectacular.utils import extend_schema
+from .serializers import AuditorSerializer
 
-@extend_schema(tags=['Finance'])
+class AuditorPagination(PageNumberPagination):
+    page_size = 10  # Set the default number of items per page
+    page_size_query_param = 'page_size'
+    max_page_size = 100  # Optionally limit the max page size
+
 class AuditorAPIView(APIView):
+    # permission_classes = [IsAuthenticated]  # Ensure the user is authenticated
 
-    def get(self, request):
-        """Retrieve all transactions or a specific transaction"""
-        transaction_id = request.query_params.get('transaction_id')  # For example, querying by transaction_id
-        
-        if transaction_id:  # Check if a specific transaction is requested
-            try:
-                transaction = AccountantData.objects.get(id=transaction_id)
-                serializer = AuditorDataSerializer(transaction)
-                return Response({
-                    "status": True, 
-                    "message": "Transaction found.",
-                    "data": serializer.data
-                }, status=status.HTTP_200_OK)
-            except AccountantData.DoesNotExist:
-                return Response({
-                    "error": "Transaction not found.", 
-                    "status": False
-                }, status=status.HTTP_404_NOT_FOUND)
-        
-        # If no transaction_id is provided, return all transactions
-        transactions = AccountantData.objects.all()
-        serializer = AuditorDataSerializer(transactions, many=True)
-        return Response({
-            "status": True,
-            "message": "Transactions retrieved successfully.",
-            "data": serializer.data
-        }, status=status.HTTP_200_OK)
+    def get(self, request, *args, **kwargs):
+        # Get all AccountantData
+        accountant_data = AccountantData.objects.all()
+
+        # Apply pagination to the query results
+        paginator = AuditorPagination()
+        paginated_data = paginator.paginate_queryset(accountant_data, request)
+
+        # Serialize the paginated data
+        serializer = AuditorSerializer(paginated_data, many=True)
+
+        # Return the paginated and serialized data as a response
+        return paginator.get_paginated_response(serializer.data)

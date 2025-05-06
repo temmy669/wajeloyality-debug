@@ -76,7 +76,7 @@ class branch(models.Model):
     branchstate = models.CharField(max_length=45,null=True)
     branchcity = models.CharField(max_length=45,null=True)
     branchofficeline = models.CharField(max_length=45,null=True)
-    merchID = models.ForeignKey(merchant, on_delete=models.CASCADE)
+    merchID = models.ForeignKey(merchant, on_delete=models.CASCADE, related_name='branches')
     createddate = models.DateField('createddate',auto_now_add=True)
     updateddate = models.DateField('updateddate',null=True)
 

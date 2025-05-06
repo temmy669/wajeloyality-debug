@@ -146,9 +146,82 @@ class AccountantDataSerializer(serializers.ModelSerializer):
         model = AccountantData
         fields = "__all__"
 
-class AuditorDataSerializer(serializers.ModelSerializer):
+
+# User serializer to represent the manager (creator of the gift card)
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = user  # Assuming 'user' is the model for the user
+        fields = ['username']
+
+# Branch serializer to represent the branch related to the merchant
+class BranchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = branch
+        fields = ['branchname']
+
+# GiftCard serializer to represent the gift card information
+class GiftCardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = giftCard
+        fields = ['cardname']
+
+# AccountantData serializer for the transaction data
+class AccountantDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = AccountantData
-        fields = ('amount', 'cardName', 'confirmationCode', 'dateConfirmed', 'customer', 'datePayment')
-        read_only_fields = ('amount', 'cardName', 'confirmationCode', 'dateConfirmed', 'customer', 'datePayment')
+        fields = ['confirmationCode', 'customer', 'cardName', 'amount', 'dateConfirmed', 'datePayment']
+
+# AuditorSerializer to combine the related models
+class AuditorSerializer(serializers.Serializer):
+    confirmationCode = serializers.CharField()
+    customer = serializers.CharField()
+    cardName = serializers.CharField()
+    amount = serializers.DecimalField(max_digits=16, decimal_places=2)
+    dateConfirmed = serializers.DateField()
+    datePayment = serializers.DateField()
+    manager = UserSerializer()  # Nested UserSerializer to get the manager (creator of the gift card)
+    branch = BranchSerializer()  # Nested BranchSerializer to get the branch name
     
+    # Method to fetch the data using the confirmation code
+    def to_representation(self, instance):
+        # Retrieve AccountantData object based on the confirmation code
+        accountant_data = instance
+        
+        try:
+            gift_card = giftCard.objects.get(cardname=accountant_data.cardName)
+        except giftCard.DoesNotExist:
+            gift_card = None  # Handle the case where the gift card doesn't exist
+
+        if gift_card:
+            # Get the related branch using the merchant
+            branch_data = branch.objects.filter(merchID=gift_card.merchID)
+            
+            # Get the manager (creator of the gift card)
+            manager = gift_card.createdby  # Assuming 'createdby' is the field that refers to the user who created the gift card
+            
+            # Build the representation
+            representation = {
+                'confirmationCode': accountant_data.confirmationCode,
+                'customer': accountant_data.customer,
+                'cardName': accountant_data.cardName,
+                'amount': accountant_data.amount,
+                'dateConfirmed': accountant_data.dateConfirmed,
+                'datePayment': accountant_data.datePayment,
+                'manager': UserSerializer(manager).data,  # Serialize the manager data
+                'branch': BranchSerializer(branch_data, many=True).data,  # Serialize the branch data
+            }
+        else:
+            # Return a default representation or error message if gift_card doesn't exist
+            representation = {
+                'confirmationCode': accountant_data.confirmationCode,
+                'customer': accountant_data.customer,
+                'cardName': "Card not found",
+                'amount': accountant_data.amount,
+                'dateConfirmed': accountant_data.dateConfirmed,
+                'datePayment': accountant_data.datePayment,
+                'manager': "Nill",
+                'branch': "Nill"
+
+            }
+
+        return representation
