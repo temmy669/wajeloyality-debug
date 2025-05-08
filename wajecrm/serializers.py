@@ -177,9 +177,10 @@ class AuditorSerializer(serializers.Serializer):
     customer = serializers.CharField()
     cardName = serializers.CharField()
     amount = serializers.DecimalField(max_digits=16, decimal_places=2)
+    transactionRef = serializers.CharField()
     dateConfirmed = serializers.DateField()
     datePayment = serializers.DateField()
-    manager = UserSerializer()  # Nested UserSerializer to get the manager (creator of the gift card)
+    manager = serializers.CharField()  # Nested UserSerializer to get the manager (creator of the gift card)
     branch = BranchSerializer()  # Nested BranchSerializer to get the branch name
     
     # Method to fetch the data using the confirmation code
@@ -205,9 +206,10 @@ class AuditorSerializer(serializers.Serializer):
                 'customer': accountant_data.customer,
                 'cardName': accountant_data.cardName,
                 'amount': accountant_data.amount,
+                'transactionRef': accountant_data.transactionRef,
                 'dateConfirmed': accountant_data.dateConfirmed,
                 'datePayment': accountant_data.datePayment,
-                'manager': UserSerializer(manager).data,  # Serialize the manager data
+                'manager': manager.name,  # Serialize the manager data
                 'branch': BranchSerializer(branch_data, many=True).data,  # Serialize the branch data
             }
         else:
