@@ -375,7 +375,7 @@ class bulkPurchaseMerchantGiftCardView(APIView):
             template_name='MarketSquareVoucher_details_x20_v3.html'
             merchantname = merchant.objects.filter(id=merchID).values(
                 'businessname', 'businesslogo', 'serviceID').first()
-            if merchantname['serviceID'] =='351817683':
+            if merchantname['serviceID'] == '351817683':
                #template_name='MarketSquareVoucher_details.html'
                #template_name='MarketSquareVoucher_details_x20_v3.html'
                 print(request.data['template'])
