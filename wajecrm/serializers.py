@@ -141,11 +141,6 @@ class GiftCardSerializer(serializers.ModelSerializer):
         model = giftCard
         fields = ("id","serialnumber", "cardname", "recipient_phone", "recipient_email", "createdby", "amount", "merchID", "active", "expiration_date", "createddate")
 
-class AccountantDataSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AccountantData
-        fields = "__all__"
-
 
 # User serializer to represent the manager (creator of the gift card)
 class UserSerializer(serializers.ModelSerializer):
@@ -160,10 +155,10 @@ class BranchSerializer(serializers.ModelSerializer):
         fields = ['branchname']
 
 # GiftCard serializer to represent the gift card information
-class GiftCardSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = giftCard
-        fields = ['cardname']
+# class GiftCardSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = giftCard
+#         fields = ['cardname']
 
 # AccountantData serializer for the transaction data
 class AccountantDataSerializer(serializers.ModelSerializer):
@@ -189,7 +184,7 @@ class AuditorSerializer(serializers.Serializer):
         accountant_data = instance
         
         try:
-            gift_card = giftCard.objects.get(cardname=accountant_data.cardName)
+           gift_card = giftCard.objects.filter(cardname=accountant_data.cardName).first()
         except giftCard.DoesNotExist:
             gift_card = None  # Handle the case where the gift card doesn't exist
 
@@ -209,21 +204,21 @@ class AuditorSerializer(serializers.Serializer):
                 'transactionRef': accountant_data.transactionRef,
                 'dateConfirmed': accountant_data.dateConfirmed,
                 'datePayment': accountant_data.datePayment,
-                'manager': manager.name,  # Serialize the manager data
+                'manager': manager.name if manager else "Nill",  # Serialize the manager data
                 'branch': BranchSerializer(branch_data, many=True).data,  # Serialize the branch data
             }
-        else:
-            # Return a default representation or error message if gift_card doesn't exist
-            representation = {
-                'confirmationCode': accountant_data.confirmationCode,
-                'customer': accountant_data.customer,
-                'cardName': "Card not found",
-                'amount': accountant_data.amount,
-                'dateConfirmed': accountant_data.dateConfirmed,
-                'datePayment': accountant_data.datePayment,
-                'manager': "Nill",
-                'branch': "Nill"
+        # else:
+        #     # Return a default representation or error message if gift_card doesn't exist
+        #     representation = {
+        #         'confirmationCode': accountant_data.confirmationCode,
+        #         'customer': accountant_data.customer,
+        #         'cardName': "Card not found",
+        #         'amount': accountant_data.amount,
+        #         'dateConfirmed': accountant_data.dateConfirmed,
+        #         'datePayment': accountant_data.datePayment,
+        #         'manager': "Nill",
+        #         'branch': "Nill"
 
-            }
+        #     }
 
         return representation
