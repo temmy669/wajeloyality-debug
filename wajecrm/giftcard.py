@@ -392,7 +392,19 @@ class bulkPurchaseMerchantGiftCardView(APIView):
             emailaddress = emailaddress
             subject='Voucher Details'   
             others = amount
-            notify=htmltopdf(firstname,randomnumber,emailaddress,subject,template_name, voucher_date, others,merchantname)
+            expiry_date_str = voucher_date.strftime('%d %b %Y') if isinstance(voucher_date, datetime.date) else voucher_date
+
+            notify = htmltopdf(
+                firstname,
+                randomnumber,
+                emailaddress,
+                subject,
+                template_name,
+                expiry_date_str,  # this becomes {{ expiry }}
+                others,
+                merchantname
+            )
+
             #finalhtmlcontext += "<div class='container'><div class='row'><div class='col-md'>{}</div></div></div>".format(notify)
             #print(finalhtmlcontext)
             finalhtmlcontext +='{}'.format(notify)

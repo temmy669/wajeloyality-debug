@@ -104,7 +104,7 @@ def htmltopdf(firstname, randomnumber, emailaddress, subject, template_name, exp
     :emailaddress: address of customer
     :subject: title of card
     :template_name: the template to be rendered
-    :expirty: expiring date of giftcard
+    :expiry: expiring date of giftcard
     :others: None
     :merchantname: merchat details 
     
