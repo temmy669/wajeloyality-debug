@@ -91,6 +91,8 @@ class createCampaigns(serializers.ModelSerializer):
         """Meta class to map serializer's fields with the model fields."""
         model = campaigns
         fields = ('title','campaigntype', 'merchID','interval','tempateID','enddate','startdate')
+        
+    
 
 class merachantLoginSerializer(serializers.ModelSerializer):
     """Serializer to map the Model instance into JSON format."""

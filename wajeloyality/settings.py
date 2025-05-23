@@ -142,6 +142,14 @@ DATABASES = {
     }
 }
 
+import sys
+
+if 'test' in sys.argv:
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:',
+    }
+
 
 if ENVIRONMENT == 'production':
     DATABASES['loyalty'] = {
@@ -157,10 +165,11 @@ if ENVIRONMENT == 'production':
 
 
 REST_FRAMEWORK = {
-
+  
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'wajecrm.utils.CustomJWTAuthentication',  # Use the full Python path to your class
     ),
+    
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_PAGINATION_CLASS':
     'rest_framework.pagination.PageNumberPagination',
@@ -173,7 +182,6 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
 }
-
 
 
 

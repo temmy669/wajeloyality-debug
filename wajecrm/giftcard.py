@@ -3,6 +3,8 @@ from .models import giftCard,giftcardtransaction,merchant,attachment, Accountant
 import random
 import os
 import pdfkit
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.response import Response
 from django.http import HttpResponse
 from django.http import JsonResponse
 from rest_framework.views import APIView
@@ -32,6 +34,7 @@ from .permissions import (
 from .serializers import AccountantDataSerializer
 from .filters import GiftCardStatFilter, GiftCardFilter
 from .serializers import GiftCardSerializer
+from .utils import get_authenticated_user_from_request
 from drf_spectacular.utils import extend_schema
 
 
@@ -90,60 +93,48 @@ class UpdateAccountantDataView(RetrieveUpdateDestroyAPIView):
     serializer_class = AccountantDataSerializer
     # permission_classes = [IsAdmin, IsAccountant]
 
-
 @extend_schema(tags=['Gift Cards'])
 class MerchantGiftCardView(APIView):
-    """Functions to create and list gift cards for merchants."""
-    # permission_classes = [IsManager]
-    def post(self, request, format=None):     
-        """Save the post data when creating a new merchant's gift card."""
-        try:
-            count = int(request.data['count'])  # Ensure count is an integer
-            merchID = request.data['merchID']
-            createdby = request.data['createdby']
-    
-            # Get merchant by serviceID
-            try:
-                createdby_instance = user.objects.get(id=createdby)
-            except merchant.DoesNotExist:
-                return HttpResponse(json.dumps({
-                    'message': 'Merchant does not exist',
-                    'status': 'False'
-                }), content_type="application/json")
+    """Class to create gift cards for a particular merchant."""
+    def post(self, request, format=None):
+        user_instance, error = get_authenticated_user_from_request(request)
+        print("DEBUG: User instance:", user_instance)
+        if error:
+            return Response({'message': error, 'status': 'False'}, status=401)
 
-            # Create gift cards
-            for _ in range(count):
-                serialnumber = generateSerialNumber(merchID)
-                print(serialnumber)
-                gf = giftCard(
-                    serialnumber=serialnumber,
+        if not user_instance.role or user_instance.role.name != 'Manager':
+            return Response({'message': 'You do not have permission to perform this action.', 'status': 'False'}, status=403)
+
+        try:
+            count = int(request.data['count'])
+            merchID = int(request.data['merchID'])
+
+            giftcards = [
+                giftCard(
+                    serialnumber=generateSerialNumber(merchID),
                     cardname=request.data['name'],
                     amount=float(request.data['amount']),
                     merchID_id=merchID,
                     expiration_date=request.data['voucher_date'],
-                    createdby=createdby_instance
+                    createdby=user_instance
                 )
-                gf.save()
-
-            return HttpResponse(json.dumps({
-                'message': 'The gift card record was created successfully',
-                'status': 'True'
-            }), content_type="application/json")
+                for _ in range(count)
+            ]
+            giftCard.objects.bulk_create(giftcards)
 
         except Exception as e:
-            return HttpResponse(json.dumps({
-                'message': 'An error occurred: ' + str(e),
-                'status': 'False'
-            }), content_type="application/json")
+            return Response({'message': 'An error occurred: ' + str(e), 'status': 'False'}, status=400)
 
+        return Response({'message': 'The giftcard record is created successfully', 'status': 'True'})
 
+   
     def get(self, request, format=None):     
-        """List gift cards for a particular merchant."""
-        merchID = request.GET.get('merchID')
+        """List gift cards for a particular user with role manager."""
+        userID = request.GET.get('userID')
         
         try:
             giftcardrecord = list(
-                giftCard.objects.filter(merchID=merchID)
+                giftCard.objects.filter(createdby=userID)
                 .values('serialnumber', 'id', 'cardname', 'amount', 'recipient_phone', 'expiration_date', 'merchID')
                 .order_by('-createddate')[:1000]
             )

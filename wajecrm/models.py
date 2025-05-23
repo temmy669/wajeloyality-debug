@@ -10,6 +10,7 @@ from django.utils import timezone
 #from django.core.exceptions import FieldDoesNotExist 
 
 from safedelete.models import SafeDeleteModel
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 
 
 # Create your models here.

@@ -29,9 +29,11 @@ from .logger import *
 import base64
 import json
 from django.core.files.base import ContentFile
+from .permissions import IsManager, IsAccountant, IsAuditor
 from rest_framework.permissions import IsAuthenticated
 from django.views import View
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.utils import timezone
 import datetime
 from .notification import Notification, htmltopdf
@@ -107,28 +109,30 @@ class UpdateMerchantStaffView(RetrieveUpdateDestroyAPIView):
     
 @extend_schema(tags=['Merchant'])
 class merchantManagerView(APIView):
-    # permission_classes = (IsAuthenticated,)
     serializer_class = merchantUserSerializer
 
     def post(self, request, format=None):
         try:
             serializer = merchantUserSerializer(data=request.data)
 
-            # Check for duplicate email
             username = request.data.get('username')
             merchID = request.data.get('merchID_id')
-            if checkdupmanagerEmails(username, merchID):
-                return Response({
-                    'message': 'The duplicate username',
-                    'status': 'False'
-                }, status=status.HTTP_400_BAD_REQUEST)
+
+            # Improved duplicate check
+            if merchID:
+                if checkdupmanagerEmails(username, merchID):
+                    return Response({
+                        'message': 'The duplicate username',
+                        'status': 'False'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                if user.objects.filter(username=username).exists():
+                    return Response({
+                        'message': 'The duplicate username',
+                        'status': 'False'
+                    }, status=status.HTTP_400_BAD_REQUEST)
 
             if serializer.is_valid():
-                # Optional: hash password here if needed
-                password = request.data.get('userpassword')
-                if password:
-                    serializer.validated_data['userpassword'] = make_password(password)
-
                 user_obj = serializer.save()
 
                 # Optional: send notification
@@ -136,9 +140,9 @@ class merchantManagerView(APIView):
                 notify.newCustomerNotification(
                     user_obj.name,
                     None,  # randomnumber
-                    password,
+                    request.data.get('userpassword'),
                     user_obj.username,
-                    user_obj.merchID.id,
+                    user_obj.merchID.id if user_obj.merchID else None,
                     user_obj.username
                 )
 
@@ -166,7 +170,8 @@ class merchantManagerView(APIView):
             if length > counter:
                 branchname = branch.objects.filter(
                     id=element['branchID']).values('branchname').first()
-                element.update(branchname)
+                if branchname:
+                    element.update(branchname)
                 dictList.append(element)       
         return JsonResponse({'data': dictList,'status':'True'})  
 
@@ -203,7 +208,7 @@ class merchantBranchView(APIView):
         branchrecord = queryset.filter(merchID=merchID).values('id','branchname','branchaddress','branchstate','branchcity','branchofficeline')
         return JsonResponse({'data': list(branchrecord),'status':'True'})          
 
-'''Class to grant access to an authenticated Merchant '''
+
 @extend_schema(tags=['Authentication'])
 class merchantLoginView(APIView):
     def get(self, request, format=None):
@@ -218,25 +223,21 @@ class merchantLoginView(APIView):
                 'message': 'Username and password are required.'
             }, status=400)
 
-        # Generate token
-        tokengenerator = tokenGenerator()
-        token = tokengenerator.get('access')  # Ensure tokenGenerator returns a dict with 'access' key
-
         # Check for active merchant
         active_merchant = merchant.objects.filter(merchantemailaddress=username, active=True).first()
         if active_merchant:
-            # Verify merchant password
             if check_password(password, active_merchant.merchantpassword):
-                # Serialize merchant data
                 resultset = merchant.objects.filter(merchantemailaddress=username, active=True).values(
                     'id', 'businessfacebook', 'serviceID', 'businessname', 'merchantphonenumber',
                     'businessaddress', 'merchantemailaddress', 'active', 'contactpersonfirstname',
                     'contactpersonlastname', 'contactpersonphone', 'businesslogo', 'settingsactivated',
                     'accountnumber', 'accountname', 'bankname', 'currency', 'businesstwitter', 'pointname', 'themecolor'
                 )
+                tokens = get_tokens_for_merchant(active_merchant)
                 return JsonResponse({
                     'data': list(resultset),
-                    'token': token,
+                    'access': tokens['access'],
+                    'refresh': tokens['refresh'],
                     'status': True
                 })
             else:
@@ -249,13 +250,13 @@ class merchantLoginView(APIView):
         # Check for user
         user_instance = user.objects.filter(username=username).first()
         if user_instance:
-            # Verify user password
             if check_password(password, user_instance.userpassword):
-                # Serialize user data
+                tokens = get_tokens_for_user(user_instance)
                 user_serializer = merchantUserSerializer(user_instance)
                 return JsonResponse({
                     'data': user_serializer.data,
-                    'token': token,
+                    'access': tokens['access'],
+                    'refresh': tokens['refresh'],
                     'status': True
                 })
             else:
@@ -265,14 +266,12 @@ class merchantLoginView(APIView):
                     'message': 'Invalid password.'
                 }, status=400)
 
-        # If neither merchant nor user is found
         return JsonResponse({
             'data': [],
             'status': False,
             'message': 'Account not found or inactive.'
         }, status=404)
-
-
+        
 class merchantGiftcardVerificationView(APIView):
     def get(self, request, format=None):
         confirmationCode = request.GET.get('confirmationCode')
@@ -584,6 +583,26 @@ def tokenGenerator():
     print(fullurl)
     print(record)
     return record
+
+def get_tokens_for_user(user_instance):
+    refresh = RefreshToken.for_user(user_instance)
+    # Optionally add custom claims, e.g. role
+    refresh['role'] = user_instance.role.name if user_instance.role else None
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
+
+def get_tokens_for_merchant(merchant_instance):
+    refresh = RefreshToken()
+    # Add custom claims for merchant
+    refresh['merchant_id'] = merchant_instance.id
+    refresh['role'] = 'Merchant'
+    refresh['email'] = merchant_instance.merchantemailaddress
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
 
 ''' function to check for duplicate merchant name '''
 def duplicateServiceID(serviceID):
