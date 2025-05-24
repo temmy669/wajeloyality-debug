@@ -17,10 +17,11 @@ from .vendors import *
 from .metropos import *
 from .notification import *
 from .accountant import *
+from .utils.export import ExportGiftCardReportExcelView
 from rest_framework.urlpatterns import format_suffix_patterns
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
-from .import giftcard
+# from .import giftcard
 
 from rest_framework import permissions
 
@@ -93,6 +94,7 @@ urlpatterns = {
     path('accountant/giftcards', AccountDataView.as_view(), name='giftcard-accountantview'),
     path('list-roles/', roleListView.as_view(), name='list-roles'),
     path('manager-verification/', merchantGiftcardVerificationView.as_view(), name='manager-verification'),
+    path('export/giftcard/', ExportGiftCardReportExcelView.as_view(), name='export-giftcard-excel'),
 }
 
 urlpatterns = format_suffix_patterns(urlpatterns)

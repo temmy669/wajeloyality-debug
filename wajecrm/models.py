@@ -218,7 +218,7 @@ class giftcardtransaction(models.Model):
     reference =models.CharField(null=True,max_length=200, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     createdby = models.CharField(null=True, max_length=200)
-
+    
     def __str__(self):
          return self.reference
 

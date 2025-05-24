@@ -22,30 +22,16 @@ listcampaign/,listcampaigntemplate/,editcampaign/
 >> fix bug with the transaction amount at redemption
 
 
-May 2025
->> Refactored manager registration flow:
-   - When a user is registered with the "Manager" role, a merchant entry is now automatically created (if not provided) and linked to the user via the merchID field.
-   - Nested merchantSerializer is now used in merchantUserSerializer for DRY and maintainable code.
-   - Only managers are linked to merchants; other roles are not.
-   - merchantManagerView now delegates merchant creation to the serializer, reducing redundancy.
-   - Gift card creation now always uses request.user.merchID for the merchant, and only managers can create gift cards.
-   - Frontend should send merchant_data only when registering a manager.
-   - Improved security: managers can only create gift cards for their own merchant.
-   - Database migrations applied to reflect model changes.
->> Documented the new registration and gift card creation flows for clarity and onboarding.
-
 
 May 2025
 >> Refactored manager registration flow:
-   - When a user is registered with the "Manager" role, a merchant entry is now automatically created (if not provided) and linked to the user via the merchID field.
-   - Nested merchantSerializer is now used in merchantUserSerializer for DRY and maintainable code.
-   - Only managers are linked to merchants; other roles are not.
-   - merchantManagerView now delegates merchant creation to the serializer, reducing redundancy.
-   - Gift card creation now always uses request.user.merchID for the merchant, and only managers can create gift cards.
-   - Frontend should send merchant_data only when registering a manager.
-   - Improved security: managers can only create gift cards for their own merchant.
-   - Database migrations applied to reflect model changes.
+- When a user is registered with the "Manager" role he has the rights to create giftcards
 >> Replaced the original token generation logic with logic that generates tokens for the logged-in user, ensuring tokens are tied to the correct custom user instance.
 >> Implemented custom authentication classes to support JWT authentication with the custom user model, since the default Django authentication class is not used.
 >> Added robust token extraction and user lookup logic, including type conversion and debug output, to improve reliability and troubleshooting.
 >> Documented the new registration and gift card creation flows for clarity and onboarding.
+
+>> Added Excel export functionality for gift card reports:
+   - Implemented an API endpoint (`/export/giftcard/`) that generates and returns an Excel (.xlsx) file containing gift card data filtered by user and date range.
+   - Used `openpyxl` to create the Excel workbook and populate it with relevant gift card fields.
+   - Users can now download filtered gift card reports directly from the system.

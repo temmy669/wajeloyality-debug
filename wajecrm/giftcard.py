@@ -34,7 +34,7 @@ from .permissions import (
 from .serializers import AccountantDataSerializer
 from .filters import GiftCardStatFilter, GiftCardFilter
 from .serializers import GiftCardSerializer
-from .utils import get_authenticated_user_from_request
+from .utils.auth import get_authenticated_user_from_request
 from drf_spectacular.utils import extend_schema
 
 

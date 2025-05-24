@@ -167,7 +167,7 @@ if ENVIRONMENT == 'production':
 REST_FRAMEWORK = {
   
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'wajecrm.utils.CustomJWTAuthentication',  # Use the full Python path to your class
+        'wajecrm.utils.auth.CustomJWTAuthentication',  # Use the full Python path to your class
     ),
     
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
