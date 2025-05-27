@@ -245,14 +245,12 @@ class purchaseMerchantGiftCardView(APIView):
                     notify.emailNotification(name, randomnumber, emailaddress, subject, template_name, others, merchantname)
                     notify_html = htmltopdf(name, randomnumber, emailaddress, subject, template_name, expiry, others, merchantname)
                     config = pdfkit.configuration(wkhtmltopdf=settings.WKHTMLTOPDF_PATH)
-                    pdf_path = os.path.join(
-                        str(settings.BASE_DIR), "voucherpdf", 'voucher_report-%s.pdf' % (request.data['phonenumber']))
+                    pdf_path = os.path.join(settings.MEDIA_ROOT, "voucherpdf", 'voucher_report-%s.pdf' % request.data['phonenumber'])
                     
                     pdfkit.from_string(notify_html, pdf_path, configuration=config)
                     
-                    
                     at = attachment(
-                        body='/voucherpdf/voucher_report-'+str(request.data['phonenumber'])+'.pdf',
+                        body='media/voucherpdf/voucher_report-%s.pdf' % request.data['phonenumber'],
                         merchID_id=merch_id,
                         name=request.data['phonenumber']
                     )
