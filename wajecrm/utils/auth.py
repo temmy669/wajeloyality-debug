@@ -10,17 +10,22 @@ class CustomJWTAuthentication(JWTAuthentication):
         """
         try:
             user_id = validated_token.get("user_id")
+            merch_id = validated_token.get("merchID")
             if user_id is None:
                 raise InvalidToken("Token contained no recognizable user identification")
 
             try:
-                return user.objects.get(id=user_id)
+                user_instance = user.objects.get(id=user_id)
+                # Attach merchID from token as a separate attribute
+                if merch_id is not None:
+                    setattr(user_instance, 'merchID_from_token', merch_id)
+
+                return user_instance
             except user.DoesNotExist:
                 raise InvalidToken("User not found")
 
         except Exception as e:
             raise InvalidToken(f"User retrieval failed: {str(e)}")
-
 def get_authenticated_user_from_request(request):
     jwt_authenticator = CustomJWTAuthentication()
     auth_header = request.headers.get('Authorization', '')

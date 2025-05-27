@@ -26,6 +26,10 @@ Temp_Path = os.path.realpath('.')
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+
+# wkhtmltopdf path
+WKHTMLTOPDF_PATH = config('WKHTMLTOPDF_PATH', default=os.path.join(BASE_DIR, 'wkhtmltopdf', 'bin', 'wkhtmltopdf.exe'))
+
 # Environment mode
 ENVIRONMENT = config('DJANGO_ENV', default='development')
 
@@ -255,7 +259,8 @@ SIMPLE_JWT = {
 
 
 STATIC_URL = '/static/'
-MEDIA_URL = ''
+MEDIA_URL = '/voucherpdf/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'voucherpdf')
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 FILE_UPLOAD_HANDLERS = ("django_excel.ExcelMemoryFileUploadHandler",
                         "django_excel.TemporaryExcelFileUploadHandler")

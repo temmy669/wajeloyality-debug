@@ -3,12 +3,14 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import AccountantData
+from .permissions import IsAccountant  # Ensure this is defined in your permissions.py
 from .serializers import AccountantDataSerializer
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema
 
 @extend_schema(tags=['Finance'])
 class VerifyTransactionAPIView(APIView):
+    permission_classes = [IsAccountant] 
     """Verify a transaction and save the data"""
 
     def post(self, request, *args, **kwargs):

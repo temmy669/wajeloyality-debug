@@ -61,7 +61,7 @@ class UpdateGiftCardView(ListAPIView):
 
 @extend_schema(tags=['Gift Cards'])
 class deactivateGiftCard(APIView):
-    # permission_classes = [IsManager] 
+    permission_classes = [IsManager] 
 
     def post(self, request, format=None):     
         giftcardid=request.data['giftcardid']
@@ -95,16 +95,10 @@ class UpdateAccountantDataView(RetrieveUpdateDestroyAPIView):
 
 @extend_schema(tags=['Gift Cards'])
 class MerchantGiftCardView(APIView):
+    permission_classes = [IsManager]
     """Class to create gift cards for a particular merchant."""
+
     def post(self, request, format=None):
-        user_instance, error = get_authenticated_user_from_request(request)
-        print("DEBUG: User instance:", user_instance)
-        if error:
-            return Response({'message': error, 'status': 'False'}, status=401)
-
-        if not user_instance.role or user_instance.role.name != 'Manager':
-            return Response({'message': 'You do not have permission to perform this action.', 'status': 'False'}, status=403)
-
         try:
             count = int(request.data['count'])
             merchID = int(request.data['merchID'])
@@ -116,7 +110,7 @@ class MerchantGiftCardView(APIView):
                     amount=float(request.data['amount']),
                     merchID_id=merchID,
                     expiration_date=request.data['voucher_date'],
-                    createdby=user_instance
+                    createdby=request.user
                 )
                 for _ in range(count)
             ]
@@ -127,14 +121,11 @@ class MerchantGiftCardView(APIView):
 
         return Response({'message': 'The giftcard record is created successfully', 'status': 'True'})
 
-   
-    def get(self, request, format=None):     
+    def get(self, request, format=None):
         """List gift cards for a particular user with role manager."""
-        userID = request.GET.get('userID')
-        
         try:
             giftcardrecord = list(
-                giftCard.objects.filter(createdby=userID)
+                giftCard.objects.filter(createdby=request.user)
                 .values('serialnumber', 'id', 'cardname', 'amount', 'recipient_phone', 'expiration_date', 'merchID')
                 .order_by('-createddate')[:1000]
             )
@@ -142,22 +133,22 @@ class MerchantGiftCardView(APIView):
 
             for counter, element in enumerate(giftcardrecord):
                 length = len(giftcardrecord)
-                if length > counter:                                                                                                                                                                                                        
+                if length > counter:
                     purchasevalue = element['amount']
                     redeemedvalue = giftcardtransaction.objects.filter(
                         merchID=element['merchID'], giftID=element['id']
                     ).aggregate(Sum('redeemedamount'))['redeemedamount__sum']
-                    
+
                     if redeemedvalue is None:
-                        redeemedvalue = Decimal('0.0')                
-                    
+                        redeemedvalue = Decimal('0.0')
+
                     currentvalue = float(purchasevalue - redeemedvalue)
                     currentvalue_dict = {'currentvalue': currentvalue}
-                    
+
                     element['amount'] = float(element['amount'])
                     element['expiration_date'] = str(element['expiration_date'])
                     element.update(currentvalue_dict)
-                    dictList.append(element)               
+                    dictList.append(element)
 
         except Exception as e:
             responseData = {
@@ -165,13 +156,13 @@ class MerchantGiftCardView(APIView):
                 'status': 'False'
             }
             return HttpResponse(json.dumps(responseData), content_type="application/json")
-        
+
         responseData = {
             'data': dictList,
             'status': 'True'
         }
         return HttpResponse(json.dumps(responseData), content_type="application/json")
-
+   
 
 @extend_schema(tags=['Gift Cards'])
 class MerchantCustomerGiftcardVerificationView(APIView):
@@ -201,55 +192,87 @@ class MerchantCustomerGiftcardVerificationView(APIView):
 
 @extend_schema(tags=['Gift Cards'])
 class purchaseMerchantGiftCardView(APIView):
+    permission_classes = [IsManager]
     def post(self, request, format=None):     
         """Class to purchase gift cards.""" 
-        try: 
-            """ Logic to get the giftcard """          
-            giftcardrecord=giftCard.objects.filter(id=request.data['id']).filter(merchID=request.data['merchID']).values('recipient_phone','id','serialnumber','amount').first()
+        try:
+            # Get merchant ID from token (set by custom authentication)
+            merch_id = getattr(request.user, 'merchID_from_token', None)
+            if merch_id is None:
+                responseData = {'message': 'Merchant ID not found in token', 'status': 'False'}
+                return HttpResponse(json.dumps(responseData), content_type="application/json")
+        
+            # Fetch the gift card record
+            giftcardrecord = giftCard.objects.filter(
+                id=request.data['id'],
+                merchID=merch_id
+            ).values('recipient_phone', 'id', 'serialnumber', 'amount', 'cardname').first()
+        
+            # Check if the gift card exists
+            if not giftcardrecord:
+                responseData = {'message': 'Gift card not found', 'status': 'False'}
+                return HttpResponse(json.dumps(responseData), content_type="application/json")
+    
+            # Check if the gift card has not been purchased
             if giftcardrecord['recipient_phone'] is None:
-                """ Check to confim if the gift card has not be purchased """
-                if giftcardrecord['amount']==float(request.data['amount']):
-                    """ Check to confim if gift card has not be purchase """
-                    gt =giftcardtransaction(
-                        giftID_id=giftcardrecord['id'], purchaseamount=request.data['amount'], merchID_id=request.data['merchID'])
+                # Check if the amount matches
+                if giftcardrecord['amount'] == float(request.data['amount']):
+                    gt = giftcardtransaction(
+                        giftID_id=giftcardrecord['id'],
+                        purchaseamount=request.data['amount'],
+                        merchID_id=merch_id,  # Use the merchID from the token
+                    )
                     gt.save()
                     giftcard = giftCard.objects.get(id=request.data['id'])
                     giftcard.recipient_phone = request.data['phonenumber']
                     giftcard.recipient_email = request.data['emailaddress']
-                    giftcard.save(update_fields=['recipient_phone','recipient_email'])#assign the gift card to the owner
+                    giftcard.save(update_fields=['recipient_phone','recipient_email'])  # assign the gift card to the owner
                     notify = Notification()
-                    merchantname = merchant.objects.filter(id=request.data['merchID']).values('businessname', 'businesslogo','serviceID').first()
-                    firstname='customer'
-                    randomnumber=giftcardrecord['serialnumber']
-                    emailaddress=request.data['emailaddress']
-                    subject='Voucher Details'
-                    template_name='MarketSquareVoucher_details_bak.html'
-                    if merchantname['serviceID'] =='351817683':
-                        template_name = 'MarketSquareVoucher_details.html'
-                    others=request.data['amount']
-                    notify.emailNotification(firstname,randomnumber,emailaddress,subject,template_name,others,merchantname) 
-                    notify=htmltopdf(firstname,randomnumber,emailaddress,subject,template_name,others,merchantname)  
-                    pdfkit.from_string(notify,os.path.join(
-                        settings.BASE_DIR, "voucherpdf", 'voucher_report-%s.pdf' %
-                        (request.data['phonenumber'])))
+                    merchantname = merchant.objects.filter(id=merch_id).values('businessname', 'businesslogo','serviceID').first()
+                    if not merchantname:
+                        responseData = {'message': 'Merchant not found', 'status': 'False'}
+                        return HttpResponse(json.dumps(responseData), content_type="application/json")
+                    name = giftcardrecord['cardname']
+                    randomnumber = giftcardrecord['serialnumber']
+                    emailaddress = request.data['emailaddress']
+                    subject = 'Voucher Details'
+                    template_name = 'MarketSquareVoucher_details_bak.html'
+                    if merchantname['serviceID'] == '351817683':
+                        template_name = 'MarketSquareVoucher_details_x20_v3.html'
+                    others = request.data['amount']
+                    # Get the expiry date from the giftcard record
+                    expiry = str(giftCard.objects.get(id=request.data['id']).expiration_date)
+                    notify.emailNotification(name, randomnumber, emailaddress, subject, template_name, others, merchantname)
+                    notify_html = htmltopdf(name, randomnumber, emailaddress, subject, template_name, expiry, others, merchantname)
+                    config = pdfkit.configuration(wkhtmltopdf=settings.WKHTMLTOPDF_PATH)
+                    pdf_path = os.path.join(
+                        str(settings.BASE_DIR), "voucherpdf", 'voucher_report-%s.pdf' % (request.data['phonenumber']))
+                    
+                    pdfkit.from_string(notify_html, pdf_path, configuration=config)
+                    
+                    
                     at = attachment(
-                        body='/voucherpdf/voucher_report-'+str(request.data['phonenumber'])+'.pdf', merchID_id=request.data['merchID'], name=request.data['phonenumber'])
+                        body='/voucherpdf/voucher_report-'+str(request.data['phonenumber'])+'.pdf',
+                        merchID_id=merch_id,
+                        name=request.data['phonenumber']
+                    )
                     at.save()
                 else:
-                    responseData ={'message':'amount does not match','status':'False'}
+                    responseData = {'message': 'amount does not match', 'status': 'False'}
                     return HttpResponse(json.dumps(responseData), content_type="application/json")            
             else:
-                responseData ={'message':'The voucher has been bought by another customer','status':'False'}
+                responseData = {'message': 'The voucher has been bought by another customer', 'status': 'False'}
                 return HttpResponse(json.dumps(responseData), content_type="application/json")
         except Exception as e:
-              responseData ={'message':'An error occur'+str(e),'status':'False'}
-              return HttpResponse(json.dumps(responseData), content_type="application/json")
-        responseData ={'message':'Transaction capture','status':'True'}
+            responseData = {'message': 'An error occur: ' + str(e), 'status': 'False'}
+            return HttpResponse(json.dumps(responseData), content_type="application/json")
+        responseData = {'message': 'Transaction capture', 'status': 'True'}
         return HttpResponse(json.dumps(responseData), content_type="application/json")
 
 
 @extend_schema(tags=['Gift Cards'])
 class redeemMerchantGiftCardView(APIView):
+    permission_classes = [IsManager]
     def post(self, request, format=None):     
         """function to redeem gift cards from a merchant.""" 
         try: 
@@ -318,94 +341,79 @@ class redeemMerchantGiftCardView(APIView):
 
 @extend_schema(tags=['Gift Cards'])
 class bulkPurchaseMerchantGiftCardView(APIView):
-    def post(self, request, format=None):       
-        # you may put validations here to check extension or file size
-        merchID = request.data['merchID']
-        print(merchID)
-        createdby=request.data['createdby']
-        giftcardname=request.data['giftcardname']
-        voucher_date=request.data['voucher_date']
-        todaydate = str(datetime.datetime.now().date())+'-'+str(random.randint(1,1000000000001))
-        wb_final=pd.read_excel(request.FILES['excel_file'])
-        print(wb_final)
-        #wb = request.FILES['excel_file'].get_records()
-        #print(wb)
-        #wb_final=loads(dumps(wb))
-        # getting a particular sheet by name out of many sheets
-        #excel_data = list()
-        # iterating over the rows and
-        # getting value from each cell in row
-        finalhtmlcontext=''
-        for item in wb_final.itertuples():
-            phonenumber =item.phonenumber
-            emailaddress=item.emailaddress
-            amount = item.amount
-            ref=generateReferenceNumber(merchID)
-            serialnumber=generateSerialNumber(merchID)
-            gf = giftCard(serialnumber=serialnumber, cardname=giftcardname, amount=float(
-                amount),merchID_id=merchID, recipient_phone=phonenumber, recipient_email=emailaddress,
-                expiration_date=voucher_date, createdby=createdby)
-            gf.save()
-            '''
+    permission_classes = [IsManager]
+    def post(self, request, format=None):
+        try:
+            # Get merchant ID from token (set by custom authentication)
+            merch_id = getattr(request.user, 'merchID_from_token', None)
+            if merch_id is None:
+                responseData = {'message': 'Merchant ID not found in token', 'status': 'False'}
+                return HttpResponse(json.dumps(responseData), content_type="application/json")
+
+            createdby = request.user
+            giftcardname = request.data['giftcardname']
+            voucher_date = request.data['voucher_date']
+            todaydate = str(datetime.datetime.now().date()) + '-' + str(random.randint(1, 1000000000001))
+            wb_final = pd.read_excel(request.FILES['excel_file'])
+
+            finalhtmlcontext = ''
             for item in wb_final.itertuples():
-                phonenumber =item['phonenumber']
-                emailaddress=item['emailaddress']
-                amount = item['amount']
-                ref=generateReferenceNumber(merchID)
-                serialnumber=generateSerialNumber(merchID)
-                gf = giftCard(serialnumber=serialnumber, cardname=giftcardname, amount=float(
-                    amount),merchID_id=merchID, recipient_phone=phonenumber, recipient_email=emailaddress,
-                    expiration_date=voucher_date, createdby=createdby)
+                phonenumber = item.phonenumber
+                emailaddress = item.emailaddress
+                amount = item.amount
+                ref = generateReferenceNumber(merch_id)
+                serialnumber = generateSerialNumber(merch_id)
+                gf = giftCard(
+                    serialnumber=serialnumber,
+                    cardname=giftcardname,
+                    amount=float(amount),
+                    merchID_id=merch_id,
+                    recipient_phone=phonenumber,
+                    recipient_email=emailaddress,
+                    expiration_date=voucher_date,
+                    createdby=createdby
+                )
                 gf.save()
-            '''
-            lastestid = giftCard.objects.latest('id')
-            finalid=lastestid.id
-            gt = giftcardtransaction(
-                giftID_id=finalid, purchaseamount=amount, merchID_id=merchID, reference=ref)
-            gt.save()
-            template_name='MarketSquareVoucher_details_x20_v3.html'
-            merchantname = merchant.objects.filter(id=merchID).values(
-                'businessname', 'businesslogo', 'serviceID').first()
-            if merchantname['serviceID'] == '351817683':
-               #template_name='MarketSquareVoucher_details.html'
-               #template_name='MarketSquareVoucher_details_x20_v3.html'
-                print(request.data['template'])
-                if request.data['template']==0:
-                   template_name='MarketSquareVoucher_details.html'
-                elif request.data['template']==6:
-                   template_name='MarketSquareVoucher_details_x20_v3.html'
-                elif request.data['template']==10:
-                   template_name='MarketSquareVoucher_details_x20_v3.html'
-                elif request.data['template']==20:
-                   template_name='MarketSquareVoucher_details_x20_v3.html'
-            firstname = giftcardname
-            randomnumber = serialnumber
-            emailaddress = emailaddress
-            subject='Voucher Details'   
-            others = amount
-            expiry_date_str = voucher_date.strftime('%d %b %Y') if isinstance(voucher_date, datetime.date) else voucher_date
+                lastestid = giftCard.objects.latest('id')
+                finalid = lastestid.id
+                gt = giftcardtransaction(
+                    giftID_id=finalid, purchaseamount=amount, merchID_id=merch_id, reference=ref)
+                gt.save()
+                template_name = 'MarketSquareVoucher_details_x20_v3.html'
+                merchantname = merchant.objects.filter(id=merch_id).values(
+                    'businessname', 'businesslogo', 'serviceID').first()
+                if merchantname and merchantname['serviceID'] == '351817683':
+                    if request.data.get('template') == 0:
+                        template_name = 'MarketSquareVoucher_details.html'
+                    elif request.data.get('template') in [6, 10, 20]:
+                        template_name = 'MarketSquareVoucher_details_x20_v3.html'
+                firstname = giftcardname
+                randomnumber = serialnumber
+                subject = 'Voucher Details'
+                others = amount
+                expiry_date_str = voucher_date.strftime('%d %b %Y') if isinstance(voucher_date, datetime.date) else voucher_date
 
-            notify = htmltopdf(
-                firstname,
-                randomnumber,
-                emailaddress,
-                subject,
-                template_name,
-                expiry_date_str,  # this becomes {{ expiry }}
-                others,
-                merchantname
-            )
+                notify = htmltopdf(
+                    firstname,
+                    randomnumber,
+                    emailaddress,
+                    subject,
+                    template_name,
+                    expiry_date_str,
+                    others,
+                    merchantname
+                )
+                finalhtmlcontext += '{}'.format(notify)
 
-            #finalhtmlcontext += "<div class='container'><div class='row'><div class='col-md'>{}</div></div></div>".format(notify)
-            #print(finalhtmlcontext)
-            finalhtmlcontext +='{}'.format(notify)
-        pdfkit.from_string(finalhtmlcontext, os.path.join(settings.BASE_DIR, "voucherpdf", 'voucher_report-%s.pdf' % (todaydate)))
-        at = attachment(body='/voucherpdf/voucher_report-'+todaydate+'.pdf',
-                        merchID_id=merchID, name=todaydate)
-        at.save()
-        responseData = {'message': 'Transaction capture', 'status': 'True'}
-        return HttpResponse(json.dumps(responseData), content_type="application/json")
-
+            pdfkit.from_string(finalhtmlcontext, os.path.join(settings.BASE_DIR, "voucherpdf", 'voucher_report-%s.pdf' % (todaydate)))
+            at = attachment(body='/voucherpdf/voucher_report-' + todaydate + '.pdf',
+                            merchID_id=merch_id, name=todaydate)
+            at.save()
+            responseData = {'message': 'Transaction capture', 'status': 'True'}
+            return HttpResponse(json.dumps(responseData), content_type="application/json")
+        except Exception as e:
+            responseData = {'message': 'An error occur: ' + str(e), 'status': 'False'}
+            return HttpResponse(json.dumps(responseData), content_type="application/json")
 
 @extend_schema(tags=['Gift Cards'])
 class bulkMerchantGiftCardView(APIView):
@@ -471,6 +479,7 @@ class bulkMerchantGiftCardView(APIView):
 
 @extend_schema(tags=['Attachment'])
 class documentattachment(APIView):
+    permission_classes = [IsManager]
     def get(self,request, format=None):
         merchID=request.GET.get('merchID')
         records = list(attachment.objects.filter(
@@ -503,4 +512,4 @@ def generateReferenceNumber(merchID):
 
 
 
-        
+

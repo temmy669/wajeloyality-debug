@@ -588,6 +588,7 @@ def get_tokens_for_user(user_instance):
     refresh = RefreshToken.for_user(user_instance)
     # Optionally add custom claims, e.g. role
     refresh['role'] = user_instance.role.name if user_instance.role else None
+    refresh['merchID'] = user_instance.merchID.id if user_instance.merchID else None
     return {
         'refresh': str(refresh),
         'access': str(refresh.access_token),

@@ -19,6 +19,7 @@ from .notification import *
 from .accountant import *
 from .utils.export import ExportGiftCardReportExcelView
 from rest_framework.urlpatterns import format_suffix_patterns
+from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 # from .import giftcard
@@ -27,7 +28,7 @@ from rest_framework import permissions
 
 
 
-urlpatterns = {
+urlpatterns = [
     re_path(r'^merchant/$', merchantView.as_view()),
     re_path(r'^editmerchant/$', editMerchantRecord.as_view()),
     re_path(r'^merchantcustomer/$', MerchantCustomerView.as_view()),
@@ -95,6 +96,8 @@ urlpatterns = {
     path('list-roles/', roleListView.as_view(), name='list-roles'),
     path('manager-verification/', merchantGiftcardVerificationView.as_view(), name='manager-verification'),
     path('export/giftcard/', ExportGiftCardReportExcelView.as_view(), name='export-giftcard-excel'),
-}
+
+    ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 
 urlpatterns = format_suffix_patterns(urlpatterns)

@@ -124,6 +124,9 @@ class user(models.Model):
     updateddate = models.DateField('updateddate',null=True)
     role = models.ForeignKey('Role', on_delete=models.SET_NULL, null=True, blank=True)
 
+    @property
+    def is_authenticated(self):
+        return True
     
 class loyaltyrule(models.Model):
     loyaltyrule= models.CharField(max_length=45)
@@ -214,7 +217,7 @@ class giftcardtransaction(models.Model):
     redeemedamount= models.DecimalField(default=0, max_digits=16, decimal_places=6)
     purchaseamount= models.DecimalField(default=0, max_digits=16, decimal_places=6)
     merchID = models.ForeignKey(merchant,on_delete=models.CASCADE,null=True)
-    branch = models.ForeignKey(branch, on_delete=models.DO_NOTHING, blank=True, null=True)
+    # branch = models.ForeignKey(branch, on_delete=models.DO_NOTHING, blank=True, null=True)
     reference =models.CharField(null=True,max_length=200, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     createdby = models.CharField(null=True, max_length=200)
