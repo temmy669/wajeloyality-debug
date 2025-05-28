@@ -246,7 +246,7 @@ class purchaseMerchantGiftCardView(APIView):
                     notify_html = htmltopdf(name, randomnumber, emailaddress, subject, template_name, expiry, others, merchantname)
                     config = pdfkit.configuration(wkhtmltopdf=settings.WKHTMLTOPDF_PATH)
                     pdf_path = os.path.join(settings.MEDIA_ROOT, "voucherpdf", 'voucher_report-%s.pdf' % request.data['phonenumber'])
-                    
+                    os.makedirs(os.path.dirname(pdf_path), exist_ok=True)
                     pdfkit.from_string(notify_html, pdf_path, configuration=config)
                     
                     at = attachment(
