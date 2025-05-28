@@ -250,7 +250,7 @@ class purchaseMerchantGiftCardView(APIView):
                     pdfkit.from_string(notify_html, pdf_path, configuration=config)
                     
                     at = attachment(
-                        body='media/voucherpdf/voucher_report-%s.pdf' % request.data['phonenumber'],
+                        body='voucherpdf/voucher_report-%s.pdf' % request.data['phonenumber'],
                         merchID_id=merch_id,
                         name=request.data['phonenumber']
                     )
