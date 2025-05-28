@@ -24,6 +24,7 @@ from datetime import datetime, timedelta
 import calendar
 from django.db import connection
 from drf_spectacular.utils import extend_schema
+from .permissions import IsManager
 
 
 @extend_schema(tags=["Analytics"])
@@ -130,7 +131,7 @@ class merchantDashboardView(APIView):
 
 @extend_schema(tags=["Analytics"])
 class listSaleSummaryView(APIView):
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = [IsManager]
 
     def get(self, request, format=None):
         """
@@ -138,13 +139,13 @@ class listSaleSummaryView(APIView):
         by filtering against a `merchant id` query parameter in the URL.
         """
         #password = self.request.query_params.get('password')
-        merchID = request.GET.get('merchID')
+        userID = getattr(request.user, 'id', None)
         todaydate = datetime.now().date()
         yesterdaydate =  todaydate - timedelta(days=1)
         tomorrowdate = todaydate + timedelta(days=1)
-        customersale = customerSaleToday(merchID, todaydate, yesterdaydate)
-        morrischartrecord = morrisChart(merchID)
-        total_sales = totalSales(merchID, todaydate, yesterdaydate)
+        customersale = customerSaleToday(userID, todaydate, yesterdaydate)
+        morrischartrecord = morrisChart(userID)
+        total_sales = totalSales(userID, todaydate, yesterdaydate)
         Todaycustomersalesummary = ['Todaycustomersalesummary']
         finalresult = Todaycustomersalesummary.append(customersale)
         #finalresult= customersale+total_sales
@@ -156,34 +157,36 @@ class listSaleSummaryView(APIView):
 
 @extend_schema(tags=["Analytics"])
 class listLoyaltySummaryView(APIView):
-    #permission_classes =(IsAuthenticated,)
+    permission_classes =[IsManager]
     def get(self, request, format=None):
-        merchID = request.GET.get('merchID')
+        userID = getattr(request.user, 'id', None)
         startdate = request.GET.get('startdate')
         endate = request.GET.get('endate')
-        customerpoint = customerAwardedPoint(merchID, startdate, endate)
-        totalaward = totalAward(merchID)
+        customerpoint = customerAwardedPoint(userID, startdate, endate)
+        totalaward = totalAward(userID)
         return JsonResponse({'data': {'customerawardedpoints': customerpoint}, 'loyaltysummary': totalaward, 'status': 'True'})
 
 @extend_schema(tags=["Analytics"])
 class listGiftCardSummaryView(APIView):
-    #permission_classes =(IsAuthenticated,)
+    permission_classes =[IsManager]
     def get(self, request, format=None):
 
-        merchID = request.GET.get('merchID')
+        userID = getattr(request.user, 'id', None)
         # startdate = formartDate(request.GET.get('startDate'))
         # endate =formartDate(request.GET.get('endDate'))
 
         startdate = request.GET.get('startDate')
         endate = request.GET.get('endDate')
 
-        redeemptionhistory = redeemptionHistory(merchID, startdate, endate)
-        giftcreated = giftcardCreatedRecord(merchID, startdate, endate)
-        statdata = giftCardStat(merchID)
+        redeemptionhistory = redeemptionHistory(userID, startdate, endate)
+        giftcreated = giftcardCreatedRecord(userID, startdate, endate)
+        statdata = giftCardStat(userID)
         return JsonResponse({'data': {'stat': statdata, 'giftcardreport': giftcreated, 'redeemptionhistory': redeemptionhistory}, 'status': 'True'})
 
 def formartDate(dt):
     return datetime.strptime(dt, "%d/%m/%Y").strftime("%Y-%m-%d")
+
+#Any merchID variable in the functions below refer to the authenticated user ID, which is assumed to be the merchant ID in this context.
 
 def giftcardCreatedRecord(merchID, startdate, endate):
     print('startdate')
