@@ -477,7 +477,7 @@ class bulkMerchantGiftCardView(APIView):
 
 @extend_schema(tags=['Attachment'])
 class documentattachment(APIView):
-    permission_classes = [IsManager]
+    # permission_classes = [IsManager]
     def get(self,request, format=None):
         merchID=request.GET.get('merchID')
         records = list(attachment.objects.filter(
