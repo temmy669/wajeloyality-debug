@@ -184,7 +184,7 @@ class merchantDeleteManagerView(APIView):
         merchID=request.GET.get('merchID')
         user.objects.get(id=pk, merchID=merchID).delete()
         return JsonResponse({'message':'The user account has been deleted','status':True})
-
+    
 @extend_schema(tags=['Merchant'])
 class merchantBranchView(APIView):
     #permission_classes = (IsAuthenticated,)

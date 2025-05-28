@@ -177,28 +177,20 @@ class AuditorSerializer(serializers.Serializer):
     transactionRef = serializers.CharField()
     dateConfirmed = serializers.DateField()
     datePayment = serializers.DateField()
-    manager = serializers.CharField()  # Nested UserSerializer to get the manager (creator of the gift card)
-    branch = BranchSerializer()  # Nested BranchSerializer to get the branch name
-    
-    # Method to fetch the data using the confirmation code
+    manager = serializers.CharField()  # Will be filled manually in `to_representation`
+    branch = BranchSerializer(many=True)  # Assuming multiple branches can be linked
+
     def to_representation(self, instance):
-        # Retrieve AccountantData object based on the confirmation code
         accountant_data = instance
-        
-        try:
-           gift_card = giftCard.objects.filter(cardname=accountant_data.cardName).first()
-        except giftCard.DoesNotExist:
-            gift_card = None  # Handle the case where the gift card doesn't exist
+
+        gift_card = giftCard.objects.filter(cardname=accountant_data.cardName).first()
 
         if gift_card:
-            # Get the related branch using the merchant
-            branch_data = branch.objects.filter(merchID=gift_card.merchID)
-            
-            # Get the manager (creator of the gift card)
-            manager = gift_card.createdby  # Assuming 'createdby' is the field that refers to the user who created the gift card
-            
-            # Build the representation
-            representation = {
+            manager = merchant.objects.get(user=gift_card.createdby)
+            branch_data = branch.objects.filter(merchID=manager)
+
+
+            return {
                 'confirmationCode': accountant_data.confirmationCode,
                 'customer': accountant_data.customer,
                 'cardName': accountant_data.cardName,
@@ -206,21 +198,18 @@ class AuditorSerializer(serializers.Serializer):
                 'transactionRef': accountant_data.transactionRef,
                 'dateConfirmed': accountant_data.dateConfirmed,
                 'datePayment': accountant_data.datePayment,
-                'manager': manager.name if manager else "Nill",  # Serialize the manager data
-                'branch': BranchSerializer(branch_data, many=True).data,  # Serialize the branch data
+                'manager': getattr(manager, 'name', 'Nill'),
+                'branch': BranchSerializer(branch_data, many=True).data,
             }
-        # else:
-        #     # Return a default representation or error message if gift_card doesn't exist
-        #     representation = {
-        #         'confirmationCode': accountant_data.confirmationCode,
-        #         'customer': accountant_data.customer,
-        #         'cardName': "Card not found",
-        #         'amount': accountant_data.amount,
-        #         'dateConfirmed': accountant_data.dateConfirmed,
-        #         'datePayment': accountant_data.datePayment,
-        #         'manager': "Nill",
-        #         'branch': "Nill"
-
-        #     }
-
-        return representation
+        else:
+            return {
+                'confirmationCode': accountant_data.confirmationCode,
+                'customer': accountant_data.customer,
+                'cardName': "Card not found",
+                'amount': accountant_data.amount,
+                'transactionRef': accountant_data.transactionRef,
+                'dateConfirmed': accountant_data.dateConfirmed,
+                'datePayment': accountant_data.datePayment,
+                'manager': "Nill",
+                'branch': [],
+            }
