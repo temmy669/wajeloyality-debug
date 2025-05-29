@@ -53,7 +53,7 @@ class merchantUserSerializer(serializers.ModelSerializer):
         model = user
         fields = (
             'id','username', 'name', 'branchID', 'merchID', 'role',
-            'role_id', 'merchID_id', 'branchID_id'
+            'role_id', 'merchID_id', 'branchID_id', 'userpassword'
         )
         read_only_fields = ('branchID', 'merchID', 'role')
 
