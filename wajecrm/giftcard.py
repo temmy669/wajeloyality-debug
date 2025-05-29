@@ -477,11 +477,11 @@ class bulkMerchantGiftCardView(APIView):
 
 @extend_schema(tags=['Attachment'])
 class documentattachment(APIView):
-    # permission_classes = [IsManager]
+    permission_classes = [IsManager]
     def get(self,request, format=None):
-        merchID=request.GET.get('merchID')
+        merchID = getattr(request.user, 'merchID_from_token', None)
         records = list(attachment.objects.filter(
-            merchID=merchID).values('body', 'name','createddate').order_by('-createddate'))
+            merchID=merchID,).values('body', 'name','createddate').order_by('-createddate'))
         for record in records:
             record['createddate']=str(record['createddate'])       
         responseData = {'data': records,'status':'True'}

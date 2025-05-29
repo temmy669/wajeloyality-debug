@@ -171,16 +171,16 @@ class listGiftCardSummaryView(APIView):
     permission_classes =[IsManager]
     def get(self, request, format=None):
 
-        userID = getattr(request.user, 'id', None)
+        merchID = getattr(request.user, 'merchID_FROM_TOKEN', None)
         # startdate = formartDate(request.GET.get('startDate'))
         # endate =formartDate(request.GET.get('endDate'))
 
         startdate = request.GET.get('startDate')
         endate = request.GET.get('endDate')
 
-        redeemptionhistory = redeemptionHistory(userID, startdate, endate)
-        giftcreated = giftcardCreatedRecord(userID, startdate, endate)
-        statdata = giftCardStat(userID)
+        redeemptionhistory = redeemptionHistory(merchID, startdate, endate)
+        giftcreated = giftcardCreatedRecord(merchID, startdate, endate)
+        statdata = giftCardStat(merchID)
         return JsonResponse({'data': {'stat': statdata, 'giftcardreport': giftcreated, 'redeemptionhistory': redeemptionhistory}, 'status': 'True'})
 
 def formartDate(dt):
@@ -301,7 +301,6 @@ def totalSales(merchID, todaydate, yesterdaydate):
 
 
 '''function to spool historical customers loyalty award points '''
-
 
 def customerAwardedPoint(merchID, startdate, endate):
     queryset = customer.objects.all()
