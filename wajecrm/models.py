@@ -113,6 +113,7 @@ class attachment(models.Model):
     merchID = models.ForeignKey(merchant, on_delete=models.CASCADE)
     createddate = models.DateField('createddate',auto_now_add=True)
     updateddate = models.DateField('updateddate',null=True)
+    userID = models.ForeignKey('user', on_delete=models.SET_NULL, null=True, blank=True)
 
 class user(models.Model):
     username= models.CharField(max_length=45)
@@ -207,6 +208,7 @@ class giftCard(models.Model):
     # deleted = models.DateField('deleted',null=True)
     expiration_date = models.DateField(auto_now_add=False)
     createddate = models.DateTimeField(auto_now_add=True)
+    confirmationCode = models.CharField(max_length=200, unique=True, null=True)
     createdby = models.ForeignKey('user', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
@@ -233,6 +235,7 @@ class AccountantData(models.Model):
     dateConfirmed = models.DateField(default=timezone.now,null=False)
     customer = models.CharField(max_length=200, null=False)
     datePayment = models.DateField(default=timezone.now,null=False)
+    giftCard = models.ForeignKey(giftCard, on_delete=models.SET_NULL, null=True, blank=True)
     
     def __str__(self):
         return f"Transaction: {self.transactionRef} - {self.cardName}"

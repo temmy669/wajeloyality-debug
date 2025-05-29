@@ -12,7 +12,7 @@ class AuditorPagination(PageNumberPagination):
     max_page_size = 100  # Optionally limit the max page size
 
 class AuditorAPIView(APIView):
-    # permission_classes = [IsAuditor]  
+    permission_classes = [IsAuditor]  
 
     def get(self, request, *args, **kwargs):
         # Get all AccountantData

@@ -102,6 +102,8 @@ class MerchantGiftCardView(APIView):
         try:
             count = int(request.data['count'])
             merchID = int(request.data['merchID'])
+            
+            confirmationCode=request.data.get('confirmationCode', None),
 
             giftcards = [
                 giftCard(
@@ -110,11 +112,19 @@ class MerchantGiftCardView(APIView):
                     amount=float(request.data['amount']),
                     merchID_id=merchID,
                     expiration_date=request.data['voucher_date'],
-                    createdby=request.user
+                    createdby=request.user,
+                    confirmationCode=confirmationCode
                 )
                 for _ in range(count)
             ]
             giftCard.objects.bulk_create(giftcards)
+                
+            created_giftcard = giftCard.objects.get(
+                confirmationCode=confirmationCode,
+                merchID_id=merchID
+            )
+
+            AccountantData.objects.filter(confirmationCode=confirmationCode).update(giftcard=created_giftcard)
 
         except Exception as e:
             return Response({'message': 'An error occurred: ' + str(e), 'status': 'False'}, status=400)
@@ -126,7 +136,7 @@ class MerchantGiftCardView(APIView):
         try:
             giftcardrecord = list(
                 giftCard.objects.filter(createdby=request.user)
-                .values('serialnumber', 'id', 'cardname', 'amount', 'recipient_phone', 'expiration_date', 'merchID')
+                .values('serialnumber', 'id', 'cardname', 'amount', 'recipient_phone', 'expiration_date', 'merchID', 'active')
                 .order_by('-createddate')[:1000]
             )
             dictList = []
@@ -252,7 +262,8 @@ class purchaseMerchantGiftCardView(APIView):
                     at = attachment(
                         body='voucherpdf/voucher_report-%s.pdf' % request.data['phonenumber'],
                         merchID_id=merch_id,
-                        name=request.data['phonenumber']
+                        name=request.data['phonenumber'],
+                        userID_id=request.user.id
                     )
                     at.save()
                 else:
@@ -479,9 +490,9 @@ class bulkMerchantGiftCardView(APIView):
 class documentattachment(APIView):
     permission_classes = [IsManager]
     def get(self,request, format=None):
-        merchID = getattr(request.user, 'merchID_from_token', None)
+        userID = getattr(request.user, 'id', None)
         records = list(attachment.objects.filter(
-            merchID=merchID,).values('body', 'name','createddate').order_by('-createddate'))
+            userID_id=userID,).values('body', 'name','createddate').order_by('-createddate'))
         for record in records:
             record['createddate']=str(record['createddate'])       
         responseData = {'data': records,'status':'True'}

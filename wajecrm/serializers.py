@@ -166,7 +166,7 @@ class BranchSerializer(serializers.ModelSerializer):
 class AccountantDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = AccountantData
-        fields = ['confirmationCode', 'customer', 'cardName', 'amount', 'dateConfirmed', 'datePayment']
+        fields = ['confirmationCode', 'customer', 'cardName', 'amount', 'dateConfirmed', 'datePayment', 'transactionRef']
 
 # AuditorSerializer to combine the related models
 class AuditorSerializer(serializers.Serializer):
@@ -177,39 +177,27 @@ class AuditorSerializer(serializers.Serializer):
     transactionRef = serializers.CharField()
     dateConfirmed = serializers.DateField()
     datePayment = serializers.DateField()
-    manager = serializers.CharField()  # Will be filled manually in `to_representation`
-    branch = BranchSerializer(many=True)  # Assuming multiple branches can be linked
+    manager = serializers.CharField()
+    branch = BranchSerializer(many=True)
 
     def to_representation(self, instance):
         accountant_data = instance
 
-        gift_card = giftCard.objects.filter(cardname=accountant_data.cardName).first()
+        # Find giftCard using confirmationCode
+        gift_card = giftCard.objects.filter(confirmationCode=accountant_data.confirmationCode).first()
 
         if gift_card:
-            manager = merchant.objects.get(user=gift_card.createdby)
-            branch_data = branch.objects.filter(merchID=manager)
-
+            user_obj = gift_card.createdby  # This is the manager (User instance)
+            branch_obj = getattr(user_obj, 'branchID', None)
 
             return {
                 'confirmationCode': accountant_data.confirmationCode,
                 'customer': accountant_data.customer,
-                'cardName': accountant_data.cardName,
+                'cardName': gift_card.cardname,
                 'amount': accountant_data.amount,
                 'transactionRef': accountant_data.transactionRef,
                 'dateConfirmed': accountant_data.dateConfirmed,
                 'datePayment': accountant_data.datePayment,
-                'manager': getattr(manager, 'name', 'Nill'),
-                'branch': BranchSerializer(branch_data, many=True).data,
-            }
-        else:
-            return {
-                'confirmationCode': accountant_data.confirmationCode,
-                'customer': accountant_data.customer,
-                'cardName': "Card not found",
-                'amount': accountant_data.amount,
-                'transactionRef': accountant_data.transactionRef,
-                'dateConfirmed': accountant_data.dateConfirmed,
-                'datePayment': accountant_data.datePayment,
-                'manager': "Nill",
-                'branch': [],
+                'manager': getattr(user_obj, 'name', 'Nill'),
+                'branch': BranchSerializer([branch_obj], many=True).data if branch_obj else [],
             }
