@@ -30,3 +30,7 @@ class IsAccountant(BaseGiftCardPermission):
 class IsAuditor(BaseGiftCardPermission):
     allowed_methods = ['GET']
     role = 'Auditor'
+    
+class IsMerchant(BaseGiftCardPermission):
+    allowed_methods = ['GET', 'POST', 'PUT', 'PATCH']
+    role = 'Merchant'

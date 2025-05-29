@@ -29,7 +29,7 @@ from .logger import *
 import base64
 import json
 from django.core.files.base import ContentFile
-from .permissions import IsManager, IsAccountant, IsAuditor
+from .permissions import IsManager, IsAccountant, IsAuditor, IsMerchant
 from rest_framework.permissions import IsAuthenticated
 from django.views import View
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
@@ -110,7 +110,7 @@ class UpdateMerchantStaffView(RetrieveUpdateDestroyAPIView):
 @extend_schema(tags=['Merchant'])
 class merchantManagerView(APIView):
     serializer_class = merchantUserSerializer
-
+    permission_classes = [IsMerchant]  # Ensure this is defined in your permissions.py
     def post(self, request, format=None):
         try:
             serializer = merchantUserSerializer(data=request.data)

@@ -39,6 +39,7 @@ class merchantBasicSerializer(serializers.ModelSerializer):
         
         return representation
 
+from django.contrib.auth.hashers import make_password
 class merchantUserSerializer(serializers.ModelSerializer):
     role = serializers.CharField(source='role.name', read_only=True)
     merchID = merchantBasicSerializer(read_only=True)
@@ -48,11 +49,12 @@ class merchantUserSerializer(serializers.ModelSerializer):
     role_id = serializers.PrimaryKeyRelatedField(queryset=Role.objects.all(), write_only=True)
     merchID_id = serializers.PrimaryKeyRelatedField(queryset=merchant.objects.all(), write_only=True)
     branchID_id = serializers.PrimaryKeyRelatedField(queryset=branch.objects.all(), write_only=True)
+    userpassword = serializers.CharField(write_only=True)  # ✅ ensure password is write-only
 
     class Meta:
         model = user
         fields = (
-            'id','username', 'name', 'branchID', 'merchID', 'role',
+            'id', 'username', 'name', 'branchID', 'merchID', 'role',
             'role_id', 'merchID_id', 'branchID_id', 'userpassword'
         )
         read_only_fields = ('branchID', 'merchID', 'role')
@@ -61,15 +63,19 @@ class merchantUserSerializer(serializers.ModelSerializer):
         role = validated_data.pop('role_id')
         merchID = validated_data.pop('merchID_id')
         branchID = validated_data.pop('branchID_id')
+        raw_password = validated_data.pop('userpassword')  #plain password from input
 
-        # Optionally, hash the password here if you’re including it
-        return user.objects.create(
+        # Create user instance without saving yet
+        user_obj = user(
             **validated_data,
             role=role,
             merchID=merchID,
-            branchID=branchID
-        )
-
+            branchID=branchID,
+            password=make_password(raw_password)
+        )  
+        user_obj.save()
+        return user_obj
+    
 
 class themeColorSerializer(serializers.ModelSerializer):
     """Serializer to map the Model instance into JSON format."""
