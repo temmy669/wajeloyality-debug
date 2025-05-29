@@ -2,10 +2,13 @@ from openpyxl import Workbook
 from django.http import HttpResponse
 from rest_framework.views import APIView
 from wajecrm.models import giftCard  # Adjust import if your model is elsewhere
+from ..permissions import IsManager
 
 class ExportGiftCardReportExcelView(APIView):
+    permission_classes = [IsManager]  # Ensure only managers can access this view
+    """Export gift card report to Excel format"""
     def get(self, request, format=None):
-        userID = request.GET.get('userID')
+        userID = getattr(request.user,'id', None)
         startdate = request.GET.get('startDate')
         enddate = request.GET.get('endDate')
 
