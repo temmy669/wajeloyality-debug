@@ -9,7 +9,7 @@ settings.py.save
 settings.pyy
 db.sqlite3
 db.sqlite3-journal
-media
+# media
 
 
 # Virtual environment folders
