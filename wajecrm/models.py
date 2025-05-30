@@ -213,6 +213,8 @@ class giftCard(models.Model):
 
     def __str__(self):
         return self.cardname
+ 
+ 
     
 class giftcardtransaction(models.Model):
     giftID = models.ForeignKey(giftCard,on_delete=models.CASCADE,null=True)

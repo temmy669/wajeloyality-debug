@@ -124,7 +124,7 @@ class MerchantGiftCardView(APIView):
                 merchID_id=merchID
             )
 
-            AccountantData.objects.filter(confirmationCode=confirmationCode).update(giftcard=created_giftcard)
+            AccountantData.objects.filter(confirmationCode=confirmationCode).update(giftCard=created_giftcard)
 
         except Exception as e:
             return Response({'message': 'An error occurred: ' + str(e), 'status': 'False'}, status=400)
