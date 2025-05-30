@@ -71,7 +71,7 @@ class merchantUserSerializer(serializers.ModelSerializer):
             role=role,
             merchID=merchID,
             branchID=branchID,
-            password=make_password(raw_password)
+            userpassword=make_password(raw_password)
         )  
         user_obj.save()
         return user_obj
