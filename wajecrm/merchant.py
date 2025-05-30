@@ -110,7 +110,7 @@ class UpdateMerchantStaffView(RetrieveUpdateDestroyAPIView):
 @extend_schema(tags=['Merchant'])
 class merchantManagerView(APIView):
     serializer_class = merchantUserSerializer
-    permission_classes = [IsMerchant]  # Ensure this is defined in your permissions.py
+    # permission_classes = [IsMerchant]  # Ensure this is defined in your permissions.py
     def post(self, request, format=None):
         try:
             serializer = merchantUserSerializer(data=request.data)
