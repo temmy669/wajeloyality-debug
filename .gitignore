@@ -9,7 +9,7 @@ settings.py.save
 settings.pyy
 db.sqlite3
 db.sqlite3-journal
-# media
+
 
 
 # Virtual environment folders
@@ -25,8 +25,7 @@ giftenv/
 campaigntemplates/
 crmlog/
 log_systemlogs/
-# merchantlogo/
-# voucherpdf/
+
 
 #powershell files
 .ps1
