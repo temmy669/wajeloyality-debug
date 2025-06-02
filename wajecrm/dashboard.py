@@ -25,6 +25,7 @@ import calendar
 from django.db import connection
 from drf_spectacular.utils import extend_schema
 from .permissions import IsManager
+from django.db.models import Q, F
 
 
 @extend_schema(tags=["Analytics"])
@@ -181,7 +182,7 @@ class listGiftCardSummaryView(APIView):
 
         return JsonResponse({'data': {'stat': statdata, 'giftcardreport': giftcreated, 'redeemptionhistory': redeemptionhistory}, 'status': 'True'})
 
-from django.db.models import Q, F
+
 
 def giftcardCreatedRecord(user, startdate=None, endate=None):
     giftcard_ids = giftCard.objects.filter(createdby=user).values_list('id', flat=True)
@@ -193,14 +194,14 @@ def giftcardCreatedRecord(user, startdate=None, endate=None):
     giftcardtransactionrecords = list(
         giftcardtransaction.objects
         .filter(filters)
-        .values('giftID')
+        .values('giftID', 'created_at', 'purchaseamount', 'redeemedamount')
         .annotate(balance=F('purchaseamount') - F('redeemedamount'))
     )
 
     for gifttransaction in giftcardtransactionrecords:
         giftID = gifttransaction['giftID']
         giftcard = giftCard.objects.filter(id=giftID).values(
-            'cardname', 'recipient_phone', 'serialnumber', 'recipient_email', 'createddate', 'createdby', 'expiration_date',
+            'cardname', 'recipient_phone', 'serialnumber', 'recipient_email', 'createddate', 'createdby__name', 'expiration_date', 'amount'
         ).first()
 
         if giftcard:
