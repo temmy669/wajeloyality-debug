@@ -103,7 +103,7 @@ class MerchantGiftCardView(APIView):
             count = int(request.data['count'])
             merchID = int(request.data['merchID'])
             
-            confirmationCode=request.data.get('confirmationCode', None),
+            confirmationCode=request.data.get('confirmationCode', None)
 
             giftcards = [
                 giftCard(
@@ -122,9 +122,11 @@ class MerchantGiftCardView(APIView):
             created_giftcard = giftCard.objects.get(
                 confirmationCode=confirmationCode,
                 merchID_id=merchID
+                
             )
 
             AccountantData.objects.filter(confirmationCode=confirmationCode).update(giftCard=created_giftcard)
+           
 
         except Exception as e:
             return Response({'message': 'An error occurred: ' + str(e), 'status': 'False'}, status=400)

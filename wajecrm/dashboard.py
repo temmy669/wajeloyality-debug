@@ -201,7 +201,7 @@ def giftcardCreatedRecord(user, startdate=None, endate=None):
     for gifttransaction in giftcardtransactionrecords:
         giftID = gifttransaction['giftID']
         giftcard = giftCard.objects.filter(id=giftID).values(
-            'cardname', 'recipient_phone', 'serialnumber', 'recipient_email', 'createddate', 'createdby__name', 'expiration_date', 'amount'
+            'cardname', 'recipient_phone', 'serialnumber', 'recipient_email', 'createddate', 'createdby__name', 'expiration_date',
         ).first()
 
         if giftcard:
