@@ -208,7 +208,7 @@ class giftCard(models.Model):
     # deleted = models.DateField('deleted',null=True)
     expiration_date = models.DateField(auto_now_add=False)
     createddate = models.DateTimeField(auto_now_add=True)
-    confirmationCode = models.CharField(max_length=200, unique=True, null=True)
+    confirmationCode = models.CharField(max_length=200, null=True)
     createdby = models.ForeignKey('user', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):

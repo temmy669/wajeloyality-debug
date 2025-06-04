@@ -119,13 +119,13 @@ class MerchantGiftCardView(APIView):
             ]
             giftCard.objects.bulk_create(giftcards)
                 
-            created_giftcard = giftCard.objects.get(
+            created_giftcards = giftCard.objects.filter(
                 confirmationCode=confirmationCode,
                 merchID_id=merchID
-                
             )
 
-            AccountantData.objects.filter(confirmationCode=confirmationCode).update(giftCard=created_giftcard)
+            accountant_data = AccountantData.objects.filter(confirmationCode=confirmationCode)
+            accountant_data.update(giftCard=created_giftcards.first())
            
 
         except Exception as e:
