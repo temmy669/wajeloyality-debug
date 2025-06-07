@@ -25,8 +25,9 @@ from rest_framework.permissions import IsAuthenticated
 from django.views import View
 import datetime
 from dateutil.parser import parse
+from drf_spectacular.utils import extend_schema
 
-
+@extend_schema(tags=["Reward Program"])
 class merchantLoyaltyRuleView(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -69,6 +70,7 @@ class merchantLoyaltyRuleView(APIView):
         return JsonResponse({'data': list(resultset), 'status': 'True'})
 
 
+@extend_schema(tags=["Reward Program"])
 class merchantCrossPromotionRuleView(APIView):
     #permission_classes = (IsAuthenticated,)
     def post(self, request, format=None):
@@ -112,7 +114,7 @@ class merchantCrossPromotionRuleView(APIView):
             'id', 'campaignrulename', 'item', 'amountspent', 'status', 'endate')
         return JsonResponse({'data': list(resultset), 'status': 'True'})
 
-
+@extend_schema(tags=["Reward Program"])
 class merchantLoyaltyTransactionView(APIView):
     #permission_classes = (IsAuthenticated,)
     def post(self, request, format=None):

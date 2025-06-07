@@ -35,7 +35,9 @@
                     <tr>
                         <td style="display: block; width: 140pt;" align="center">
                             <span style="color: #000066; font-size: 10pt; font-family: roboto, 'helvetica neue', helvetica, arial, sans-serif;margin:2pt">
-                                {{beneficiary}} 
+                                <strong>
+                                    {{beneficiary}}
+                                </strong>
                             </span>
                         </td>
                     </tr>
@@ -54,22 +56,21 @@
                                     {{code}}
                                 </strong>
                             </span>
-							<br>
-							<span style="color: #ffffff; font-size: 6pt;">
-                                <strong>
-                                    <small>Expiration Date</small> <br> 
-                                    {{expiry}}
-                                </strong>
-                            </span>
                             <br>
                             <span style="color: #ffffff; font-size: 12pt;">
                                 <strong>&#x20a6; {{amount}}</strong>
+                            </span>
+                            <br>
+                            <span style="color: #ffffff; font-size: 6pt;">
+                                <strong>
+                                    <small>Expiration Date</small> <br> 
+                                    <p>{{expiry}}</p>
+                                </strong>
                             </span>
                         </td>
                     </tr>
                 </tbody>
             </table>
-
 
             <!-- footer area -->
             <table cellpadding="0" cellspacing="0" class="es-content esd-footer-popover" align="center" style="width: 145pt;">
@@ -82,9 +83,5 @@
                 </tbody>
             </table>
         </div>
-
-
-
     </body>
-
 </html>

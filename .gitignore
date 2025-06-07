@@ -9,7 +9,7 @@ settings.py.save
 settings.pyy
 db.sqlite3
 db.sqlite3-journal
-media
+
 
 
 # Virtual environment folders
@@ -19,11 +19,19 @@ env/
 venv/
 .virtualenv/
 .env
+giftenv/
 
 #dir
 campaigntemplates/
 crmlog/
 log_systemlogs/
-merchantlogo/
-voucherpdf/
+
+
+#powershell files
+.ps1
+
+#migration files
+wajecrm/migrations/*.py
+!wajecrm/migrations/__init__.py
+
 

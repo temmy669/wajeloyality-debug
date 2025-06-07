@@ -22,7 +22,9 @@ from django.views import View
 import datetime
 from django.db.models import Sum
 from django.template.loader import render_to_string
+from drf_spectacular.utils import extend_schema
 
+@extend_schema(tags=["Campaign"])
 class CampaignTemplate(APIView):
     #permission_classes =(IsAuthenticated,) 
     def post(self,request, format=None):
@@ -83,6 +85,8 @@ class CampaignTemplate(APIView):
             responseData ={'message':'The record is updated','status':'True'}
             return HttpResponse(json.dumps(responseData), content_type="application/json")
 
+
+@extend_schema(tags=["Campaign"])
 class Campaign(APIView):
     permission_classes =(IsAuthenticated,) 
     def post(self,request, format=None):
@@ -130,6 +134,8 @@ class Campaign(APIView):
             dictList.append(element)
         return JsonResponse({'data': list(campaignrecord),'status':'True'})
 
+
+@extend_schema(tags=["Campaign"])
 class campaignHistoryView(APIView):
     def get(self,request,format=None):
         merchID=request.GET.get('merchID')

@@ -24,8 +24,11 @@ from django.views import View
 from django.db.models import Sum
 from django.utils import timezone
 from decimal import *
+from drf_spectacular.utils import extend_schema
 
 ''' Class to create merchant customers '''
+
+@extend_schema(tags=["Authentication"])
 class MerchantCustomerView(APIView):
     #permission_classes = (IsAuthenticated,)
     def post(self, request, format=None):     
@@ -82,7 +85,8 @@ class MerchantCustomerView(APIView):
         except Exception as e:
                 responseData ={'message':'An error occur'+str(e),'status':'False'}
                 return HttpResponse(json.dumps(responseData), content_type="application/json")
-    
+        
+@extend_schema(tags=["Rewards"])
 class listCustomersPoint(APIView):
     permission_classes =(IsAuthenticated,) 
     def get(self,request, format=None):
@@ -94,6 +98,7 @@ class listCustomersPoint(APIView):
         customermergedrecord = customerMergeRecord(*args)       
         return JsonResponse({'data':customermergedrecord,'status':'True'})
 
+@extend_schema(tags=["Rewards"])
 class merchantCustomerRedemptionView(APIView):
     def get(self,request,format=None):
         #customerIdentifier=request.data['customerIdentifier']
@@ -135,6 +140,8 @@ class merchantCustomerRedemptionView(APIView):
         else:      
             return   'noresetpoint'
 
+
+@extend_schema(tags=["Attachment"])
 class merchantCustomerUpload(APIView):
     def post(self,request,format=None):
         csv_file = request.FILES["csv_file"]
@@ -155,6 +162,7 @@ class merchantCustomerUpload(APIView):
         else:
             return JsonResponse({'status':'False'})
 
+@extend_schema(tags=["Rewards"])
 class redeemCustomerPoint(APIView):
     def post(self,request,format=None):
         try: 
