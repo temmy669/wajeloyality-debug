@@ -14,9 +14,8 @@ import os
 import datetime
 from datetime import timedelta
 from django.conf import settings
-# import pymysql
+import pymysql
 import os.path
-from decouple import config
 
 
 Temp_Path = os.path.realpath('.')
@@ -27,40 +26,18 @@ Temp_Path = os.path.realpath('.')
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-# wkhtmltopdf path
-WKHTMLTOPDF_PATH = config('WKHTMLTOPDF_PATH', default=os.path.join(BASE_DIR, 'wkhtmltopdf', 'bin', 'wkhtmltopdf.exe'))
-
-# Environment mode
-ENVIRONMENT = config('DJANGO_ENV', default='development')
-
-DEFAULT_AUTO_FIELD='django.db.models.BigAutoField'
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('$)qsyduv4a!ft%7xwjcw4-iodc$_#uu4%ssps)0l=vg@ic(y5r', default="secret_key")
+SECRET_KEY = '$)qsyduv4a!ft%7xwjcw4-iodc$_#uu4%ssps)0l=vg@ic(y5r'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# ALLOWED_HOSTS = ['199.192.28.167',
-#                  'wajeloyality.website', 'localhost:8080', '127.0.0.1', 
-#                  'wajeloyalityapitest.onrender.com',
-#                  'wajeloyalityapitest-2.onrender.com', 'd9b6-102-88-110-241.ngrok-free.app', 'wajeloyality.marketsquareng.website']
-
-
-ALLOWED_HOSTS = ['*']
-
+ALLOWED_HOSTS = ['199.192.28.167','wajeloyality.website']
 
 SETTINGS_PATH = settings.BASE_DIR
-
-CORS_ALLOW_ALL_ORIGINS = True
-
-CORS_ALLOW_CREDENTIALS = True
-
-# CSRF_TRUSTED_ORIGINS = ['*']
-
 
 APP_URL='https://wajeloyality.website'
 # Application definition
@@ -76,23 +53,22 @@ INSTALLED_APPS = [
     'safedelete',
     'wajecrm.apps.WajecrmConfig',
     'corsheaders',
-    'django.contrib.humanize',
-    #'drf_yasg',
-    'drf_spectacular'
+    'django.contrib.humanize'
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',  # Should be first
-    'whitenoise.middleware.WhiteNoiseMiddleware',    # Should come after SecurityMiddleware
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',         # Should come before CommonMiddleware
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.common.BrokenLinkEmailsMiddleware',
-]
+ ]
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'wajecrm.urls'
 
@@ -131,63 +107,43 @@ DATABASE_ROUTERS = ['wajecrm.router.WajeRouter']
 DATABASE_APPS_MAPPING = {'mpos0': 'loyalty',
                          'DST': 'midas',
                          }
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': config('DB_NAME', default='wajeloyaltycrmdb'),
-        'USER': config('DB_USER', default='your_db_user'),
-        'PASSWORD': config('DB_PASSWORD', default='your_db_password'),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='3306'),
+        'ENGINE': 'django.db.backends.mysql', 
+        'NAME': 'wajeloyaltycrmdb',
+        'USER': 'wajesmart',
+        'PASSWORD': 'Wajesmart@123',
+        'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
+        'PORT': '3306',
+        #Wajesmart@1234'
+    },
+   'loyalty': {
+        'ENGINE': 'sql_server.pyodbc',
+        'NAME': 'ENTDB0',
+        'USER': 'sa',
+        'PASSWORD': 'METROPOSPASS1@@',
+        'HOST': '40.87.89.250',
+        'PORT': '1433',
         'OPTIONS': {
-            'init_command': "SET SESSION sql_mode='STRICT_TRANS_TABLES'",
-        },
+            'driver': 'FreeTDS',
+            'unicode_results': True,
+            'host_is_server': True,
+            'autocommit': True,
+            'extra_params': 'tds_version=7.3;',
+            },
     }
+    
 }
-
-import sys
-
-if 'test' in sys.argv:
-    DATABASES['default'] = {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
-    }
-
-
-if ENVIRONMENT == 'production':
-    DATABASES['loyalty'] = {
-        'ENGINE': 'django.db.backends.' + config('DB_ENGINE', default='mssql'),
-        'NAME': config('DB_NAME', default='prod_database'),
-        'USER': config('DB_USER', default='prod_user'),
-        'PASSWORD': config('DB_PASSWORD', default='prod_password'),
-        'HOST': config('DB_HOST', default='prod_server'),
-        'PORT': config('DB_PORT', default='1433'),
-        'OPTIONS': {'driver': 'ODBC Driver 17 for SQL Server'},
-    }
-
-
-
 REST_FRAMEWORK = {
-  
+
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'wajecrm.utils.auth.CustomJWTAuthentication',  # Use the full Python path to your class
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_PAGINATION_CLASS':
     'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10
+    'PAGE_SIZE': 30
 }
-
-SPECTACULAR_SETTINGS = {
-    'TITLE': 'Waje Loyality API',
-    'DESCRIPTION': 'To generate and sale gift cards',
-    'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
-}
-
-
 
 
 # Password validation
@@ -258,11 +214,10 @@ SIMPLE_JWT = {
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 
+STATIC_ROOT = ''
+
+
+
 STATIC_URL = '/static/'
-MEDIA_URL = '/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 FILE_UPLOAD_HANDLERS = ("django_excel.ExcelMemoryFileUploadHandler",
                         "django_excel.TemporaryExcelFileUploadHandler")
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
