@@ -24,7 +24,7 @@ from datetime import datetime, timedelta
 import calendar
 from django.db import connection
 from drf_spectacular.utils import extend_schema
-from .permissions import IsManager
+from .permissions import IsManager, IsMerchant
 from django.db.models import Q, F
 
 
@@ -132,7 +132,7 @@ class merchantDashboardView(APIView):
 
 @extend_schema(tags=["Analytics"])
 class listSaleSummaryView(APIView):
-    permission_classes = [IsManager]
+    permission_classes = [IsManager, IsMerchant]
 
     def get(self, request, format=None):
         """
@@ -158,7 +158,7 @@ class listSaleSummaryView(APIView):
 
 @extend_schema(tags=["Analytics"])
 class listLoyaltySummaryView(APIView):
-    permission_classes =[IsManager]
+    permission_classes =[IsManager, IsMerchant]
     def get(self, request, format=None):
         userID = getattr(request.user, 'id', None)
         startdate = request.GET.get('startdate')
@@ -169,7 +169,7 @@ class listLoyaltySummaryView(APIView):
 
 @extend_schema(tags=["Analytics"])
 class listGiftCardSummaryView(APIView):
-    permission_classes = [IsManager]
+    permission_classes = [IsManager, IsMerchant]
 
     def get(self, request, format=None):
         user = request.user
@@ -189,7 +189,7 @@ def giftcardCreatedRecord(user, startdate=None, endate=None):
 
     filters = Q(giftID__in=giftcard_ids)
     if startdate and endate:
-        filters &= Q(created_at__date__gte=startdate) & Q(created_at__date__lte=endate)
+        filters &= Q(created_at__date__gte=startdate) & Q(cyreated_at__date__lte=endate)
 
     giftcardtransactionrecords = list(
         giftcardtransaction.objects
