@@ -129,7 +129,7 @@ DATABASES = {
     #         'extra_params': 'tds_version=7.3;',
     #     },
     }
-}
+
 
 # Use SQLite for testing
 if 'test' in sys.argv:
