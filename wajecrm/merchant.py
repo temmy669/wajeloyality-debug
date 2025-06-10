@@ -247,6 +247,7 @@ class merchantLoginView(APIView):
                     'message': 'Invalid password.'
                 }, status=400)
 
+
         # Check for user
         user_instance = user.objects.filter(username=username).first()
         if user_instance:
