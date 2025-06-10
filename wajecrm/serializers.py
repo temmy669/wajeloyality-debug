@@ -170,10 +170,13 @@ class BranchSerializer(serializers.ModelSerializer):
 
 # AccountantData serializer for the transaction data
 class AccountantDataSerializer(serializers.ModelSerializer):
+    dateConfirmed = serializers.DateTimeField()
+    datePayment = serializers.DateTimeField()
     class Meta:
         model = AccountantData
-        fields = ['confirmationCode', 'customer', 'cardName', 'amount', 'dateConfirmed', 'datePayment', 'transactionRef']
-
+        fields = "__all__"
+        
+        
 # AuditorSerializer to combine the related models
 class AuditorSerializer(serializers.Serializer):
     confirmationCode = serializers.CharField()
