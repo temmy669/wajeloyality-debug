@@ -39,8 +39,8 @@ SETTINGS_PATH = settings.BASE_DIR
 CORS_ALLOW_ALL_ORIGIND = False
 
 CORS_ALLOWED_ORIGINS=[
-    '199.192.28.167',
-                 'wajeloyality.website', 'localhost'
+    'https://199.192.28.167',
+                 'https://wajeloyality.website', 'https://localhost'
 ]
 
 APP_URL = 'https://wajeloyality.website'
