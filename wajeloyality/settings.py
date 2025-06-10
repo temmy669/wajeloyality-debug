@@ -212,7 +212,8 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
-# Static and media files
+# Static and media files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/2.0/howto/static-files/
 STATIC_URL = '/static/'
 MEDIA_URL = '/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
