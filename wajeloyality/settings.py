@@ -31,15 +31,17 @@ SECRET_KEY = config('DJANGO_SECRET_KEY', default='secret_key')
 DEBUG = True
 
 ALLOWED_HOSTS = ['199.192.28.167',
-                 'wajeloyality.website', 'localhost:8080', '127.0.0.1', 
-                'wajeloyalityapitest.onrender.com',
-                  'wajeloyalityapitest-2.onrender.com', 'wajeloyality.marketsquareng.website']
+                 'wajeloyality.website','localhost']
 
 
 SETTINGS_PATH = settings.BASE_DIR
 
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGIND = False
+
+CORS_ALLOWED_ORIGINS=[
+    '199.192.28.167',
+                 'wajeloyality.website', 'localhost'
+]
 
 APP_URL = 'https://wajeloyality.website'
 
@@ -112,7 +114,7 @@ DATABASES = {
         'NAME': config('DB_NAME', default='your_db_name'),
         'USER': config('DB_USER', default='your_db_user'),
         'PASSWORD': config('DB_PASSWORD', default='password'),
-        'HOST': config('DB_HOST', default='host'),
+        'HOST': config('DB_HOST', default='localhost'),
         'PORT': config('DB_PORT', default='3306'),
         'OPTIONS': {
             'init_command': "SET SESSION sql_mode='STRICT_TRANS_TABLES'",
@@ -184,12 +186,12 @@ USE_L10N = True
 USE_TZ = True
 
 # Email configuration
-EMAIL_HOST = 'web.ipnxng.com'
-EMAIL_PORT = 465
-EMAIL_HOST_USER = 'noreply@wajesmart.com'
-EMAIL_HOST_PASSWORD = 'cZlIvb}*ET!M'
-EMAIL_USE_SSL = True
-DEFAULT_FROM_EMAIL = ''
+EMAIL_HOST = config('EMAIL_HOST') 
+EMAIL_PORT = config('EMAIL_PORT', default=465, cast=int)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+EMAIL_USE_SSL = config('EMAIL_USE_SSL', default=True, cast=bool)
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=EMAIL_HOST_USER)
 
 # JWT configuration
 SIMPLE_JWT = {
