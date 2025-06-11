@@ -234,9 +234,9 @@ class AccountantData(models.Model):
     cardName = models.CharField(max_length=200) 
     confirmationCode = models.CharField(max_length=20, unique=True)  
     transactionRef = models.CharField(max_length=255, unique=True)  
-    dateConfirmed = models.DateField()
+    dateConfirmed = models.DateField(default=timezone.now,null=False)
     customer = models.CharField(max_length=200, null=False)
-    datePayment = models.DateField()
+    datePayment = models.DateField(default=timezone.now,null=False)
     giftCard = models.ForeignKey(giftCard, on_delete=models.SET_NULL, null=True, blank=True)
     
     def __str__(self):
