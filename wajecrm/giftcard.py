@@ -30,7 +30,7 @@ import pandas as pd
 from collections import OrderedDict
 from django.conf import settings
 from .permissions import (
-    IsManager, IsAccountant, IsAuditor, IsMerchant)
+    IsManager, IsAccountant, IsAuditor)
 from .serializers import AccountantDataSerializer
 from .filters import GiftCardStatFilter, GiftCardFilter
 from .serializers import GiftCardSerializer
@@ -62,7 +62,7 @@ class UpdateGiftCardView(ListAPIView):
 
 @extend_schema(tags=['Gift Cards'])
 class deactivateGiftCard(APIView):
-    permission_classes = [IsManager, IsMerchant] 
+    permission_classes = [IsManager] 
 
     def post(self, request, format=None):     
         giftcardid=request.data['giftcardid']
@@ -96,7 +96,7 @@ class UpdateAccountantDataView(RetrieveUpdateDestroyAPIView):
 
 @extend_schema(tags=['Gift Cards'])
 class MerchantGiftCardView(APIView):
-    permission_classes = [IsManager, IsMerchant]
+    permission_classes = [IsManager]
     """Class to create gift cards for a particular merchant."""
 
     def post(self, request, format=None):
@@ -179,7 +179,7 @@ class MerchantGiftCardView(APIView):
 
 @extend_schema(tags=['Gift Cards'])
 class MerchantCustomerGiftcardVerificationView(APIView):
-      permission_classes = [IsManager, IsMerchant]
+      permission_classes = [IsManager]
       def get(self, request, format=None):     
           """Save the post data when creating a new merchant.""" 
           serviceid = request.GET.get('serviceid')
@@ -205,7 +205,7 @@ class MerchantCustomerGiftcardVerificationView(APIView):
 
 @extend_schema(tags=['Gift Cards'])
 class purchaseMerchantGiftCardView(APIView):
-    permission_classes = [IsManager, IsMerchant,]
+    permission_classes = [IsManager]
     def post(self, request, format=None):     
         """Class to purchase gift cards.""" 
         try:
@@ -284,7 +284,7 @@ class purchaseMerchantGiftCardView(APIView):
 
 @extend_schema(tags=['Gift Cards'])
 class redeemMerchantGiftCardView(APIView):
-    permission_classes = [IsManager, IsMerchant]
+    permission_classes = [IsManager]
     def post(self, request, format=None):     
         """function to redeem gift cards from a merchant.""" 
         try: 
@@ -353,7 +353,7 @@ class redeemMerchantGiftCardView(APIView):
 
 @extend_schema(tags=['Gift Cards'])
 class bulkPurchaseMerchantGiftCardView(APIView):
-    permission_classes = [IsManager, IsMerchant]
+    permission_classes = [IsManager]
     def post(self, request, format=None):
         try:
             # Get merchant ID from token (set by custom authentication)
@@ -491,7 +491,7 @@ class bulkMerchantGiftCardView(APIView):
 
 @extend_schema(tags=['Attachment'])
 class documentattachment(APIView):
-    permission_classes = [IsManager, IsMerchant]
+    permission_classes = [IsManager]
     def get(self,request, format=None):
         userID = getattr(request.user, 'id', None)
         records = list(attachment.objects.filter(
