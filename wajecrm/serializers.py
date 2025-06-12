@@ -169,12 +169,22 @@ class BranchSerializer(serializers.ModelSerializer):
 #         fields = ['cardname']
 
 # AccountantData serializer for the transaction data
+from rest_framework import serializers
+from .models import AccountantData
+
 class AccountantDataSerializer(serializers.ModelSerializer):
-    # dateConfirmed = serializers.DateTimeField()
-    # datePayment = serializers.DateTimeField()
     class Meta:
         model = AccountantData
-        fields = ['confirmationCode', 'customer', 'cardName', 'amount', 'dateConfirmed', 'datePayment', 'transactionRef']
+        fields = [
+            'confirmationCode', 'customer', 'cardName', 'amount',
+            'dateConfirmed', 'datePayment', 'transactionRef'
+        ]
+
+    def validate_dateConfirmed(self, value):
+        return value.date() if hasattr(value, 'date') else value
+
+    def validate_datePayment(self, value):
+        return value.date() if hasattr(value, 'date') else value
 
 # AuditorSerializer to combine the related models
 class AuditorSerializer(serializers.Serializer):
