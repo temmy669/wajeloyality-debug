@@ -249,7 +249,7 @@ class purchaseMerchantGiftCardView(APIView):
                     randomnumber = giftcardrecord['serialnumber']
                     emailaddress = request.data['emailaddress']
                     subject = 'Voucher Details'
-                    template_name = 'MarketSquareVoucher_details_x20_v3.html'
+                    template_name = 'MarketSquareVoucher_details_bak.html'
                     if merchantname['serviceID'] == '351817683':
                         template_name = 'MarketSquareVoucher_details_x20_v3.html'
                     others = request.data['amount']
