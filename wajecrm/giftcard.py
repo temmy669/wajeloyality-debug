@@ -257,11 +257,11 @@ class purchaseMerchantGiftCardView(APIView):
                     expiry = str(giftCard.objects.get(id=request.data['id']).expiration_date)
                     notify.emailNotification(name, randomnumber, emailaddress, subject, template_name, others, merchantname)
                     notify_html = htmltopdf(name, randomnumber, emailaddress, subject, template_name, expiry, others, merchantname)
-                    config = pdfkit.configuration(wkhtmltopdf=settings.WKHTMLTOPDF_PATH)
-                    pdf_path = os.path.join(settings.MEDIA_ROOT, "voucherpdf", 'voucher_report-%s.pdf' % request.data['phonenumber'])
-                    os.makedirs(os.path.dirname(pdf_path), exist_ok=True)
-                    pdfkit.from_string(notify_html, pdf_path, configuration=config)
-                    
+                    output_dir = os.path.join(settings.BASE_DIR, "voucherpdf")
+                    os.makedirs(output_dir, exist_ok=True)
+
+                    pdf_path = os.path.join(output_dir, f"voucher_report-{request.data['phonenumber']}.pdf")
+                    pdfkit.from_string(notify_html, pdf_path)    
                     at = attachment(
                         body='voucherpdf/voucher_report-%s.pdf' % request.data['phonenumber'],
                         merchID_id=merch_id,
