@@ -169,9 +169,6 @@ class BranchSerializer(serializers.ModelSerializer):
 #         fields = ['cardname']
 
 # AccountantData serializer for the transaction data
-from rest_framework import serializers
-from .models import AccountantData
-
 class AccountantDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = AccountantData
