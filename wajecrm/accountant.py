@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import AccountantData
 from .permissions import IsAccountant  # Ensure this is defined in your permissions.py
-from .serializers import AccountantDataSerializer
+from .serializers import AccountantDataSerializer, AuditorSerializer
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema
 
@@ -25,14 +25,14 @@ class VerifyTransactionAPIView(APIView):
     def get(self, request):
         """Retrieve a transaction by ID or return all transactions if no ID is provided."""
         transaction_id = request.query_params.get("id")
+
         if transaction_id:
             transaction = AccountantData.objects.filter(id=transaction_id).first()
             if transaction:
-                serializer = AccountantDataSerializer(transaction)
-                return Response({"status": True, "message":transaction}, status=status.HTTP_200_OK)
-            return Response({"error": "Transaction not found.", "status":True}, status=status.HTTP_404_NOT_FOUND)
+                serializer = AuditorSerializer(transaction)
+                return Response({"status": True, "message": serializer.data}, status=status.HTTP_200_OK)
+            return Response({"error": "Transaction not found.", "status": False}, status=status.HTTP_404_NOT_FOUND)
 
         transactions = AccountantData.objects.all()
-        # serializer = AccountantDataSerializer(transactions, many=True)
-        return Response(transactions, status=status.HTTP_200_OK)
-
+        serializer = AuditorSerializer(transactions, many=True)
+        return Response({"status": True, "data": serializer.data}, status=status.HTTP_200_OK)

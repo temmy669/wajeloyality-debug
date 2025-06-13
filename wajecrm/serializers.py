@@ -170,26 +170,13 @@ class BranchSerializer(serializers.ModelSerializer):
 
 # AccountantData serializer for the transaction data
 class AccountantDataSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = AccountantData
         fields = [
             'confirmationCode', 'customer', 'cardName', 'amount',
             'dateConfirmed', 'datePayment', 'transactionRef'
         ]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        request = self.context.get('request')
-        if request and request.method == 'GET':
-            self.fields['dateConfirmed'].read_only = True
-            self.fields['datePayment'].read_only = True
-
-    def validate(self, data):
-        for field in ['dateConfirmed', 'datePayment']:
-            if field in data and isinstance(data[field], datetime):
-                data[field] = data[field].date()
-        return data
 
 
 # AuditorSerializer to combine the related models
