@@ -177,11 +177,20 @@ class AccountantDataSerializer(serializers.ModelSerializer):
             'dateConfirmed', 'datePayment', 'transactionRef'
         ]
 
-    def validate_dateConfirmed(self, value):
-        return value.date() if hasattr(value, 'date') else value
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-    def validate_datePayment(self, value):
-        return value.date() if hasattr(value, 'date') else value
+        request = self.context.get('request')
+        if request and request.method == 'GET':
+            self.fields['dateConfirmed'].read_only = True
+            self.fields['datePayment'].read_only = True
+
+    def validate(self, data):
+        for field in ['dateConfirmed', 'datePayment']:
+            if field in data and isinstance(data[field], datetime):
+                data[field] = data[field].date()
+        return data
+
 
 # AuditorSerializer to combine the related models
 class AuditorSerializer(serializers.Serializer):
