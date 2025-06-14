@@ -178,6 +178,29 @@ class AccountantDataSerializer(serializers.ModelSerializer):
             'dateConfirmed', 'datePayment', 'transactionRef'
         ]
 
+class AccountantGetSerializer(serializers.ModelSerializer):
+    confirmationCode = serializers.CharField()
+    customer = serializers.CharField()
+    cardName = serializers.CharField()
+    amount = serializers.DecimalField(max_digits=16, decimal_places=2)
+    transactionRef = serializers.CharField()
+    dateConfirmed = serializers.DateField()
+    datePayment = serializers.DateField()
+
+    def to_representation(self, instance):
+        accountant_data = instance
+
+        return {
+            'confirmationCode': accountant_data.confirmationCode,
+            'customer': accountant_data.customer,
+            'cardName': accountant_data.cardName,
+            'amount': accountant_data.amount,
+            'transactionRef': accountant_data.transactionRef,
+            'dateConfirmed': accountant_data.dateConfirmed,
+            'datePayment': accountant_data.datePayment
+        }
+
+
 
 # AuditorSerializer to combine the related models
 class AuditorSerializer(serializers.Serializer):
