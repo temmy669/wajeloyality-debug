@@ -453,8 +453,13 @@ class bulkPurchaseMerchantGiftCardView(APIView):
             os.makedirs(pdf_dir, exist_ok=True)
             pdf_path = os.path.join(pdf_dir, f'voucher_report-{todaydate}.pdf')
 
+            # pdf_path = os.path.join(output_dir, f"voucher_report-{request.data['phonenumber']}.pdf")
+            # pdfkit.from_string(notify_html, pdf_path)
+
             try:
                 pdfkit.from_string(finalhtmlcontext, pdf_path)
+                print("Checking if file exists:", os.path.exists(pdf_path))
+
                 print("PDF generated successfully at:", pdf_path)
             except Exception as e:
                 return HttpResponse(json.dumps({
