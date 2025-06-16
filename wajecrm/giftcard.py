@@ -467,24 +467,29 @@ class bulkPurchaseMerchantGiftCardView(APIView):
                     'status': 'False'
                 }), content_type="application/json")
 
+            # Try saving attachment and include user ID if required by model
+            
+            print("Preparing to save attachment...")
             at = attachment(
-                body=f'/voucherpdf/voucher_report-{todaydate}.pdf',
+                body=f'voucherpdf/voucher_report-{todaydate}.pdf',
                 merchID_id=merch_id,
-                name=todaydate
+                name=todaydate,
+                userID_id=request.user.id  # add only if your attachment model requires this
             )
+            print("Attachment object created:", at)
             at.save()
-
-            return HttpResponse(json.dumps({
-                'message': 'Transaction capture',
-                'status': 'True'
-            }), content_type="application/json")
-
+            print("Attachment saved successfully.")
         except Exception as e:
-            print("Exception occurred:", str(e))
+            print("Error saving attachment:", str(e))
             return HttpResponse(json.dumps({
-                'message': 'An error occurred: ' + str(e),
+                'message': f'Attachment save failed: {str(e)}',
                 'status': 'False'
             }), content_type="application/json")
+
+        return HttpResponse(json.dumps({
+            'message': 'Transaction capture',
+            'status': 'True'
+        }), content_type="application/json")
 
 @extend_schema(tags=['Gift Cards'])
 class bulkMerchantGiftCardView(APIView):
