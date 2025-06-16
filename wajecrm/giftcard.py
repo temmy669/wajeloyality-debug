@@ -328,7 +328,7 @@ class redeemMerchantGiftCardView(APIView):
                         template_name = 'voucher_transaction.html'
                         others = request.data['amount']
                         merchantname = merchant.objects.filter(id=request.data['merchID']).values('businessname', 'businesslogo').first()
-                        notify.emailNotificationRedeemGiftcard(firstname,randomnumber,emailaddress,subject,template_name, others, merchantname,currentvalue,transactionvalue)
+                        notify.emailNotificationRedeemGiftcard(firstname,randomnumber,emailaddress,subject,template_name, merchantname,currentvalue,transactionvalue)
                         notify.emailNotification(
                             firstname, randomnumber, emailaddress, subject, template_name, others, merchantname)
                     else:
