@@ -354,27 +354,46 @@ class redeemMerchantGiftCardView(APIView):
 @extend_schema(tags=['Gift Cards'])
 class bulkPurchaseMerchantGiftCardView(APIView):
     permission_classes = [IsManager]
+
     def post(self, request, format=None):
         try:
-            # Get merchant ID from token (set by custom authentication)
             merch_id = getattr(request.user, 'merchID_from_token', None)
             if merch_id is None:
-                responseData = {'message': 'Merchant ID not found in token', 'status': 'False'}
-                return HttpResponse(json.dumps(responseData), content_type="application/json")
+                return HttpResponse(json.dumps({
+                    'message': 'Merchant ID not found in token',
+                    'status': 'False'
+                }), content_type="application/json")
 
             createdby = request.user
             giftcardname = request.data['giftcardname']
             voucher_date = request.data['voucher_date']
             todaydate = str(datetime.datetime.now().date()) + '-' + str(random.randint(1, 1000000000001))
-            wb_final = pd.read_excel(request.FILES['excel_file'])
+
+            print("Reading Excel file...")
+            try:
+                wb_final = pd.read_excel(request.FILES['excel_file'])
+            except Exception as e:
+                return HttpResponse(json.dumps({
+                    'message': f'Failed to read Excel file: {str(e)}',
+                    'status': 'False'
+                }), content_type="application/json")
+
+            print("Excel Columns:", wb_final.columns.tolist())
 
             finalhtmlcontext = ''
             for item in wb_final.itertuples():
-                phonenumber = item.phonenumber
-                emailaddress = item.emailaddress
-                amount = item.amount
+                try:
+                    phonenumber = item.phonenumber
+                    emailaddress = item.emailaddress
+                    amount = item.amount
+                except Exception as e:
+                    print("Missing column in row:", str(e))
+                    continue
+
                 ref = generateReferenceNumber(merch_id)
                 serialnumber = generateSerialNumber(merch_id)
+
+                # Save giftcard
                 gf = giftCard(
                     serialnumber=serialnumber,
                     cardname=giftcardname,
@@ -386,46 +405,81 @@ class bulkPurchaseMerchantGiftCardView(APIView):
                     createdby=createdby
                 )
                 gf.save()
-                lastestid = giftCard.objects.latest('id')
-                finalid = lastestid.id
+
+                finalid = gf.id
                 gt = giftcardtransaction(
-                    giftID_id=finalid, purchaseamount=amount, merchID_id=merch_id, reference=ref)
+                    giftID_id=finalid,
+                    purchaseamount=amount,
+                    merchID_id=merch_id,
+                    reference=ref
+                )
                 gt.save()
-                template_name = 'MarketSquareVoucher_details_x20_v3.html'
+
                 merchantname = merchant.objects.filter(id=merch_id).values(
                     'businessname', 'businesslogo', 'serviceID').first()
+
+                template_name = 'MarketSquareVoucher_details_x20_v3.html'
                 if merchantname and merchantname['serviceID'] == '351817683':
                     if request.data.get('template') == 0:
                         template_name = 'MarketSquareVoucher_details.html'
                     elif request.data.get('template') in [6, 10, 20]:
                         template_name = 'MarketSquareVoucher_details_x20_v3.html'
-                firstname = giftcardname
-                randomnumber = serialnumber
-                subject = 'Voucher Details'
-                others = amount
+
                 expiry_date_str = voucher_date.strftime('%d %b %Y') if isinstance(voucher_date, datetime.date) else voucher_date
 
-                notify = htmltopdf(
-                    firstname,
-                    randomnumber,
-                    emailaddress,
-                    subject,
-                    template_name,
-                    expiry_date_str,
-                    others,
-                    merchantname
-                )
-                finalhtmlcontext += '{}'.format(notify)
+                try:
+                    notify_html = htmltopdf(
+                        giftcardname,
+                        serialnumber,
+                        emailaddress,
+                        'Voucher Details',
+                        template_name,
+                        expiry_date_str,
+                        amount,
+                        merchantname
+                    )
+                    print(f"Generated HTML for {emailaddress}: Length = {len(notify_html)}")
+                    finalhtmlcontext += notify_html
+                except Exception as e:
+                    print(f"Error in htmltopdf for {emailaddress}: {str(e)}")
 
-            pdfkit.from_string(finalhtmlcontext, os.path.join(settings.BASE_DIR, "voucherpdf", 'voucher_report-%s.pdf' % (todaydate)))
-            at = attachment(body='/voucherpdf/voucher_report-' + todaydate + '.pdf',
-                            merchID_id=merch_id, name=todaydate)
+            if not finalhtmlcontext:
+                return HttpResponse(json.dumps({
+                    'message': 'HTML generation failed for all records.',
+                    'status': 'False'
+                }), content_type="application/json")
+
+            pdf_dir = os.path.join(settings.BASE_DIR, "voucherpdf")
+            os.makedirs(pdf_dir, exist_ok=True)
+            pdf_path = os.path.join(pdf_dir, f'voucher_report-{todaydate}.pdf')
+
+            try:
+                pdfkit.from_string(finalhtmlcontext, pdf_path)
+                print("PDF generated successfully at:", pdf_path)
+            except Exception as e:
+                return HttpResponse(json.dumps({
+                    'message': f'PDF generation failed: {str(e)}',
+                    'status': 'False'
+                }), content_type="application/json")
+
+            at = attachment(
+                body=f'/voucherpdf/voucher_report-{todaydate}.pdf',
+                merchID_id=merch_id,
+                name=todaydate
+            )
             at.save()
-            responseData = {'message': 'Transaction capture', 'status': 'True'}
-            return HttpResponse(json.dumps(responseData), content_type="application/json")
+
+            return HttpResponse(json.dumps({
+                'message': 'Transaction capture',
+                'status': 'True'
+            }), content_type="application/json")
+
         except Exception as e:
-            responseData = {'message': 'An error occur: ' + str(e), 'status': 'False'}
-            return HttpResponse(json.dumps(responseData), content_type="application/json")
+            print("Exception occurred:", str(e))
+            return HttpResponse(json.dumps({
+                'message': 'An error occurred: ' + str(e),
+                'status': 'False'
+            }), content_type="application/json")
 
 @extend_schema(tags=['Gift Cards'])
 class bulkMerchantGiftCardView(APIView):
