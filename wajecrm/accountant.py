@@ -14,9 +14,12 @@ class VerifyTransactionAPIView(APIView):
     """Verify a transaction and save the data"""
 
     def post(self, request, *args, **kwargs):
+        merchID = getattr(request.user, "merchID_from_token", None)
+        userID = request.user
         serializer = AccountantDataSerializer(data=request.data, context={"request": request})
+
         if serializer.is_valid():
-            accountant_data = serializer.save()
+            serializer.save(merchID=merchID, userID=userID)
             return Response({
                 "message": "Transaction verified and recorded.",
                 "status": True}, status=status.HTTP_201_CREATED)
