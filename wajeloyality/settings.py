@@ -119,21 +119,21 @@ DATABASES = {
         'OPTIONS': {
             'init_command': "SET SESSION sql_mode='STRICT_TRANS_TABLES'",
         },
-    # },
-    # 'loyalty': {
-    #     'ENGINE': 'sql_server.pyodbc',
-    #     'NAME': config('LOYALTY_DB_NAME', default='your_db_name'),
-    #     'USER': config('LOYALTY_DB_USER', default='your_db_name'),
-    #     'PASSWORD': config('LOYALTY_DB_PASSWORD', default='your_db_password'),
-    #     'HOST': config('LOYALTY_DB_HOST', default='your_db_host'),
-    #     'PORT': config('LOYALTY_DB_PORT', default='1433'),
-    #     'OPTIONS': {
-    #         'driver': config('LOYALTY_DB_DRIVER', default='driver'),
-    #         'unicode_results': True,
-    #         'host_is_server': True,
-    #         'autocommit': True,
-    #         'extra_params': 'tds_version=7.3;',
-    #     },
+    },
+    'loyalty': {
+        'ENGINE': 'sql_server.pyodbc',
+        'NAME': config('LOYALTY_DB_NAME', default='your_db_name'),
+        'USER': config('LOYALTY_DB_USER', default='your_db_name'),
+        'PASSWORD': config('LOYALTY_DB_PASSWORD', default='your_db_password'),
+        'HOST': config('LOYALTY_DB_HOST', default='your_db_host'),
+        'PORT': config('LOYALTY_DB_PORT', default='1433'),
+        'OPTIONS': {
+            'driver': config('LOYALTY_DB_DRIVER', default='driver'),
+            'unicode_results': True,
+            'host_is_server': True,
+            'autocommit': True,
+            'extra_params': 'tds_version=7.3;',
+        },
     }
 }
 
