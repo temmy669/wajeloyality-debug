@@ -238,6 +238,8 @@ class AccountantData(models.Model):
     customer = models.CharField(max_length=200, null=False)
     datePayment = models.DateField(default=timezone.now,null=False)
     giftCard = models.ForeignKey(giftCard, on_delete=models.SET_NULL, null=True, blank=True)
+    userID = models.ForeignKey(user, on_delete=models.SET_NULL, null=True, blank=True)
+    merchID = models.ForeignKey(merchant, on_delete=models.SET_NULL, blank=True, null=True)
     
     def __str__(self):
         return f"Transaction: {self.transactionRef} - {self.cardName}"
