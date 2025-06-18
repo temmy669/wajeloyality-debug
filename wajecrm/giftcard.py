@@ -179,7 +179,7 @@ class MerchantGiftCardView(APIView):
 
 @extend_schema(tags=['Gift Cards'])
 class MerchantCustomerGiftcardVerificationView(APIView):
-      permission_classes = [IsManager]
+    #   permission_classes = [IsManager]
       def get(self, request, format=None):     
           """Save the post data when creating a new merchant.""" 
           serviceid = request.GET.get('serviceid')
@@ -284,7 +284,7 @@ class purchaseMerchantGiftCardView(APIView):
 
 @extend_schema(tags=['Gift Cards'])
 class redeemMerchantGiftCardView(APIView):
-    permission_classes = [IsManager]
+    # permission_classes = [IsManager]
     def post(self, request, format=None):     
         """function to redeem gift cards from a merchant.""" 
         try: 
