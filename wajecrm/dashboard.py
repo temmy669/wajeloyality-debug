@@ -189,7 +189,7 @@ def giftcardCreatedRecord(user, startdate=None, endate=None):
 
     filters = Q(giftID__in=giftcard_ids)
     if startdate and endate:
-        filters &= Q(created_at__date__gte=startdate) & Q(cyreated_at__date__lte=endate)
+        filters &= Q(created_at__date__gte=startdate) & Q(created_at__date__lte=endate)
 
     giftcardtransactionrecords = list(
         giftcardtransaction.objects
