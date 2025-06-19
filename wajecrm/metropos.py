@@ -233,7 +233,7 @@ def saveGiftVoucherRecord(format=None):
     logger = get_logger(serviceID)
     logger.info("{0}{1}{2}".format("Starting gift card migration for", " ", serviceID))
     try:
-        merchID = merochant.objects.filter(serviceID=serviceID).values('id').first()  # get the mech ID using the service ID
+        merchID = merchant.objects.filter(serviceID=serviceID).values('id').first()  # get the mech ID using the service ID
         voucherdetails = list(giftCard.objects.filter(merchID=merchID['id']).filter(
             recipient_phone__isnull=False).values('id', 'serialnumber', 'cardname', 'recipient_phone', 'amount').order_by('-createddate'))
         for counter, element in enumerate(voucherdetails):
