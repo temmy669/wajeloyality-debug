@@ -37,7 +37,7 @@ service to get external  loyalty transactions from merchant through third party 
 
 
 def customerLoyaltyTransaction(format=None):
-    serviceID = '351817683'
+    serviceID = '3837223826'
     logger = get_logger(serviceID)
     try:
         todaydate = str(datetime.datetime.now().date())
@@ -191,7 +191,7 @@ def getCustomerRecord(*args):
 def getRedemptionTransaction(format=None):
     "Query MetroPOS dbserver to retrive redeemption transactions done on MetroPOS"
     #loyaltyruleid, *args
-    serviceID ='351817683'
+    serviceID ='3837223826'
     logger = get_logger(serviceID)
     todaydate = datetime.datetime.now().date()
     tomorrowdate =todaydate + datetime.timedelta(days=1)
@@ -229,11 +229,11 @@ def getRedemptionTransaction(format=None):
 
 # function to sink Walexx gift voucher for market square with MetroPOS
 def saveGiftVoucherRecord(format=None):
-    serviceID ='351817683'
+    serviceID ='3837223826'
     logger = get_logger(serviceID)
     logger.info("{0}{1}{2}".format("Starting gift card migration for", " ", serviceID))
     try:
-        merchID = merchant.objects.filter(serviceID=serviceID).values('id').first()  # get the mech ID using the service ID
+        merchID = merochant.objects.filter(serviceID=serviceID).values('id').first()  # get the mech ID using the service ID
         voucherdetails = list(giftCard.objects.filter(merchID=merchID['id']).filter(
             recipient_phone__isnull=False).values('id', 'serialnumber', 'cardname', 'recipient_phone', 'amount').order_by('-createddate'))
         for counter, element in enumerate(voucherdetails):
@@ -248,7 +248,7 @@ def saveGiftVoucherRecord(format=None):
                     v = voucher(ID=str(element['serialnumber']),CUSTOMERCODE=str(
                         element['serialnumber']),Amount=element['amount'], SOLDOUT=True,Status=False,vouchertype="Regular",OtherInfo=str(element['recipient_phone']))
                     v.save()  # Save the gift card in MetroPOS if the gift card does not exit
-        
+         
         logger.info("{0}{1}{2}".format("end gift card migration ", " ", serviceID))
         # push the deactivated giftcard
     except Exception as e:
@@ -256,7 +256,7 @@ def saveGiftVoucherRecord(format=None):
     return HttpResponse(None)
 
 def pushDeactivatedGiftVoucherRecord(format=None):
-    serviceID = '351817683'
+    serviceID = '3837223826'
     logger = get_logger(serviceID)
     logger.info(f"Starting gift card migration for {serviceID}")
     try:
@@ -309,7 +309,7 @@ def pushDeactivatedGiftVoucherRecord(format=None):
 
 # function to pull redeem gift transaction from MetroPOS
 def retrieveRedeemGiftCard(format=None):
-    serviceID ='351817683'
+    serviceID ='3837223826'
     logger = get_logger(serviceID)
     logger.info("{0}{1}{2}".format(
         "Starting pull redeem gift transaction for", " ", serviceID))
