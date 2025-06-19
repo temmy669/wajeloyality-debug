@@ -15,8 +15,10 @@ class AuditorAPIView(APIView):
     permission_classes = [IsAuditor]  
 
     def get(self, request, *args, **kwargs):
+        merchID = getattr(request.user, "merchID_from_token", None)
+
         # Get all AccountantData
-        accountant_data = AccountantData.objects.all()
+        accountant_data = AccountantData.objects.filter(merchID=merchID)
 
         # Apply pagination to the query results
         paginator = AuditorPagination()
