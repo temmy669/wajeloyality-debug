@@ -26,16 +26,18 @@ class VerifyTransactionAPIView(APIView):
         return Response({"status":False, "message":serializer.errors})
 
     def get(self, request):
-        """Retrieve a transaction by ID or return all transactions if no ID is provided."""
+        merchID = getattr(request.user, "merchID_from_token", None)
         transaction_id = request.query_params.get("id")
 
+        # If a specific transaction is requested
         if transaction_id:
-            transaction = AccountantData.objects.filter(id=transaction_id).first()
+            transaction = AccountantData.objects.filter(id=transaction_id, merchID=merchID).first()
             if transaction:
                 serializer = AccountantGetSerializer(transaction)
                 return Response({"status": True, "message": serializer.data}, status=status.HTTP_200_OK)
             return Response({"error": "Transaction not found.", "status": False}, status=status.HTTP_404_NOT_FOUND)
 
-        transactions = AccountantData.objects.all()
+        # If fetching all transactions for the merchant
+        transactions = AccountantData.objects.filter(merchID=merchID)
         serializer = AccountantGetSerializer(transactions, many=True)
         return Response({"status": True, "data": serializer.data}, status=status.HTTP_200_OK)
