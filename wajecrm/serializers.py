@@ -170,19 +170,21 @@ class BranchSerializer(serializers.ModelSerializer):
 
 # AccountantData serializer for the transaction data
 class AccountantDataSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = AccountantData
         fields = [
             'confirmationCode', 'customer', 'cardName', 'amount',
-            'dateConfirmed', 'datePayment', 'transactionRef']
-        
+            'dateConfirmed', 'datePayment', 'transactionRef'
+        ]
+
     def create(self, validated_data, **kwargs):
-        merchID = kwargs.get("merchID")
-        userID =  kwargs.get("userID")
-        return AccountantData.objects.create(**validated_data, merchID=merchID, userID=userID)
-
-
+        
+        return AccountantData.objects.create(
+            **validated_data,
+            merchID=kwargs.get("merchID"),
+            userID=kwargs.get("userID")
+        )
+    
 class AccountantGetSerializer(serializers.ModelSerializer):
     confirmationCode = serializers.CharField()
     customer = serializers.CharField()
@@ -228,6 +230,7 @@ class AuditorSerializer(serializers.Serializer):
         if gift_card:
             user_obj = gift_card.createdby  # This is the manager (User instance)
             branch_obj = getattr(user_obj, 'branchID', None)
+        
 
             return {
                 'confirmationCode': accountant_data.confirmationCode,
