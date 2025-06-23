@@ -353,7 +353,7 @@ class redeemMerchantGiftCardView(APIView):
         except Exception as e:
                responseData ={'message':'An error occur'+str(e),'status':'False'}
                return HttpResponse(json.dumps(responseData), content_type="application/json")
-        l.
+        
         responseData ={'message':'Transaction capture','status':'True'}
         return HttpResponse(json.dumps(responseData), content_type="application/json")
 
