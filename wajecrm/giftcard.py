@@ -309,18 +309,25 @@ class redeemMerchantGiftCardView(APIView):
                 if not(verifyphone is None):
                     transactionvalue =float(request.data['amount'])
                     purchasevalue=record['amount'] 
-                    remainingvalue = giftcardtransaction.objects.filter(merchID=request.data['merchID']).filter(
-                        giftID=record['id']).aggregate(Sum('redeemedamount'))
-                    #get the remaininging giftcard value
-                    currentvalue = purchasevalue-remainingvalue['redeemedamount__sum']
+                    remainingvalue = giftcardtransaction.objects.filter(
+                    merchID=request.data['merchID'],
+                    giftID=record['id']
+                ).aggregate(Sum('redeemedamount'))
+
+                    redeemed_sum = remainingvalue['redeemedamount__sum'] or 0  # Handle None case
+                    currentvalue = purchasevalue - redeemed_sum
                     #get the balance giftcard value
                     if currentvalue >= float(request.data['amount']):
                         gt=giftcardtransaction(giftID_id=record['id'],redeemedamount=request.data['amount'],merchID_id=request.data['merchID'])
                         gt.save() #capture the gift transaction
                         notify = Notification()
-                        remainingvalue = giftcardtransaction.objects.filter(merchID=request.data['merchID']).filter(
-                            giftID=record['id']).aggregate(Sum('redeemedamount'))
-                        currentvalue = purchasevalue - remainingvalue['redeemedamount__sum']
+                        remainingvalue = giftcardtransaction.objects.filter(
+                        merchID=request.data['merchID'],
+                        giftID=record['id']
+                    ).aggregate(Sum('redeemedamount'))
+
+                        redeemed_sum = remainingvalue['redeemedamount__sum'] or 0
+                        currentvalue = purchasevalue - redeemed_sum
                         firstname = 'customer'
                         randomnumber = request.data['serialnumber']
                         emailaddress = record['recipient_email']
@@ -346,7 +353,7 @@ class redeemMerchantGiftCardView(APIView):
         except Exception as e:
                responseData ={'message':'An error occur'+str(e),'status':'False'}
                return HttpResponse(json.dumps(responseData), content_type="application/json")
-        
+        l.
         responseData ={'message':'Transaction capture','status':'True'}
         return HttpResponse(json.dumps(responseData), content_type="application/json")
 
