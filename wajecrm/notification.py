@@ -37,7 +37,7 @@ class Notification:
         email.send()
         #return html_content
 
-    def emailNotificationRedeemGiftcard(self, firstname, randomnumber, emailaddress, subject, template_name, merchantname, currentvalue, transactionvalue):
+    def emailNotificationRedeemGiftcard(self, firstname, randomnumber, emailaddress, subject, template_name, merchantname, currentvalue, transactionvalue, balance):
         subject = subject
         template_name = template_name
         recipientemail = emailaddress.lower()
@@ -51,7 +51,7 @@ class Notification:
         print("email working")
 
         context = {'user': firstname, 'code': randomnumber, 'amount': format(round(transactionvalue, 2)), 'balance': format(round(currentvalue, 2)),
-                   'barcode': barcode, 'merchantname': merchantname['businessname'], logo: logo}
+                   'barcode': barcode, 'merchantname': merchantname['businessname'], logo: logo, 'balance': balance}
         text_content = {}
         html_content = render_to_string(template_name, context)
         email = EmailMultiAlternatives(

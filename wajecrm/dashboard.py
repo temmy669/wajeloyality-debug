@@ -157,33 +157,6 @@ class listSaleSummaryView(APIView):
 
 
 @extend_schema(tags=["Analytics"])
-class listLoyaltySummaryView(APIView):
-    permission_classes =[IsManager]
-    def get(self, request, format=None):
-        userID = getattr(request.user, 'id', None)
-        startdate = request.GET.get('startdate')
-        endate = request.GET.get('endate')
-        customerpoint = customerAwardedPoint(userID, startdate, endate)
-        totalaward = totalAward(userID)
-        return JsonResponse({'data': {'customerawardedpoints': customerpoint}, 'loyaltysummary': totalaward, 'status': 'True'})
-
-@extend_schema(tags=["Analytics"])
-class listGiftCardSummaryView(APIView):
-    permission_classes = [IsManager]
-
-    def get(self, request, format=None):
-        user = request.user
-        startdate = request.GET.get('startDate')
-        endate = request.GET.get('endDate')
-
-        redeemptionhistory = redeemptionHistory(user, startdate, endate)
-        giftcreated = giftcardCreatedRecord(user, startdate, endate)
-        statdata = giftCardStat(user)
-
-        return JsonResponse({'data': {'stat': statdata, 'giftcardreport': giftcreated, 'redeemptionhistory': redeemptionhistory}, 'status': 'True'})
-
-
-
 def giftcardCreatedRecord(user, startdate=None, endate=None):
     giftcard_ids = giftCard.objects.filter(createdby=user).values_list('id', flat=True)
 
@@ -191,24 +164,38 @@ def giftcardCreatedRecord(user, startdate=None, endate=None):
     if startdate and endate:
         filters &= Q(created_at__date__gte=startdate) & Q(created_at__date__lte=endate)
 
-    giftcardtransactionrecords = list(
-        giftcardtransaction.objects
-        .filter(filters)
-        .values('giftID', 'created_at', 'purchaseamount', 'redeemedamount')
-        .annotate(balance=F('purchaseamount') - F('redeemedamount'))
+    giftcardtransactionrecords = giftcardtransaction.objects.filter(filters).values(
+        'giftID', 'created_at', 'purchaseamount', 'redeemedamount'
     )
+
+    result = []
 
     for gifttransaction in giftcardtransactionrecords:
         giftID = gifttransaction['giftID']
+        purchase_amount = gifttransaction.get('purchaseamount') or 0
+
+        total_redeemed = giftcardtransaction.objects.filter(
+            giftID=giftID,
+            purchaseamount=0  # This filters only redemption transactions
+        ).aggregate(total=Sum('redeemedamount'))['total'] or 0
+
+        balance = purchase_amount - total_redeemed
+
         giftcard = giftCard.objects.filter(id=giftID).values(
-            'cardname', 'recipient_phone', 'serialnumber', 'recipient_email', 'createddate', 'createdby__name', 'expiration_date',
+            'cardname', 'recipient_phone', 'serialnumber', 'recipient_email',
+            'createddate', 'createdby__name', 'expiration_date'
         ).first()
 
         if giftcard:
-            giftcard['createddate'] = str(giftcard['createddate'])  # convert date to string
-            gifttransaction.update(giftcard)
+            giftcard['createddate'] = str(giftcard['createddate'])  # format date
+            gifttransaction.update({
+                'balance': balance,
+                'redeemedamount': total_redeemed,
+                **giftcard
+            })
+            result.append(gifttransaction)
 
-    return giftcardtransactionrecords
+    return result
 
 def redeemptionHistory(user, startdate, endate):
     giftcard_ids = giftCard.objects.filter(createdby=user).values_list('id', flat=True)
