@@ -314,8 +314,8 @@ class redeemMerchantGiftCardView(APIView):
                     giftID=record['id']
                 ).aggregate(Sum('redeemedamount'))
 
-                    redeemed_sum = remainingvalue['redeemedamount__sum'] or 0  # Handle None case
-                    currentvalue = purchasevalue - redeemed_sum
+                    redeemed_sum1 = remainingvalue['redeemedamount__sum'] or 0  # Handle None case
+                    currentvalue = purchasevalue - redeemed_sum1
                     print(currentvalue)
                     #get the balance giftcard value
                     if currentvalue >= float(request.data['amount']):
@@ -327,16 +327,17 @@ class redeemMerchantGiftCardView(APIView):
                         giftID=record['id']
                     ).aggregate(Sum('redeemedamount'))
 
-                        redeemed_sum = remainingvalue['redeemedamount__sum'] or 0
-                        currentvalue = purchasevalue - redeemed_sum
+                        redeemed_sum2 = remainingvalue['redeemedamount__sum'] or 0
+                        balance = purchasevalue - redeemed_sum2
                         firstname = 'customer'
                         randomnumber = request.data['serialnumber']
                         emailaddress = record['recipient_email']
                         subject = 'Gift Card Transaction'
                         template_name = 'voucher_transaction.html'
                         others = request.data['amount']
+                        # balance = currentvalue - others
                         merchantname = merchant.objects.filter(id=request.data['merchID']).values('businessname', 'businesslogo').first()
-                        notify.emailNotificationRedeemGiftcard(firstname,randomnumber,emailaddress,subject,template_name, merchantname,currentvalue,transactionvalue)
+                        notify.emailNotificationRedeemGiftcard(firstname,randomnumber,emailaddress,subject,template_name, merchantname,currentvalue,transactionvalue,balance)
                         notify.emailNotification(
                             firstname, randomnumber, emailaddress, subject, template_name, others, merchantname)
                     else:
