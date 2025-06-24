@@ -25,7 +25,7 @@ import calendar
 from django.db import connection
 from drf_spectacular.utils import extend_schema
 from .permissions import IsManager
-from django.db.models import Q, F, Sum, Value
+from django.db.models import Q, F, Sum, Value, DecimalField, ExpressionWrapper
 from django.db.models.functions import Coalesce
 
 
@@ -199,8 +199,11 @@ def giftcardCreatedRecord(user, startdate=None, endate=None):
         .annotate(
             total_purchased=Coalesce(Sum('purchaseamount'), Value(0)),
             total_redeemed=Coalesce(Sum('redeemedamount'), Value(0)),
-            balance=F('total_purchased') - F('total_redeemed')
+            balance=ExpressionWrapper(
+                F('total_purchased') - F('total_redeemed'),
+                output_field=DecimalField()
         )
+    )
     )
 
     for gifttransaction in giftcardtransactionrecords:
