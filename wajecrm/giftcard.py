@@ -316,6 +316,7 @@ class redeemMerchantGiftCardView(APIView):
 
                     redeemed_sum = remainingvalue['redeemedamount__sum'] or 0  # Handle None case
                     currentvalue = purchasevalue - redeemed_sum
+                    print(currentvalue)
                     #get the balance giftcard value
                     if currentvalue >= float(request.data['amount']):
                         gt=giftcardtransaction(giftID_id=record['id'],redeemedamount=request.data['amount'],merchID_id=request.data['merchID'])
