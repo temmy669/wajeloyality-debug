@@ -157,6 +157,33 @@ class listSaleSummaryView(APIView):
 
 
 @extend_schema(tags=["Analytics"])
+class listLoyaltySummaryView(APIView):
+    permission_classes =[IsManager]
+    def get(self, request, format=None):
+        userID = getattr(request.user, 'id', None)
+        startdate = request.GET.get('startdate')
+        endate = request.GET.get('endate')
+        customerpoint = customerAwardedPoint(userID, startdate, endate)
+        totalaward = totalAward(userID)
+        return JsonResponse({'data': {'customerawardedpoints': customerpoint}, 'loyaltysummary': totalaward, 'status': 'True'})
+
+@extend_schema(tags=["Analytics"])
+class listGiftCardSummaryView(APIView):
+    permission_classes = [IsManager]
+
+    def get(self, request, format=None):
+        user = request.user
+        startdate = request.GET.get('startDate')
+        endate = request.GET.get('endDate')
+
+        redeemptionhistory = redeemptionHistory(user, startdate, endate)
+        giftcreated = giftcardCreatedRecord(user, startdate, endate)
+        statdata = giftCardStat(user)
+
+        return JsonResponse({'data': {'stat': statdata, 'giftcardreport': giftcreated, 'redeemptionhistory': redeemptionhistory}, 'status': 'True'})
+
+
+
 def giftcardCreatedRecord(user, startdate=None, endate=None):
     giftcard_ids = giftCard.objects.filter(createdby=user).values_list('id', flat=True)
 
