@@ -25,7 +25,8 @@ import calendar
 from django.db import connection
 from drf_spectacular.utils import extend_schema
 from .permissions import IsManager
-from django.db.models import Q, F
+from django.db.models import Q, F, Sum, Value
+from django.db.models.functions import Coalesce
 
 
 @extend_schema(tags=["Analytics"])
@@ -191,11 +192,15 @@ def giftcardCreatedRecord(user, startdate=None, endate=None):
     if startdate and endate:
         filters &= Q(created_at__date__gte=startdate) & Q(created_at__date__lte=endate)
 
-    giftcardtransactionrecords = list(
+    giftcardtransactionrecords = (
         giftcardtransaction.objects
         .filter(filters)
-        .values('giftID', 'created_at', 'purchaseamount', 'redeemedamount')
-        .annotate(balance=F('purchaseamount') - F('redeemedamount'))
+        .values('giftID')  # group by giftID
+        .annotate(
+            total_purchased=Coalesce(Sum('purchaseamount'), Value(0)),
+            total_redeemed=Coalesce(Sum('redeemedamount'), Value(0)),
+            balance=F('total_purchased') - F('total_redeemed')
+        )
     )
 
     for gifttransaction in giftcardtransactionrecords:
