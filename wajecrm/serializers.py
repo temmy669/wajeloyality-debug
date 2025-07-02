@@ -177,14 +177,16 @@ class AccountantDataSerializer(serializers.ModelSerializer):
             'dateConfirmed', 'datePayment', 'transactionRef'
         ]
 
-    def create(self, validated_data, **kwargs):
-        
+    def create(self, validated_data):
+        merchID = self.context.get('merchID')
+        userID = self.context.get('userID')
+
         return AccountantData.objects.create(
             **validated_data,
-            merchID=kwargs.get("merchID"),
-            userID=kwargs.get("userID")
+            merchID=merchID,
+            userID=userID
         )
-    
+        
 class AccountantGetSerializer(serializers.ModelSerializer):
     confirmationCode = serializers.CharField()
     customer = serializers.CharField()

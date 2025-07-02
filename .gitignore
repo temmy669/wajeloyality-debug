@@ -34,4 +34,7 @@ log_systemlogs/
 wajecrm/migrations/*.py
 !wajecrm/migrations/__init__.py
 
+#vs code
+.vscode/
+
 

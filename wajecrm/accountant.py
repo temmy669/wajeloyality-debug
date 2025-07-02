@@ -2,11 +2,12 @@ import requests
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import AccountantData
+from .models import AccountantData, merchant
 from .permissions import IsAccountant  # Ensure this is defined in your permissions.py
 from .serializers import AccountantDataSerializer, AccountantGetSerializer
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema
+
 
 @extend_schema(tags=['Finance'])
 class VerifyTransactionAPIView(APIView):
@@ -16,11 +17,15 @@ class VerifyTransactionAPIView(APIView):
     def post(self, request, *args, **kwargs):
         merchID = getattr(request.user, "merchID_from_token", None)
         userID = request.user
+        
+        # Convert merchID from int to Merchant instance
+        merchant_instance = merchant.objects.get(id=merchID) if merchID else None
+
 
         serializer = AccountantDataSerializer(
             data=request.data,
             context={
-                'merchID': merchID,
+                'merchID': merchant_instance,
                 'userID': userID
             }
         )
