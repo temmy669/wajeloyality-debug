@@ -386,6 +386,17 @@ class bulkPurchaseMerchantGiftCardView(APIView):
                     'message': f'Failed to read Excel file: {str(e)}',
                     'status': 'False'
                 }), content_type="application/json")
+            
+            
+            try:
+                total_amount = wb_final['amount'].sum()
+                print(f"Total Amount: {total_amount}")
+            except Exception as e:
+                return HttpResponse(json.dumps({
+                    'message': f'Error calculating total amount: {str(e)}',
+                    'status': 'False'
+                }), content_type="application/json")
+            
 
             print("Excel Columns:", wb_final.columns.tolist())
 
@@ -497,7 +508,8 @@ class bulkPurchaseMerchantGiftCardView(APIView):
 
         return HttpResponse(json.dumps({
             'message': 'Transaction capture',
-            'status': 'True'
+            'status': 'True',
+            'total_amount': total_amount
         }), content_type="application/json")
 
 @extend_schema(tags=['Gift Cards'])

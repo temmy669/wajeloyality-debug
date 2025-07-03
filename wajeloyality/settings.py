@@ -31,7 +31,7 @@ SECRET_KEY = config('DJANGO_SECRET_KEY', default='secret_key')
 DEBUG = True
 
 ALLOWED_HOSTS = ['199.192.28.167',
-                 'wajeloyality.website','localhost']
+                 'wajeloyality.website','localhost', '127.0.0.1',]
 
 
 SETTINGS_PATH = settings.BASE_DIR
