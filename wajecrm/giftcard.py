@@ -509,7 +509,7 @@ class bulkPurchaseMerchantGiftCardView(APIView):
         return HttpResponse(json.dumps({
             'message': 'Transaction capture',
             'status': 'True',
-            'total_amount': total_amount
+            'total_amount': int(total_amount)
         }), content_type="application/json")
 
 @extend_schema(tags=['Gift Cards'])
