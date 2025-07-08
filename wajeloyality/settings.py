@@ -120,6 +120,7 @@ DATABASES = {
             'init_command': "SET SESSION sql_mode='STRICT_TRANS_TABLES'",
         },
     },
+    
     'loyalty': {
         'ENGINE': 'sql_server.pyodbc',
         'NAME': config('LOYALTY_DB_NAME', default='your_db_name'),
