@@ -36,6 +36,7 @@ from .filters import GiftCardStatFilter, GiftCardFilter
 from .serializers import GiftCardSerializer
 from .utils.auth import get_authenticated_user_from_request
 from drf_spectacular.utils import extend_schema
+from decimal import Decimal
 
 
 
@@ -378,7 +379,7 @@ class bulkPurchaseMerchantGiftCardView(APIView):
             voucher_date = request.data['voucher_date']
             todaydate = str(datetime.datetime.now().date()) + '-' + str(random.randint(1, 1000000000001))
 
-            print("Reading Excel file...")
+            # Read Excel
             try:
                 wb_final = pd.read_excel(request.FILES['excel_file'])
             except Exception as e:
@@ -386,19 +387,65 @@ class bulkPurchaseMerchantGiftCardView(APIView):
                     'message': f'Failed to read Excel file: {str(e)}',
                     'status': 'False'
                 }), content_type="application/json")
-            
-            
+
+            # Extract confirmation code from first row and sum total
             try:
-                total_amount = wb_final['amount'].sum()
-                print(f"Total Amount: {total_amount}")
+                confirmation_code = wb_final['confirmationCode'].iloc[0]
+
+                # Convert amount column to Decimal for precision and compatibility
+                wb_final['amount'] = wb_final['amount'].apply(Decimal)
+                amount_to_be_created = wb_final['amount'].sum()
+                
+                try:
+                    record = AccountantData.objects.get(
+                            confirmationCode=confirmation_code,
+                            merchID_id=merch_id
+                        )
+                    amount_paid = record.amount
+
+                except AccountantData.DoesNotExist:
+                    return JsonResponse({
+                        "message": f"No record found for confirmation code {confirmation_code}.",
+                        "status": False
+                    }, status=404)
+
+                # Sum of existing giftcards with same confirmation code in the giftcards table
+                used_amount = giftCard.objects.filter(
+                    confirmationCode=confirmation_code
+                ).aggregate(total=Sum('amount'))['total'] or Decimal('0.0')
+
+               # Calculate available balance
+                available_balance = amount_paid - used_amount
+                
+                print("Available balance: ", available_balance, "Amount to be created: ", amount_to_be_created, "Total amount created so far: ", used_amount)
+
+                if available_balance <= 0:
+                    # No funds remaining
+                    return HttpResponse(json.dumps({
+                        'message': f"Confirmation code {confirmation_code} has already been fully used. No balance remains.",
+                        'status': 'False'
+                    }), content_type="application/json")
+
+                    
+                if amount_to_be_created > available_balance:
+                    return HttpResponse(json.dumps({
+                        'message': (
+                            f"Only ₦{available_balance:,.2f} is available for confirmation code {confirmation_code}, "
+                            f"but you're trying to use ₦{amount_to_be_created:,.2f}. Please use an appropriate amount."
+                        ),
+                        'status': 'False'
+                    }), content_type="application/json")
+
+                # Otherwise, you're good to proceed
+                print(f"Proceeding with amount: {amount_to_be_created} | Available balance: {available_balance}")
+
+                
+                # print(f"Total to be used: {amount_to_be_created} | Already used: {used_amount}")
             except Exception as e:
                 return HttpResponse(json.dumps({
-                    'message': f'Error calculating total amount: {str(e)}',
+                    'message': f'Error validating confirmation code usage: {str(e)}',
                     'status': 'False'
                 }), content_type="application/json")
-            
-
-            print("Excel Columns:", wb_final.columns.tolist())
 
             finalhtmlcontext = ''
             for item in wb_final.itertuples():
@@ -422,7 +469,8 @@ class bulkPurchaseMerchantGiftCardView(APIView):
                     recipient_phone=phonenumber,
                     recipient_email=emailaddress,
                     expiration_date=voucher_date,
-                    createdby=createdby
+                    createdby=createdby,
+                    confirmationCode=confirmation_code  # ✅ Set here
                 )
                 gf.save()
 
@@ -458,7 +506,6 @@ class bulkPurchaseMerchantGiftCardView(APIView):
                         amount,
                         merchantname
                     )
-                    print(f"Generated HTML for {emailaddress}: Length = {len(notify_html)}")
                     finalhtmlcontext += notify_html
                 except Exception as e:
                     print(f"Error in htmltopdf for {emailaddress}: {str(e)}")
@@ -473,43 +520,32 @@ class bulkPurchaseMerchantGiftCardView(APIView):
             os.makedirs(pdf_dir, exist_ok=True)
             pdf_path = os.path.join(pdf_dir, f'voucher_report-{todaydate}.pdf')
 
-            # pdf_path = os.path.join(output_dir, f"voucher_report-{request.data['phonenumber']}.pdf")
-            # pdfkit.from_string(notify_html, pdf_path)
-
             try:
                 pdfkit.from_string(finalhtmlcontext, pdf_path)
-                print("Checking if file exists:", os.path.exists(pdf_path))
-
-                print("PDF generated successfully at:", pdf_path)
             except Exception as e:
                 return HttpResponse(json.dumps({
                     'message': f'PDF generation failed: {str(e)}',
                     'status': 'False'
                 }), content_type="application/json")
 
-            # Try saving attachment and include user ID if required by model
-            
-            print("Preparing to save attachment...")
+            # Save attachment
             at = attachment(
                 body=f'voucherpdf/voucher_report-{todaydate}.pdf',
                 merchID_id=merch_id,
                 name=todaydate,
-                userID_id=request.user.id  # add only if your attachment model requires this
+                userID_id=request.user.id
             )
-            print("Attachment object created:", at)
             at.save()
-            print("Attachment saved successfully.")
+
         except Exception as e:
-            print("Error saving attachment:", str(e))
             return HttpResponse(json.dumps({
-                'message': f'Attachment save failed: {str(e)}',
+                'message': f'Unhandled error: {str(e)}',
                 'status': 'False'
             }), content_type="application/json")
 
         return HttpResponse(json.dumps({
-            'message': 'Transaction capture',
+            'message': 'Transaction capture successful',
             'status': 'True',
-            'total_amount': int(total_amount)
         }), content_type="application/json")
 
 @extend_schema(tags=['Gift Cards'])
