@@ -401,6 +401,7 @@ class bulkPurchaseMerchantGiftCardView(APIView):
                             confirmationCode=confirmation_code,
                             merchID_id=merch_id
                         )
+                    print(record)
                     amount_paid = record.amount
 
                 except AccountantData.DoesNotExist:

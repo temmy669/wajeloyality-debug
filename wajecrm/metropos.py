@@ -37,7 +37,7 @@ service to get external  loyalty transactions from merchant through third party 
 
 
 def customerLoyaltyTransaction(format=None):
-    serviceID = '3837223826'
+    serviceID = '351817683'
     logger = get_logger(serviceID)
     try:
         todaydate = str(datetime.datetime.now().date())
@@ -191,7 +191,7 @@ def getCustomerRecord(*args):
 def getRedemptionTransaction(format=None):
     "Query MetroPOS dbserver to retrive redeemption transactions done on MetroPOS"
     #loyaltyruleid, *args
-    serviceID ='3837223826'
+    serviceID ='351817683'
     logger = get_logger(serviceID)
     todaydate = datetime.datetime.now().date()
     tomorrowdate =todaydate + datetime.timedelta(days=1)
@@ -229,7 +229,7 @@ def getRedemptionTransaction(format=None):
 
 # function to sink Walexx gift voucher for market square with MetroPOS
 def saveGiftVoucherRecord(format=None):
-    serviceID ='3837223826'
+    serviceID ='351817683'
     logger = get_logger(serviceID)
     logger.info("{0}{1}{2}".format("Starting gift card migration for", " ", serviceID))
     try:
@@ -256,7 +256,7 @@ def saveGiftVoucherRecord(format=None):
     return HttpResponse(None)
 
 def pushDeactivatedGiftVoucherRecord(format=None):
-    serviceID = '3837223826'
+    serviceID = '351817683'
     logger = get_logger(serviceID)
     logger.info(f"Starting gift card migration for {serviceID}")
     try:
@@ -309,7 +309,7 @@ def pushDeactivatedGiftVoucherRecord(format=None):
 
 # function to pull redeem gift transaction from MetroPOS
 def retrieveRedeemGiftCard(format=None):
-    serviceID ='3837223826'
+    serviceID ='351817683'
     logger = get_logger(serviceID)
     logger.info("{0}{1}{2}".format(
         "Starting pull redeem gift transaction for", " ", serviceID))
