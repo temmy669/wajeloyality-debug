@@ -261,6 +261,7 @@ def pushDeactivatedGiftVoucherRecord(format=None):
     logger.info(f"Starting gift card migration for {serviceID}")
     try:
         # Get merchant ID
+        print("starting job")
         merchID = merchant.objects.filter(serviceID=serviceID).values('id').first()
         if not merchID:
             logger.error("Merchant not found")
