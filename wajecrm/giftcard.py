@@ -36,7 +36,7 @@ from .filters import GiftCardStatFilter, GiftCardFilter
 from .serializers import GiftCardSerializer
 from .utils.auth import get_authenticated_user_from_request
 from drf_spectacular.utils import extend_schema
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 
 
 
@@ -391,15 +391,19 @@ class bulkPurchaseMerchantGiftCardView(APIView):
             # Extract confirmation code from first row and sum total
             try:
                 confirmation_code = wb_final['confirmationCode'].iloc[0]
-
+                # print(wb_final['amount'])
                 # Convert amount column to Decimal for precision and compatibility
-                wb_final['amount'] = wb_final['amount'].apply(Decimal)
+                
+                wb_final['amount'] = wb_final['amount'].apply(lambda x: Decimal(str(x)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+                
+                # print(wb_final['amount'])
                 amount_to_be_created = wb_final['amount'].sum()
                 
+                # print("Total amount to be created: ", amount_to_be_created)
                 try:
                     record = AccountantData.objects.get(
                             confirmationCode=confirmation_code,
-                            merchID_id=merch_id
+                            # merchID_id=merch_id
                         )
                     print(record)
                     amount_paid = record.amount
@@ -429,6 +433,7 @@ class bulkPurchaseMerchantGiftCardView(APIView):
 
                     
                 if amount_to_be_created > available_balance:
+                    # print(amount_to_be_created > available_balance)
                     return HttpResponse(json.dumps({
                         'message': (
                             f"Only ₦{available_balance:,.2f} is available for confirmation code {confirmation_code}, "

@@ -354,7 +354,7 @@ def retrieveRedeemGiftCard(format=None):
                             merchantname = merchant.objects.filter(id=merchID).values(
                                 'businessname', 'businesslogo').first()
                             notify.emailNotificationRedeemGiftcard(
-                                firstname, randomnumber, emailaddress, subject, template_name, merchantname, currentvalue,transactionvalue)
+                                firstname, randomnumber, emailaddress, subject, template_name, merchantname, currentvalue, transactionvalue, balance=currentvalue)
         logger.info("{0}{1}{2}".format(
             "Ending redemption migration for", " ", serviceID))
     except Exception as e:
