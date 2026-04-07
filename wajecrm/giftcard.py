@@ -19,11 +19,10 @@ from json import loads, dumps
 from .notification import Notification, htmltopdf
 from rest_framework.permissions import IsAuthenticated
 from django.views import View
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.utils import timezone
 import datetime
 import pytz
-from django.db.models import Sum
 from decimal import *
 import openpyxl
 import pandas as pd
@@ -37,6 +36,8 @@ from .serializers import GiftCardSerializer
 from .utils.auth import get_authenticated_user_from_request
 from drf_spectacular.utils import extend_schema
 from decimal import Decimal, ROUND_HALF_UP
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
 
 
 
@@ -135,48 +136,65 @@ class MerchantGiftCardView(APIView):
 
         return Response({'message': 'The giftcard record is created successfully', 'status': 'True'})
 
+
     def get(self, request, format=None):
-        """List gift cards for a particular user with role manager."""
+
         try:
-            giftcardrecord = list(
-                giftCard.objects.filter(createdby=request.user)
-                .values('serialnumber', 'id', 'cardname', 'amount', 'recipient_phone', 'expiration_date', 'merchID', 'active')
-                .order_by('-createddate')[:1000]
+
+            search = request.query_params.get('search')
+
+            queryset = giftCard.objects.filter(
+                createdby=request.user
             )
+
+            if search:
+                queryset = queryset.filter(
+                    Q(serialnumber__icontains=search) |
+                    Q(cardname__icontains=search) |
+                    Q(recipient_phone__icontains=search)
+                )
+
+            queryset = queryset.annotate(
+                redeemedvalue=Sum('giftcardtransaction__redeemedamount')
+            ).values(
+                'serialnumber',
+                'id',
+                'cardname',
+                'amount',
+                'recipient_phone',
+                'expiration_date',
+                'merchID',
+                'active',
+                'redeemedvalue'
+            ).order_by('-createddate')
+
+            paginator = PageNumberPagination()
+
+            page = paginator.paginate_queryset(queryset, request)
+
             dictList = []
 
-            for counter, element in enumerate(giftcardrecord):
-                length = len(giftcardrecord)
-                if length > counter:
-                    purchasevalue = element['amount']
-                    redeemedvalue = giftcardtransaction.objects.filter(
-                        merchID=element['merchID'], giftID=element['id']
-                    ).aggregate(Sum('redeemedamount'))['redeemedamount__sum']
+            for element in page:
 
-                    if redeemedvalue is None:
-                        redeemedvalue = Decimal('0.0')
+                redeemedvalue = element['redeemedvalue'] or Decimal('0.0')
+                purchasevalue = element['amount']
 
-                    currentvalue = float(purchasevalue - redeemedvalue)
-                    currentvalue_dict = {'currentvalue': currentvalue}
+                element['amount'] = float(element['amount'])
+                element['expiration_date'] = str(element['expiration_date'])
+                element['currentvalue'] = float(purchasevalue - redeemedvalue)
 
-                    element['amount'] = float(element['amount'])
-                    element['expiration_date'] = str(element['expiration_date'])
-                    element.update(currentvalue_dict)
-                    dictList.append(element)
+                dictList.append(element)
+
+            return paginator.get_paginated_response({
+                "data": dictList,
+                "status": True
+            })
 
         except Exception as e:
-            responseData = {
-                'message': 'An error occurred: ' + str(e),
-                'status': 'False'
-            }
-            return HttpResponse(json.dumps(responseData), content_type="application/json")
-
-        responseData = {
-            'data': dictList,
-            'status': 'True'
-        }
-        return HttpResponse(json.dumps(responseData), content_type="application/json")
-   
+            return Response({
+                "message": "An error occurred: " + str(e),
+                "status": False
+            })   
 
 @extend_schema(tags=['Gift Cards'])
 class MerchantCustomerGiftcardVerificationView(APIView):
