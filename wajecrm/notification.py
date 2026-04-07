@@ -37,7 +37,7 @@ class Notification:
         email.send()
         #return html_content
 
-    def emailNotificationRedeemGiftcard(self, firstname, randomnumber, emailaddress, subject, template_name, merchantname, currentvalue, transactionvalue):
+    def emailNotificationRedeemGiftcard(self, firstname, randomnumber, emailaddress, subject, template_name, merchantname, currentvalue, transactionvalue, balance):
         subject = subject
         template_name = template_name
         recipientemail = emailaddress.lower()
@@ -51,7 +51,7 @@ class Notification:
         print("email working")
 
         context = {'user': firstname, 'code': randomnumber, 'amount': format(round(transactionvalue, 2)), 'balance': format(round(currentvalue, 2)),
-                   'barcode': barcode, 'merchantname': merchantname['businessname'], logo: logo}
+                   'barcode': barcode, 'merchantname': merchantname['businessname'], logo: logo, 'balance': balance}
         text_content = {}
         html_content = render_to_string(template_name, context)
         email = EmailMultiAlternatives(
@@ -96,7 +96,19 @@ def testNotification(self):
     return HttpResponse(None)
 
 
-def htmltopdf(firstname, randomnumber, emailaddress, subject, template_name, others, merchantname):
+def htmltopdf(firstname, randomnumber, emailaddress, subject, template_name, expiry, others, merchantname):
+    """Render the html template to a string that can be download as pdf.
+
+    :firstname: name of customer
+    :randomnumber: randomly generated integers
+    :emailaddress: address of customer
+    :subject: title of card
+    :template_name: the template to be rendered
+    :expiry: expiring date of giftcard
+    :others: None
+    :merchantname: merchat details 
+    
+    """
     subject = subject
     template_name = template_name
     recipientemail = emailaddress.lower()
@@ -110,7 +122,7 @@ def htmltopdf(firstname, randomnumber, emailaddress, subject, template_name, oth
     othersformatted = '{:,.2f}'.format(float(others))
     print('formatted voucher{}'.format(othersformatted))
     context = {'beneficiary': firstname, 'code': randomnumber, 'amount': othersformatted,
-                'barcode': barcode, 'merchantname': merchantname['businessname']}
+                'barcode': barcode, 'merchantname': merchantname['businessname'], 'expiry': expiry}
     #context1 = {'user': firstname, 'code': randomnumber, 'amount': othersformatted,
                 #'barcode': barcode, 'merchantname': merchantname['businessname'], logo: logo}
     #text_content = {}

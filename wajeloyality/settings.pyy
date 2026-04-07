@@ -112,6 +112,7 @@ TEMPLATES = [
 TEMPLATE_DIRS = (
     os.path.join(SETTINGS_PATH, 'campaigntemplates'),
 )
+ 
 
 WSGI_APPLICATION = 'wajeloyality.wsgi.application'
 

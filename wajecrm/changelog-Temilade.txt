@@ -1,0 +1,62 @@
+feb 20 2018
+>>Added a new field called businsess name to the merchant model.
+>>Modify the service ID to be an auto generated value when creating a new merchant. 
+>>Modify the rate field in the merchant table to have a default value of 1
+>>Adding the servicetype as part of sign up process
+>>Addition of country in merchant table
+>>Auto generate services in loyalty exchange 
+>>Database constrainst implementation
+
+
+March 03
+>> Fixed the redemption logic to accept custID to custID_id and merchID =merchID_id
+>>Remove the businessdescriptionfield in merchantsetup API 
+>> proctected the follwing urls 
+1) editmerchant/,editcustomer/,listmerchants/,listmerchantloyaltyrule,listsalesummary/
+,listloyaltysummary/,listcustomerspoint/,merchantsetting/,createcampaigntemplate/,createcampaign,
+listcampaign/,listcampaigntemplate/,editcampaign/
+
+>>included busninessname as part of the merchant details
+>>fix the bugs with merchant account activation 
+>>fix bug with the redemption transaction at customer.py
+>> fix bug with the transaction amount at redemption
+
+
+
+May 2025
+>> Refactored manager registration flow:
+- When a user is registered with the "Manager" role he has the rights to create giftcards
+>> Replaced the original token generation logic with logic that generates tokens for the logged-in user, ensuring tokens are tied to the correct custom user instance.
+>> Implemented custom authentication classes to support JWT authentication with the custom user model, since the default Django authentication class is not used.
+>> Added robust token extraction and user lookup logic, including type conversion and debug output, to improve reliability and troubleshooting.
+>> Documented the new registration and gift card creation flows for clarity and onboarding.
+
+>> Added Excel export functionality for gift card reports:
+   - Implemented an API endpoint (`/export/giftcard/`) that generates and returns an Excel (.xlsx) file containing gift card data filtered by user and date range.
+   - Used `openpyxl` to create the Excel workbook and populate it with relevant gift card fields.
+   - Users can now download filtered gift card reports directly from the system.
+
+      May 2025
+   >> Improved gift card purchase PDF generation:
+      - Updated single purchase logic to generate unique voucher PDF filenames using both the recipient’s phone number and the gift card serial number, preventing overwriting of previous vouchers for the same phone number.
+      - Updated the attachment record to store the new unique PDF path.
+      - Ensured the voucherpdf directory is created if it does not exist before saving PDFs.
+   
+   >> Enhanced request data handling for personalization:
+      - The purchaseMerchantGiftCardView now uses the 'firstname' key from the request body to personalize vouchers; defaults to 'customer' if not provided.
+   
+   >> Strengthened PDFKit and wkhtmltopdf integration:
+      - Configured the path to the wkhtmltopdf executable using the WKHTMLTOPDF_PATH environment variable for portability across local and server environments.
+      - Added documentation and .env usage for setting the executable path securely.
+   
+   >> Clarified attachment and download process:
+      - Confirmed that the documentattachment endpoint returns the correct relative path to each voucher PDF, which can be used by the frontend for downloads.
+      - Provided guidance on serving the voucherpdf directory as a media/static folder for direct downloads.
+   
+   >> Confirmed bulk purchase logic:
+      - Verified that bulkPurchaseMerchantGiftCardView already generates unique filenames for each batch using the current date and a random number, preventing overwrites.
+      - No changes needed for bulk purchase filename logic.
+   
+   >> General improvements:
+      - Improved error handling and messaging throughout the purchase flow.
+      - Added and clarified code comments for maintainability.

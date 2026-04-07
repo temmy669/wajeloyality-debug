@@ -6,7 +6,7 @@ from .customer import *
 from .loyalty import *
 from .dashboard import *
 from .campaign import *
-from .scheduler import *
+from ..scheduler import *
 from .plan import *
 from .giftcard import *
 from rest_framework.urlpatterns import format_suffix_patterns

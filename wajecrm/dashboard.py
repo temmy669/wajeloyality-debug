@@ -20,11 +20,15 @@ from django.db.models import Count, Sum, F
 from rest_framework.permissions import IsAuthenticated
 from django.views import View
 from datetime import datetime, timedelta
-#from .product import *
+# from .product import *
 import calendar
 from django.db import connection
+from drf_spectacular.utils import extend_schema
+from .permissions import IsManager
+from django.db.models import Q, F
 
 
+@extend_schema(tags=["Analytics"])
 class merchantDashboardView(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -126,8 +130,9 @@ class merchantDashboardView(APIView):
 """Class to display sales summary for a customer that has done transaction for the past 24 hours  """
 
 
+@extend_schema(tags=["Analytics"])
 class listSaleSummaryView(APIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [IsManager]
 
     def get(self, request, format=None):
         """
@@ -135,7 +140,7 @@ class listSaleSummaryView(APIView):
         by filtering against a `merchant id` query parameter in the URL.
         """
         #password = self.request.query_params.get('password')
-        merchID = request.GET.get('merchID')
+        merchID = getattr(request.user, 'merchID_from_token', None)
         todaydate = datetime.now().date()
         yesterdaydate =  todaydate - timedelta(days=1)
         tomorrowdate = todaydate + timedelta(days=1)
@@ -151,93 +156,108 @@ class listSaleSummaryView(APIView):
 """Class to display Loyalty summary for a customer that has done transaction for the past 24 hours  """
 
 
+@extend_schema(tags=["Analytics"])
 class listLoyaltySummaryView(APIView):
-    #permission_classes =(IsAuthenticated,)
+    permission_classes =[IsManager]
     def get(self, request, format=None):
-        merchID = request.GET.get('merchID')
+        userID = getattr(request.user, 'id', None)
         startdate = request.GET.get('startdate')
         endate = request.GET.get('endate')
-        customerpoint = customerAwardedPoint(merchID, startdate, endate)
-        totalaward = totalAward(merchID)
+        customerpoint = customerAwardedPoint(userID, startdate, endate)
+        totalaward = totalAward(userID)
         return JsonResponse({'data': {'customerawardedpoints': customerpoint}, 'loyaltysummary': totalaward, 'status': 'True'})
 
-
+@extend_schema(tags=["Analytics"])
 class listGiftCardSummaryView(APIView):
-    #permission_classes =(IsAuthenticated,)
+    permission_classes = [IsManager]
+
     def get(self, request, format=None):
-        merchID = request.GET.get('merchID')
-        startdate = formartDate(request.GET.get('startDate'))
-        endate =formartDate(request.GET.get('endDate'))
-        redeemptionhistory = redeemptionHistory(merchID, startdate, endate)
-        giftcreated = giftcardCreatedRecord(merchID, startdate, endate)
-        statdata = giftCardStat(merchID)
+        user = request.user
+        startdate = request.GET.get('startDate')
+        endate = request.GET.get('endDate')
+
+        redeemptionhistory = redeemptionHistory(user, startdate, endate)
+        giftcreated = giftcardCreatedRecord(user, startdate, endate)
+        statdata = giftCardStat(user)
+
         return JsonResponse({'data': {'stat': statdata, 'giftcardreport': giftcreated, 'redeemptionhistory': redeemptionhistory}, 'status': 'True'})
 
-def formartDate(dt):
-    return datetime.strptime(dt, "%d/%m/%Y").strftime("%Y-%m-%d")
 
-def giftcardCreatedRecord(merchID, startdate, endate):
-    print('startdate')
-    print(startdate)
-    print('enddate')
-    print(endate)
+
+def giftcardCreatedRecord(user, startdate=None, endate=None):
+    giftcard_ids = giftCard.objects.filter(createdby=user).values_list('id', flat=True)
+
+    filters = Q(giftID__in=giftcard_ids)
     if startdate and endate:
-        giftcardtransactionrecords = list(giftcardtransaction.objects.filter(
-                   merchID=merchID).filter(created_at__gte=startdate).filter(
-                   created_at__lte=endate).values('giftID').annotate(balance=F('purchaseamount')-F('redeemedamount')))
-    else:
-         giftcardtransactionrecords = list(giftcardtransaction.objects.filter(
-             merchID=merchID).values('giftID').annotate(balance=F('purchaseamount')-F('redeemedamount')))
+        filters &= Q(created_at__date__gte=startdate) & Q(created_at__date__lte=endate)
+
+    giftcardtransactionrecords = giftcardtransaction.objects.filter(filters).values(
+        'giftID', 'created_at', 'purchaseamount', 'redeemedamount'
+    )
+
+    result = []
 
     for gifttransaction in giftcardtransactionrecords:
-        giftcard = giftCard.objects.filter(id=gifttransaction['giftID']).values(
-            'cardname', 'recipient_phone', 'serialnumber', 'recipient_email', 'createddate').first()
+        giftID = gifttransaction['giftID']
+        purchase_amount = gifttransaction.get('purchaseamount') or 0
+
+        total_redeemed = giftcardtransaction.objects.filter(
+            giftID=giftID,
+            purchaseamount=0  # This filters only redemption transactions
+        ).aggregate(total=Sum('redeemedamount'))['total'] or 0
+
+        balance = purchase_amount - total_redeemed
+
+        giftcard = giftCard.objects.filter(id=giftID).values(
+            'cardname', 'recipient_phone', 'serialnumber', 'recipient_email',
+            'createddate', 'createdby__name', 'expiration_date'
+        ).first()
+
         if giftcard:
-           giftcard['createddate'] = str(giftcard['createddate'])
-           gifttransaction.update(giftcard)
+            giftcard['createddate'] = str(giftcard['createddate'])  # format date
+            gifttransaction.update({
+                'balance': balance,
+                'redeemedamount': total_redeemed,
+                **giftcard
+            })
+            result.append(gifttransaction)
 
-    return giftcardtransactionrecords
+    return result
 
+def redeemptionHistory(user, startdate, endate):
+    giftcard_ids = giftCard.objects.filter(createdby=user).values_list('id', flat=True)
+    queryset = giftcardtransaction.objects.filter(giftID__in=giftcard_ids, purchaseamount=0.00)
 
-def redeemptionHistory(merchID, startdate, endate):
-    dictList = []
     if startdate and endate:
-        redeemedgiftcardtansaction = list(giftcardtransaction.objects.filter(
-            merchID=merchID).filter(created_at__gte=startdate).filter(created_at__lte=endate).filter(purchaseamount=0.00)
-            .values('id', 'giftID', 'redeemedamount', 'merchID', 'reference', 'created_at').order_by('-created_at'))
-        for counter, element in enumerate(redeemedgiftcardtansaction):
-            length = len(redeemedgiftcardtansaction)
-            if length > counter:
-                element['transactiondate'] = element.pop('created_at')
-                giftcard = giftCard.objects.filter(id=element['giftID']).filter(
-                    merchID=element['merchID']).values('cardname', 'recipient_phone').first()
-                element.update(giftcard)
-                dictList.append(element)
-        return dictList
-    else:
-        redeemedgiftcardtansaction = list(giftcardtransaction.objects.filter(
-            merchID=merchID).filter(purchaseamount=0.00)
-            .values('id', 'giftID', 'redeemedamount', 'merchID', 'reference', 'created_at').order_by('-created_at'))
-        for counter, element in enumerate(redeemedgiftcardtansaction):
-            length = len(redeemedgiftcardtansaction)
-            if length > counter:
-                element['transactiondate'] = element.pop('created_at')
-                giftcard = giftCard.objects.filter(id=element['giftID']).filter(merchID=element['merchID']).values(
-                    'cardname', 'recipient_phone').first()
-                element.update(giftcard)
-                dictList.append(element)
-        return dictList
+        queryset = queryset.filter(created_at__gte=startdate, created_at__lte=endate)
 
+    redeemedgiftcardtansaction = list(queryset.values(
+        'id', 'giftID', 'redeemedamount', 'merchID', 'reference', 'created_at'
+    ).order_by('-created_at'))
 
-def giftCardStat(merchID):
+    dictList = []
+    for element in redeemedgiftcardtansaction:
+        element['transactiondate'] = element.pop('created_at')
+        giftcard = giftCard.objects.filter(id=element['giftID']).values('cardname', 'recipient_phone').first()
+        if giftcard:
+            element.update(giftcard)
+        dictList.append(element)
+
+    return dictList
+
+def giftCardStat(user):
     todaydate = datetime.now().date()
-    totalgiftcard = giftCard.objects.filter(merchID=merchID).filter(
-        expiration_date__gte=todaydate).count()
+    totalgiftcard = giftCard.objects.filter(createdby=user, expiration_date__gte=todaydate).count()
+
+    giftcard_ids = giftCard.objects.filter(createdby=user).values_list('id', flat=True)
     totalredeemedgiftcard = giftcardtransaction.objects.filter(
-        merchID=merchID).filter(purchaseamount='0.00').count()
-    statdata = {'totalgiftcardcreated': totalgiftcard,
-                'totalgiftcardredeemed': totalredeemedgiftcard}
-    return statdata
+        giftID__in=giftcard_ids, purchaseamount=0.00
+    ).count()
+
+    return {
+        'totalgiftcardcreated': totalgiftcard,
+        'totalgiftcardredeemed': totalredeemedgiftcard
+    }
 
 
 ''' function to query for customer sales record for the last 24 hours'''
@@ -289,7 +309,6 @@ def totalSales(merchID, todaydate, yesterdaydate):
 
 
 '''function to spool historical customers loyalty award points '''
-
 
 def customerAwardedPoint(merchID, startdate, endate):
     queryset = customer.objects.all()

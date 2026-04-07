@@ -2,10 +2,11 @@ from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 from wajecrm import campaign, metropos
 from django.http import HttpResponse
+from pytz import timezone
 
 
 def start():
-    scheduler = BackgroundScheduler()
+    scheduler = BackgroundScheduler(timezone=timezone('Africa/Lagos'))
     scheduler.add_job(campaign.processTwentyhoursCampaign, 'cron',
                       month='1-12', hour='0-1', id='twentyhoursCampaignnotification')
     scheduler.add_job(campaign.processweeklyCampaign, 'cron', month='1-12',

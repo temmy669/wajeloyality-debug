@@ -28,8 +28,10 @@ from django.views import View
 from django.db.models import Sum
 from django.utils import timezone
 import datetime
-
+from drf_spectacular.utils import extend_schema
 ''' Class to create merchant customers '''
+
+@extend_schema(tags=['Authentication'])
 class MerchantCustomerRegistrationView(APIView):
     def post(self, request, format=None):     
         """Save the post data when creating a new merchant."""
@@ -65,6 +67,7 @@ class MerchantCustomerRegistrationView(APIView):
                 responseData ={'message':'An error occur'+str(e),'status':False}
                 return HttpResponse(json.dumps(responseData), content_type="application/json")
 
+@extend_schema(tags=['Authentication'])
 class MerchantCustomerLoginView(APIView):
     def post(self, request, format=None):     
         """Save the post data when creating a new merchant."""
@@ -114,7 +117,8 @@ class MerchantCustomerLoginView(APIView):
         else:
             responseData ={'message':'password not changed','status':False}
             return HttpResponse(json.dumps(responseData), content_type="application/json")
-           
+        
+@extend_schema(tags=["Reward Program"])
 class MerchantCustomerEarnPointsView(APIView):
     def post(self, request, format=None):     
         """Save the post data when creating a new merchant."""
@@ -160,6 +164,7 @@ class MerchantCustomerEarnPointsView(APIView):
                 responseData ={'message':'An error occur'+str(e),'status':False}
                 return HttpResponse(json.dumps(responseData), content_type="application/json")
 
+@extend_schema(tags=["Reward Program"])
 class MerchantCustomerRedeemPointsView(APIView):
     def post(self, request, format=None):     
         """Save the post data when creating a new merchant."""
@@ -198,6 +203,7 @@ class MerchantCustomerRedeemPointsView(APIView):
                 responseData ={'message':'An error occur'+str(e),'status':False}
                 return HttpResponse(json.dumps(responseData), content_type="application/json")
 
+@extend_schema(tags=["Reward Program"])
 class MerchantCustomerPointsView(APIView):
     def get(self, request, format=None):     
         """Save the post data when creating a new merchant."""
@@ -229,7 +235,7 @@ class MerchantCustomerPointsView(APIView):
                 responseData ={'message':'An error occur'+str(e),'status':False}
                 return HttpResponse(json.dumps(responseData), content_type="application/json")
 
-
+@extend_schema(tags=["Gift Cards"])
 class MerchantCustomerGiftcardView(APIView):
     def post(self, request, format=None):
         """Save the post data when creating a new merchant."""
@@ -296,7 +302,8 @@ class MerchantCustomerGiftcardView(APIView):
                 return HttpResponse(json.dumps(responseData), content_type="application/json")
         responseData ={'message':'Transaction capture','data':ref,'status':True}
         return HttpResponse(json.dumps(responseData), content_type="application/json")
-      
+
+@extend_schema(tags=["Gift Cards"])
 class MerchantGiftcard(APIView):
         def post(self, request, format=None):
             """Save the post data when creating a new merchant."""
