@@ -22,6 +22,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from .managerCheckout import CheckoutVoucherBalanceView, CheckoutVoucherRedeemView
 # from .import giftcard
 
 from rest_framework import permissions
@@ -96,6 +97,8 @@ urlpatterns = [
     path('list-roles/', roleListView.as_view(), name='list-roles'),
     path('manager-verification/', merchantGiftcardVerificationView.as_view(), name='manager-verification'),
     path('export/giftcard/', ExportGiftCardReportExcelView.as_view(), name='export-giftcard-excel'),
+    path('checkout/voucher-balance/', CheckoutVoucherBalanceView.as_view(), name='checkout-voucher-balance'),
+    path('checkout/voucher-redeem/',  CheckoutVoucherRedeemView.as_view(),  name='checkout-voucher-redeem'),
 
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

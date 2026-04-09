@@ -30,6 +30,10 @@ class IsAccountant(BaseGiftCardPermission):
 class IsAuditor(BaseGiftCardPermission):
     allowed_methods = ['GET']
     role = 'Auditor'
+
+class IsCheckoutStaff(BaseGiftCardPermission):
+    allowed_methods = ['GET', 'POST']
+    role = 'Checkout Staff'
     
 class IsMerchant(BaseGiftCardPermission):
     allowed_methods = ['GET', 'POST', 'PUT', 'PATCH']
