@@ -6,10 +6,6 @@ from rest_framework.pagination import PageNumberPagination
 from .models import AccountantData
 from .serializers import AuditorSerializer
 from. permissions import IsAuditor
-class AuditorPagination(PageNumberPagination):
-    page_size = 10  # Set the default number of items per page
-    page_size_query_param = 'page_size'
-    max_page_size = 100  # Optionally limit the max page size
 
 class AuditorAPIView(APIView):
     permission_classes = [IsAuditor]  
@@ -21,7 +17,7 @@ class AuditorAPIView(APIView):
         accountant_data = AccountantData.objects.filter(merchID=merchID)
 
         # Apply pagination to the query results
-        paginator = AuditorPagination()
+        paginator = PageNumberPagination()
         paginated_data = paginator.paginate_queryset(accountant_data, request)
 
         # Serialize the paginated data
