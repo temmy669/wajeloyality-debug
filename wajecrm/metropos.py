@@ -267,15 +267,10 @@ def pushDeactivatedGiftVoucherRecord(format=None):
             logger.error("Merchant not found")
             return HttpResponse(None)
             
-        # Get deleted gift cards from Walexx
-        qs1 = giftCard.objects.all_with_deleted().filter(merchID=merchID['id'], active=False)
-        qs2 = giftCard.objects.all_with_deleted().filter(merchID=merchID['id'], deleted__isnull=False)
+        # Get deactivated gift cards from Walexx
+        qs1 = giftCard.objects.filter(merchID=merchID['id'], active=False)
 
-        voucherdetails = list(
-            qs1.union(qs2)
-            .values('id', 'serialnumber', 'cardname', 'recipient_phone', 'amount')
-            .order_by('-createddate')
-        )
+        voucherdetails = qs1.values('id', 'serialnumber', 'cardname', 'recipient_phone', 'amount').order_by('-createddate')
 
         for element in voucherdetails:
             # Safely check if voucher exists in MetroPOS
