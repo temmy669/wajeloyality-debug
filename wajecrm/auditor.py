@@ -6,6 +6,7 @@ from rest_framework.pagination import PageNumberPagination
 from .models import AccountantData
 from .serializers import AuditorSerializer
 from. permissions import IsAuditor
+from django.db.models import Q
 
 class AuditorAPIView(APIView):
     permission_classes = [IsAuditor]  
@@ -13,15 +14,22 @@ class AuditorAPIView(APIView):
     def get(self, request, *args, **kwargs):
         merchID = getattr(request.user, "merchID_from_token", None)
 
-        # Get all AccountantData
-        accountant_data = AccountantData.objects.filter(merchID=merchID)
+        search_query = request.query_params.get("search", None)
 
-        # Apply pagination to the query results
+        accountant_data = AccountantData.objects.filter(merchID=merchID).order_by('-createddate')
+
+        if search_query:
+            accountant_data = accountant_data.filter(
+                Q(transactionRef__icontains=search_query) |
+                Q(cardName__icontains=search_query) |
+                Q(confirmationCode__icontains=search_query) |
+                Q(customer__icontains=search_query) 
+            )
+
+
         paginator = PageNumberPagination()
         paginated_data = paginator.paginate_queryset(accountant_data, request)
 
-        # Serialize the paginated data
         serializer = AuditorSerializer(paginated_data, many=True)
-
-        # Return the paginated and serialized data as a response
         return paginator.get_paginated_response(serializer.data)
+

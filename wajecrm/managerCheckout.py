@@ -58,7 +58,7 @@ class CheckoutVoucherBalanceView(APIView):
         # Fetch the voucher
         card = giftCard.objects.filter(
             serialnumber=serialnumber,
-        ).values('id', 'amount', 'active', 'expiration_date').first()
+        ).values('id', 'amount', 'active', 'expiration_date', 'cardname').first()
 
         if not card:
             return _json({'status': False, 'message': 'Voucher not found.'})
@@ -84,6 +84,8 @@ class CheckoutVoucherBalanceView(APIView):
             'serialnumber': serialnumber,
             'balance':      round(balance, 2),
             'active':       card['active'],
+            'cardname':     card['cardname'],
+            'expiration_date': card['expiration_date'],
         })
 
 

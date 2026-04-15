@@ -7,6 +7,7 @@ from .permissions import IsAccountant  # Ensure this is defined in your permissi
 from .serializers import AccountantDataSerializer, AccountantGetSerializer
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema
+from rest_framework.pagination import PageNumberPagination
 
 
 @extend_schema(tags=['Finance'])
@@ -51,5 +52,7 @@ class VerifyTransactionAPIView(APIView):
 
         # If fetching all transactions for the merchant
         transactions = AccountantData.objects.filter(merchID=merchID)
-        serializer = AccountantGetSerializer(transactions, many=True)
-        return Response({"status": True, "data": serializer.data}, status=status.HTTP_200_OK)
+        paginator = PageNumberPagination()
+        paginated_transactions = paginator.paginate_queryset(transactions, request)
+        serializer = AccountantGetSerializer(paginated_transactions, many=True)
+        return paginator.get_paginated_response({"status": True, "message": serializer.data})
