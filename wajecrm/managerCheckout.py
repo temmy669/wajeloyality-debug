@@ -85,7 +85,7 @@ class CheckoutVoucherBalanceView(APIView):
             'balance':      round(balance, 2),
             'active':       card['active'],
             'cardname':     card['cardname'],
-            'expiration_date': card['expiration_date'],
+            # 'expiration_date': card['expiration_date'],
         })
 
 
