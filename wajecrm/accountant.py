@@ -34,7 +34,7 @@ class VerifyTransactionAPIView(APIView):
         serializer.save()
 
         return Response({
-            "message": "Transaction verified and recorded.",
+            "data": "Transaction verified and recorded.",
             "status": True
         }, status=status.HTTP_201_CREATED)
 
@@ -61,7 +61,7 @@ class VerifyTransactionAPIView(APIView):
             if transaction:
                 serializer = AccountantGetSerializer(transaction)
                 return Response(
-                    {"status": True, "message": serializer.data},
+                    {"status": True, "data": serializer.data},
                     status=status.HTTP_200_OK
                 )
 
@@ -77,5 +77,5 @@ class VerifyTransactionAPIView(APIView):
 
         return paginator.get_paginated_response({
             "status": True,
-            "message": serializer.data
+            "data": serializer.data
         })
