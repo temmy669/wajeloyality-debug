@@ -6,26 +6,29 @@ from rest_framework.pagination import PageNumberPagination
 from .models import AccountantData
 from .serializers import AuditorSerializer
 from. permissions import IsAuditor
-class AuditorPagination(PageNumberPagination):
-    page_size = 10  # Set the default number of items per page
-    page_size_query_param = 'page_size'
-    max_page_size = 100  # Optionally limit the max page size
+from django.db.models import Q
 
 class AuditorAPIView(APIView):
     permission_classes = [IsAuditor]  
 
     def get(self, request, *args, **kwargs):
         merchID = getattr(request.user, "merchID_from_token", None)
+        search_query = request.query_params.get("search")
 
-        # Get all AccountantData
-        accountant_data = AccountantData.objects.filter(merchID=merchID)
+        queryset = AccountantData.objects.filter(
+            merchID=merchID
+        ).order_by('-dateConfirmed')
 
-        # Apply pagination to the query results
-        paginator = AuditorPagination()
-        paginated_data = paginator.paginate_queryset(accountant_data, request)
+        if search_query and len(search_query) >= 2:
+            queryset = queryset.filter(
+                Q(transactionRef__icontains=search_query) |
+                Q(cardName__icontains=search_query) |
+                Q(confirmationCode__icontains=search_query) |
+                Q(customer__icontains=search_query)
+            )
 
-        # Serialize the paginated data
-        serializer = AuditorSerializer(paginated_data, many=True)
+        paginator = PageNumberPagination()
+        page = paginator.paginate_queryset(queryset, request)
 
-        # Return the paginated and serialized data as a response
+        serializer = AuditorSerializer(page, many=True)
         return paginator.get_paginated_response(serializer.data)

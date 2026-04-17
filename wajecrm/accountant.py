@@ -7,7 +7,8 @@ from .permissions import IsAccountant  # Ensure this is defined in your permissi
 from .serializers import AccountantDataSerializer, AccountantGetSerializer
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema
-
+from rest_framework.pagination import PageNumberPagination
+from django.db.models import Q
 
 @extend_schema(tags=['Finance'])
 class VerifyTransactionAPIView(APIView):
@@ -33,23 +34,48 @@ class VerifyTransactionAPIView(APIView):
         serializer.save()
 
         return Response({
-            "message": "Transaction verified and recorded.",
+            "data": "Transaction verified and recorded.",
             "status": True
         }, status=status.HTTP_201_CREATED)
 
     def get(self, request):
         merchID = getattr(request.user, "merchID_from_token", None)
         transaction_id = request.query_params.get("id")
+        search_query = request.query_params.get("search")
 
-        # If a specific transaction is requested
+        queryset = AccountantData.objects.filter(
+            merchID=merchID
+        ).order_by('-dateConfirmed')
+
+        if search_query and len(search_query) >= 2:
+            queryset = queryset.filter(
+                Q(transactionRef__icontains=search_query) |
+                Q(cardName__icontains=search_query) |
+                Q(confirmationCode__icontains=search_query) |
+                Q(customer__icontains=search_query)
+            )
+
         if transaction_id:
-            transaction = AccountantData.objects.filter(id=transaction_id, merchID=merchID).first()
+            transaction = queryset.filter(id=transaction_id).first()
+
             if transaction:
                 serializer = AccountantGetSerializer(transaction)
-                return Response({"status": True, "message": serializer.data}, status=status.HTTP_200_OK)
-            return Response({"error": "Transaction not found.", "status": False}, status=status.HTTP_404_NOT_FOUND)
+                return Response(
+                    {"status": True, "data": serializer.data},
+                    status=status.HTTP_200_OK
+                )
 
-        # If fetching all transactions for the merchant
-        transactions = AccountantData.objects.filter(merchID=merchID)
-        serializer = AccountantGetSerializer(transactions, many=True)
-        return Response({"status": True, "data": serializer.data}, status=status.HTTP_200_OK)
+            return Response(
+                {"error": "Transaction not found.", "status": False},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        paginator = PageNumberPagination()
+        page = paginator.paginate_queryset(queryset, request)
+
+        serializer = AccountantGetSerializer(page, many=True)
+
+        return paginator.get_paginated_response({
+            "status": True,
+            "data": serializer.data
+        })

@@ -31,7 +31,7 @@ SECRET_KEY = config('DJANGO_SECRET_KEY', default='secret_key')
 DEBUG = True
 
 ALLOWED_HOSTS = ['199.192.28.167',
-                 'wajeloyality.website','localhost', '127.0.0.1',]
+                 'wajeloyality.website','localhost', '127.0.0.1', 'wajeloyalityapitest-1.onrender.com']
 
 
 SETTINGS_PATH = settings.BASE_DIR
@@ -153,7 +153,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
+    'PAGE_SIZE': 100,
 }
 
 SPECTACULAR_SETTINGS = {

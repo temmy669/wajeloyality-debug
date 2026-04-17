@@ -182,6 +182,11 @@ class MerchantGiftCardView(APIView):
                 element['amount'] = float(element['amount'])
                 element['expiration_date'] = str(element['expiration_date'])
                 element['currentvalue'] = float(purchasevalue - redeemedvalue)
+                #add expired tag
+                if element['expiration_date'] and element['expiration_date'] < str(datetime.date.today()):
+                    element['is_expired'] = True
+                else:
+                    element['is_expired'] = False
 
                 dictList.append(element)
 
