@@ -64,18 +64,18 @@ for recno in MISSING_RECNOS:
 
     # 5. Uncomment when you're satisfied:
 
-    # gt = giftcardtransaction(
+    gt = giftcardtransaction(
 
-    #     giftID_id=giftid['id'],
+        giftID_id=giftid['id'],
 
-    #     redeemedamount=txn['Debit'],
+        redeemedamount=txn['Debit'],
 
-    #     merchID_id=merch_id,
+        merchID_id=merch_id,
 
-    #     reference=receiptno
+        reference=receiptno
 
-    # )
+    )
 
-    # gt.save()
+    gt.save()
 
-    # print(f"[SAVED] {receiptno}")
+    print(f"[SAVED] {receiptno}")
