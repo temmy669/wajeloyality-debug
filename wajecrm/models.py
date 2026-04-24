@@ -210,6 +210,8 @@ class giftCard(models.Model):
     createddate = models.DateTimeField(auto_now_add=True)
     confirmationCode = models.CharField(max_length=200, null=True)
     createdby = models.ForeignKey('user', on_delete=models.SET_NULL, null=True, blank=True)
+    deactivated_by = models.ForeignKey('user', on_delete=models.SET_NULL, null=True, blank=True, related_name='deactivated_gift_cards')
+    deactivated_date = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.cardname

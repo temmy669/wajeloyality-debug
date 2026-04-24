@@ -38,3 +38,9 @@ wajecrm/migrations/*.py
 .vscode/
 
 
+#extras
+MetroPOS_ERD_Documentation.md
+MetroPOS_WajeLoyalty_Voucher_Integration.md
+Project_Summary_For_AI.md
+TODO.md
+recnos.json
