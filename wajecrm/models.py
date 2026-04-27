@@ -197,6 +197,12 @@ class campaignhistory(models.Model):
     createddate = models.DateField('createddate',auto_now_add=True,null= True)
     updateddate = models.DateField('updateddate',null=True)
 
+
+class DeactivationReason(models.TextChoices):
+    BALANCE_EXHAUSTED = 'balance_exhausted', 'Balance exhausted'
+    MANAGER_FULL_REDEEM = 'manager_full_redeem', 'Manager full redemption'
+    MANUAL_DEACTIVATION = 'manual', 'Manual deactivation'
+
 class giftCard(models.Model):
     serialnumber =models.CharField(null=True,max_length=200)
     cardname = models.CharField(null=True,max_length=200)
@@ -210,9 +216,16 @@ class giftCard(models.Model):
     createddate = models.DateTimeField(auto_now_add=True)
     confirmationCode = models.CharField(max_length=200, null=True)
     createdby = models.ForeignKey('user', on_delete=models.SET_NULL, null=True, blank=True)
-    deactivated_by = models.ForeignKey('user', on_delete=models.SET_NULL, null=True, blank=True, related_name='deactivated_gift_cards')
+    deactivated_by = models.ForeignKey(
+            'user', on_delete=models.SET_NULL, null=True, blank=True,
+            related_name='deactivated_gift_cards'
+    )
     deactivated_date = models.DateTimeField(null=True, blank=True)
-
+    deactivation_reason = models.CharField(  # NEW
+        max_length=50,
+        choices=DeactivationReason.choices,
+        null=True, blank=True
+    )
     def __str__(self):
         return self.cardname
  

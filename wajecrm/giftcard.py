@@ -38,6 +38,9 @@ from drf_spectacular.utils import extend_schema
 from decimal import Decimal, ROUND_HALF_UP
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from .services.gift_card_service import GiftCardError, redeem_normal
+from wajecrm.services.gift_card_service import deactivate_gift_card
+from wajecrm.models import DeactivationReason
 
 
 
@@ -64,22 +67,43 @@ class UpdateGiftCardView(ListAPIView):
 
 @extend_schema(tags=['Gift Cards'])
 class deactivateGiftCard(APIView):
-    permission_classes = [IsManager] 
+    permission_classes = [IsManager]
 
-    def post(self, request, format=None):     
-        giftcardid=request.data['giftcardid']
-        to_reactivate=request.data.get('reactivate', False)
+    def post(self, request, format=None):
+        giftcard_id = request.data['giftcardid']
+        to_reactivate = request.data.get('reactivate', False)
+
         try:
             to_reactivate = bool(to_reactivate)
-        except:
-            responseData ={'message':'Read the docs!','status':False}
-            return HttpResponse(json.dumps(responseData), content_type="application/json")
-            
-        giftcardrecord=giftCard.objects.get(id=giftcardid)
-        giftcardrecord.active = to_reactivate
-        giftcardrecord.save()
-        responseData ={'message':f'The giftcard record has been {"re-" if to_reactivate else "de-"}activated sucessfully','status':'True'}
-        return HttpResponse(json.dumps(responseData), content_type="application/json")
+        except Exception:
+            return HttpResponse(
+                json.dumps({'message': 'Invalid value for reactivate.', 'status': False}),
+                content_type='application/json'
+            )
+
+        card = giftCard.objects.get(id=giftcard_id)
+
+        if to_reactivate:
+            card.active = True
+            # Clear audit fields on reactivation so next deactivation is clean
+            card.deactivated_by = None
+            card.deactivated_date = None
+            card.deactivation_reason = None
+            card.save(update_fields=['active', 'deactivated_by', 'deactivated_date',
+                                     'deactivation_reason'])
+            msg = 'Gift card reactivated successfully.'
+        else:
+            deactivate_gift_card(
+                card,
+                deactivated_by_user=request.user,
+                reason=DeactivationReason.MANUAL_DEACTIVATION,
+            )
+            msg = 'Gift card deactivated successfully.'
+
+        return HttpResponse(
+            json.dumps({'message': msg, 'status': True}),
+            content_type='application/json'
+        )
 
 
 @extend_schema(tags=['Finance'])  
@@ -306,82 +330,58 @@ class purchaseMerchantGiftCardView(APIView):
         return HttpResponse(json.dumps(responseData), content_type="application/json")
 
 
+
+
 @extend_schema(tags=['Gift Cards'])
 class redeemMerchantGiftCardView(APIView):
-    # permission_classes = [IsManager]
-    def post(self, request, format=None):     
-        """function to redeem gift cards from a merchant.""" 
-        try: 
-            try:
-                record = giftCard.objects.filter(serialnumber=request.data['serialnumber']).filter(
-                    merchID=request.data['merchID']).values('serialnumber', 'recipient_email', 'id', 'amount','expiration_date', 'active').first()
-                    #retrieve giftcards from a merchant with a particular serialnumber """
-            except TypeError:
-                record = None  #to catch error when the record is none 
-            todaydate = datetime.datetime.now().date()   
-            #if record['expiration_date'] > todaydate:              
-            if not(record is None):
-                #check if the giftcard is active
-                if record['active'] == False:
-                    responseData ={'message':'The voucher card is inactive','status':'False'}
-                    return HttpResponse(json.dumps(responseData), content_type="application/json")
-                try:
-                    #retrieve the owner of the giftcard 
-                    verifyphone=giftCard.objects.filter(recipient_phone=request.data['phonenumber']).filter(merchID=request.data['merchID']).values('recipient_phone').first()
-                except TypeError:
-                    verifyphone = None  # to catch error when the record is none
-                if not(verifyphone is None):
-                    transactionvalue =float(request.data['amount'])
-                    purchasevalue=record['amount'] 
-                    remainingvalue = giftcardtransaction.objects.filter(
-                    merchID=request.data['merchID'],
-                    giftID=record['id']
-                ).aggregate(Sum('redeemedamount'))
+    def post(self, request, format=None):
+        try:
+            merch_id = int(request.data['merchID'])
+            serialnumber = request.data['serialnumber']
+            phonenumber = request.data['phonenumber']
+            amount = Decimal(str(request.data['amount']))
 
-                    redeemed_sum1 = remainingvalue['redeemedamount__sum'] or 0  # Handle None case
-                    currentvalue = purchasevalue - redeemed_sum1
-                    print(currentvalue)
-                    #get the balance giftcard value
-                    if currentvalue >= float(request.data['amount']):
-                        gt=giftcardtransaction(giftID_id=record['id'],redeemedamount=request.data['amount'],merchID_id=request.data['merchID'])
-                        gt.save() #capture the gift transaction
-                        notify = Notification()
-                        remainingvalue = giftcardtransaction.objects.filter(
-                        merchID=request.data['merchID'],
-                        giftID=record['id']
-                    ).aggregate(Sum('redeemedamount'))
+            card = giftCard.objects.filter(
+                serialnumber=serialnumber,
+                merchID=merch_id
+            ).first()
 
-                        redeemed_sum2 = remainingvalue['redeemedamount__sum'] or 0
-                        balance = purchasevalue - redeemed_sum2
-                        firstname = 'customer'
-                        randomnumber = request.data['serialnumber']
-                        emailaddress = record['recipient_email']
-                        subject = 'Gift Card Transaction'
-                        template_name = 'voucher_transaction.html'
-                        others = request.data['amount']
-                        # balance = currentvalue - others
-                        merchantname = merchant.objects.filter(id=request.data['merchID']).values('businessname', 'businesslogo').first()
-                        notify.emailNotificationRedeemGiftcard(firstname,randomnumber,emailaddress,subject,template_name, merchantname,currentvalue,transactionvalue,balance)
-                        notify.emailNotification(
-                            firstname, randomnumber, emailaddress, subject, template_name, others, merchantname)
-                    else:
-                        responseData ={'message':'Insufficent amount','status':'False'}
-                        return HttpResponse(json.dumps(responseData), content_type="application/json")
-                else:
-                    responseData ={'message':'The phone number is not assigned to the voucher','status':'False'}
-                    return HttpResponse(json.dumps(responseData), content_type="application/json")
-            else:
-                responseData ={'message':'The voucher serial number does not exist','status':'False'}
-                return HttpResponse(json.dumps(responseData), content_type="application/json")
-            #else:
-                #responseData ={'message':'The voucher card has expired','status':'False'}
-                #return HttpResponse(json.dumps(responseData), content_type="application/json")
+            if not card:
+                return _json_response({'message': 'Voucher serial number does not exist.',
+                                       'status': 'False'})
+
+            # Verify phone assignment
+            owner = giftCard.objects.filter(
+                recipient_phone=phonenumber, merchID=merch_id
+            ).exists()
+            if not owner:
+                return _json_response({'message': 'Phone number is not assigned to this voucher.',
+                                       'status': 'False'})
+
+            ref = str(generateReferenceNumber(merch_id))
+            result = redeem_normal(
+                card=card,
+                amount=amount,
+                merch_id=merch_id,
+                redeemed_by_user=request.user,
+                reference=ref,
+            )
+            notify.emailNotificationRedeemGiftcard(firstname,randomnumber,emailaddress,subject,template_name, merchantname,currentvalue,transactionvalue,balance)
+            notify.emailNotification(
+                firstname, randomnumber, emailaddress, subject, template_name, others, merchantname)
+            
+            return _json_response({'message': 'Transaction captured.', 'status': 'True'})
+
+        except GiftCardError as e:
+            return _json_response({'message': str(e), 'status': 'False'})
         except Exception as e:
-               responseData ={'message':'An error occur'+str(e),'status':'False'}
-               return HttpResponse(json.dumps(responseData), content_type="application/json")
-        
-        responseData ={'message':'Transaction capture','status':'True'}
-        return HttpResponse(json.dumps(responseData), content_type="application/json")
+            return _json_response({'message': f'An error occurred: {str(e)}', 'status': 'False'})
+
+
+def _json_response(data):
+    import json
+    from django.http import HttpResponse
+    return HttpResponse(json.dumps(data), content_type='application/json')
 
 
 @extend_schema(tags=['Gift Cards'])
