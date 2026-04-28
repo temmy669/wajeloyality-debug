@@ -90,6 +90,7 @@ def redeem_normal(
         createdby=getattr(redeemed_by_user, 'username', str(redeemed_by_user)),
     )
 
+
     remaining = balance - amount
 
     if remaining <= 0:
