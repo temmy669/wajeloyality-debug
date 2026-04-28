@@ -103,7 +103,7 @@ def redeem_normal(
     return {
         'redeemed_amount': float(amount),
         'remaining_balance': float(max(remaining, Decimal('0'))),
-        'deactivated': remaining <= 0,
+        'active': card.active,
     }
 
 
@@ -177,5 +177,5 @@ def redeem_full_and_deactivate(
     return {
         "redeemed_amount": float(amount),
         "remaining_balance": 0.0,
-        "deactivated": True,
+        "active": False,
     }
