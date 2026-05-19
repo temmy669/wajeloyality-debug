@@ -168,7 +168,7 @@ class MerchantGiftCardView(APIView):
             search = request.query_params.get('search')
 
             queryset = giftCard.objects.filter(
-                createdby=request.user
+                merchID_id=request.user.merchID_id
             )
 
             if search:

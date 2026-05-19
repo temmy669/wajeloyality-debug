@@ -133,6 +133,7 @@ class CheckoutVoucherRedeemView(APIView):
             'redeemed_amount': result['redeemed_amount'],
             'remaining_balance': result['remaining_balance'],
             'deactivated': result['deactivated'],
+            'active': result.get('active', card.active),
         })
 
 
