@@ -90,7 +90,6 @@ def redeem_normal(
         createdby=getattr(redeemed_by_user, 'username', str(redeemed_by_user)),
     )
 
-
     remaining = balance - amount
 
     if remaining <= 0:
@@ -103,7 +102,7 @@ def redeem_normal(
     return {
         'redeemed_amount': float(amount),
         'remaining_balance': float(max(remaining, Decimal('0'))),
-        'active': card.active,
+        'deactivated': remaining <= 0,
     }
 
 
@@ -177,5 +176,5 @@ def redeem_full_and_deactivate(
     return {
         "redeemed_amount": float(amount),
         "remaining_balance": 0.0,
-        "active": False,
+        "deactivated": True,
     }
